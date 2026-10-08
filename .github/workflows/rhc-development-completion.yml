@@ -1,0 +1,64 @@
+name: RHC Development Completion (exact SHA gate)
+on:
+  push:
+    branches:
+      - 'work/RHC-*'
+
+permissions:
+  contents: read
+  actions: read
+  statuses: write
+
+jobs:
+  exact-work-gate:
+    name: Reuse exact SHA Linux/Windows results without rebuilding
+    if: "${{ endsWith(github.event.head_commit.message, 'Development-Completion: requested') }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # Node 24
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify unchanged Work/main heads and completed hosted run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="$GITHUB_SHA"
+          status() {
+            gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$SHA" \
+              -f state="$1" -f context='development-completion/gate' \
+              -f description="$2" >/dev/null
+          }
+          trap "status failure 'BLOCKED: incomplete or stale Work qualification'" ERR
+          git fetch --no-tags origin main
+          git log -1 --format=%B | grep -Fx 'Development-Completion: requested'
+          CURRENT_MAIN="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          test "$(git rev-parse origin/main)" = "$CURRENT_MAIN"
+          test "$(git merge-base origin/main HEAD)" = "$CURRENT_MAIN"
+          test "$(git rev-parse HEAD)" = "$SHA"
+          test "$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)" = "$SHA"
+          RUN_ID=''
+          for attempt in $(seq 1 45); do
+            RESULT="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$SHA&per_page=30" --jq \
+              '[.workflow_runs[] | select(.name=="RHC Infrastructure Qualification (nonpublishing)" and .event=="push")][0] | if . == null then "" else "\(.id) \(.status) \(.conclusion)" end')"
+            read -r ID RUN_STATUS CONCLUSION <<< "$RESULT"
+            if [[ "$ID" != '' && "$RUN_STATUS" == 'completed' ]]; then
+              test "$CONCLUSION" = 'success'
+              RUN_ID="$ID"
+              break
+            fi
+            sleep 10
+          done
+          test -n "$RUN_ID" || { echo 'Hosted matrix timed out'; exit 1; }
+          JOBS="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs?per_page=100")"
+          LINUX="$(jq -r '[.jobs[] | select(.name | startswith("Linux original Go build"))][0].conclusion // ""' <<< "$JOBS")"
+          WINDOWS="$(jq -r '[.jobs[] | select(.name | startswith("Windows PowerShell 5.1"))][0].conclusion // ""' <<< "$JOBS")"
+          test "$LINUX" = 'success' && test "$WINDOWS" = 'success'
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$CURRENT_MAIN"
+          test "$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)" = "$SHA"
+          status success "PASS main=$CURRENT_MAIN"
+          trap - ERR
+          echo "RHC_DEVELOPMENT_COMPLETION_SUMMARY=PASS workSha=$SHA mainSha=$CURRENT_MAIN hostedRun=$RUN_ID linux=$LINUX windows=$WINDOWS"

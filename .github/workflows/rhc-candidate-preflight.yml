@@ -1,0 +1,102 @@
+name: RHC Candidate Preflight (nonpublishing)
+on:
+  push:
+    branches:
+      - 'candidate/v*'
+permissions:
+  contents: read
+jobs:
+  linux:
+    name: Linux Candidate exact-main and deterministic Go artifacts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Atomic Candidate and adversarial contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          python3 -B tools/rhc_candidate_entry.py --root . --candidate-ref "$GITHUB_REF_NAME"
+          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
+      - name: Go Windows GUI build and two reproducible packages
+        shell: bash
+        env:
+          GOPROXY: 'off'
+          GOSUMDB: 'off'
+          GOTOOLCHAIN: 'local'
+          GOFLAGS: '-buildvcs=false'
+        run: |
+          set -euo pipefail
+          bash build.sh "$RUNNER_TEMP/build"
+          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages1" > "$RUNNER_TEMP/manifest1"
+          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages2" > "$RUNNER_TEMP/manifest2"
+          cmp "$RUNNER_TEMP/manifest1" "$RUNNER_TEMP/manifest2"
+          echo 'RHC_CANDIDATE_LINUX=PASS (no release promotion)'
+  windows:
+    name: Windows native PowerShell 5.1 and Go Candidate safety
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Atomic Candidate identity, scope and unit contracts
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git fetch --no-tags origin main
+          if ($LASTEXITCODE -ne 0) { throw 'main fetch failed' }
+          python -B tools/rhc_candidate_entry.py --root . --candidate-ref "$env:GITHUB_REF_NAME"
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate gate failed' }
+          python -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Contract tests failed' }
+      - name: PowerShell 5.1 and Razer safety
+        shell: powershell
+        env:
+          GOPROXY: 'off'
+          GOSUMDB: 'off'
+          GOTOOLCHAIN: 'local'
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'PS5.1 required' }
+          $ps1=@(Get-ChildItem -File -Recurse -Filter '*.ps1')
+          if ($ps1.Count -lt 15) { throw 'Incomplete Razer scripts' }
+          foreach ($f in $ps1) {
+              $tokens=$null; $errors=$null
+              [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)
+              if ($errors.Count -gt 0) { throw "PS parse failure $($f.FullName)" }
+          }
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Go tests failed' }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Go vet failed' }
+          python -B tools/validate_v307_ps51_appengine_diagnostic.py
+          if ($LASTEXITCODE -ne 0) { throw 'Diagnostic failure' }
+          python -B tools/validate_v306_appengine_recovery.py
+          if ($LASTEXITCODE -ne 0) { throw 'Recovery failure' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE -ne 0) { throw 'Repair safety failure' }
+          Write-Output "RHC_CANDIDATE_WINDOWS=PASS files=$($ps1.Count); no promotion"
+  promotion:
+    name: Promotion deliberately BLOCKED until RHC release activation
+    needs: [linux, windows]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Prevent publication
+        run: |
+          echo 'RHC_CANDIDATE_PROMOTION=BLOCKED (release policy / distribution not approved)'
+          exit 1

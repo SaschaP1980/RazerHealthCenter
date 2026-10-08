@@ -107,4 +107,9 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 
 14. **Default branch protected flag vs ruleset detail:** a newly created repository can show an unprotected `main` while its build pipeline is already rigorous. The owner-created RHC Stage-1 ruleset was verified via `rulesets/<id>`: `active`, `~DEFAULT_BRANCH`, `deletion`, `non_fast_forward`, empty bypass, and `branches/main.protected=true`. Required PR and status checks remained deliberately open. Record the full effective rules, not just the banner or a successful UI save.
 
+15. **GitHub workflow YAML must be parsed:** a workflow can fail at configuration time and produce *zero* jobs, not a test failure. Never place colon-space inside an unquoted GitHub expression YAML scalar; quote it and perform a preflight parse. Confirm the workflow name/actual jobs appear before measuring queue/setup times.
+16. **Exact request marker discipline:** use a literal end-of-commit-message request trailer and a second exact-line Git checkout verification. Substring searches also match explanatory commit messages and can falsely initiate high-cost or privileged workflows.
+17. **Reuse completed exact-SHA work gates:** Work-Path Development Completion should verify existing Linux+Windows exact-SHA job results instead of rebuilding blindly, where event/API permissions and source trust are verified. Fail closed on missing/failed results, changed Work head or stale main.
+18. **Package allowlist beats blanket recursion:** baseline source/import kits may include archived sources, old logs and forensics. New release packagers must use approved tracked-file scope, fixed archive metadata, negative exclusion tests and separate Portable empty-directory/payload checks.
+
 **Maintenance rule:** this template is expected to evolve in small reviewable documentation commits after each migration and each confirmed issue.
