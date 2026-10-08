@@ -65,8 +65,8 @@ def validate_work_completion(evidence, *, work_sha, base_main_sha):
 def publication_policy(policy):
     require(isinstance(policy, dict), 'missing release policy')
     require(policy.get('productionEnabled') is True, 'production releases disabled by policy')
-    require(policy.get('distribution') in ('github-release','repository-pointer'),
-            'distribution/update-pointer contract not selected')
+    require(policy.get('distribution') == 'repo-downloads',
+            'canonical repo-downloads distribution not selected')
     require(policy.get('signingDecision') in ('unsigned-approved', 'signed-verified'),
             'signed/unsigned Windows trust decision missing')
     require(policy.get('rollbackVerified') is True, 'rollback contract not verified')

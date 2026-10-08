@@ -1,0 +1,87 @@
+name: RHC Repository Downloads Integrity (nonpublishing)
+
+# Read-only validation of the canonical LBS-style immutable downloads archive.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'downloads/**'
+      - 'tools/rhc_downloads.py'
+      - 'tools/rhc_release_contracts.py'
+      - 'tests/test_rhc_downloads_contracts.py'
+      - 'config/rhc-release-policy.json'
+      - '.github/workflows/rhc-downloads-verify.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'downloads/**'
+      - 'tools/rhc_downloads.py'
+      - 'tools/rhc_release_contracts.py'
+      - 'tests/test_rhc_downloads_contracts.py'
+      - 'config/rhc-release-policy.json'
+      - '.github/workflows/rhc-downloads-verify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rhc-downloads-readonly-${{ github.sha }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  validate-immutable-downloads:
+    name: Validate ZIP manifest and unmodified release history
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 SHA pinned
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Validate downloads catalog against actual archive bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          python3 -m unittest discover -s tests -p 'test_rhc_downloads_contracts.py' -v
+          python3 -B tools/rhc_release_contracts.py --root .
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('config/rhc-release-policy.json').read_text())
+          assert p['distribution'] == 'repo-downloads'
+          assert p['productionEnabled'] is False
+          assert p['signingDecision'] == 'unknown'
+          assert p['rollbackVerified'] is False
+          print('RHC_DOWNLOADS_NONPUBLISHING_POLICY=PASS')
+          PY
+          git diff --exit-code
+      - name: Reject modifications or deletions of already tracked ZIP archives
+        shell: bash
+        env:
+          GITHUB_EVENT: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT" = 'pull_request' ]; then
+            git fetch --no-tags origin main
+            BASE="$(git merge-base origin/main HEAD)"
+          elif [ "$GITHUB_EVENT" = 'push' ]; then
+            BASE="$BEFORE_SHA"
+          else
+            echo 'RHC_DOWNLOADS_HISTORY=PASS (manual read-only validation only)'
+            exit 0
+          fi
+          if ! [[ "$BASE" =~ ^[0-9a-f]{40}$ ]] || [[ "$BASE" =~ ^0{40}$ ]]; then
+            echo 'Cannot establish a trustworthy comparison base' >&2
+            exit 1
+          fi
+          while IFS=$'\t' read -r status path; do
+            [ -n "$status" ] || continue
+            if [ "$status" != A ]; then
+              echo "Existing release ZIP changed or was deleted: $status $path" >&2
+              exit 1
+            fi
+          done < <(git diff --name-status "$BASE" HEAD -- 'downloads/*.zip')
+          echo 'RHC_DOWNLOADS_HISTORY=PASS'

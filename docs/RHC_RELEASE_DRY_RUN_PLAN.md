@@ -1,5 +1,7 @@
 # RHC-5 — GitHub Release Dry-Run and unsigned publication approval
 
+> **Historical validation design, superseded for distribution after the RHC-12 owner decision on 2026-10-08.** The GitHub Releases/Draft model and `distribution=github-release` in this document are old nonpublishing fixtures, not the current RHC release architecture. Current authority is [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md): versioned immutable `main/downloads/*.zip`, `releases.json`, `latest.json` and a single PR/merge activation. All safety/unsigned-release and rollback gates remain blocked until separately approved.
+
 **Status: PLAN ONLY / NO PUBLISHING.** [RHC-5](https://github.com/SaschaP1980/RazerHealthCenter/issues/5) tracks the future implementation and hosted verification of this plan. This document does not turn on any workflow or relax an authorization gate. `model.go` remains at v3.0.8.
 
 ## Owner decision and release authority

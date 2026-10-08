@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "productionEnabled": false,
-  "distribution": "github-release",
+  "distribution": "repo-downloads",
   "signingDecision": "unknown",
   "rollbackVerified": false,
   "requiredCandidateContexts": [
@@ -14,5 +14,5 @@
     "rhc/release/portable",
     "rhc/release/verification"
   ],
-  "notes": "Owner has no Windows code-signing certificate. GitHub Releases are the canonical public artifact store. An unsigned Windows release is ONLY a proposed per-version path, never blanket-approved: require a later explicit owner authorization scoped to exact source SHA, version/tag, asset hashes and published unsigned disclosure. Reproducibility/checksums/attestation do not substitute for Authenticode. No actual Draft/tag/Release may be created in the read-only rehearsal. productionEnabled=false, signingDecision=unknown, rollbackVerified=false until separate signed-off gates."
+  "notes": "Owner-selected LBS model: immutable versioned lean Portable ZIPs tracked in main/downloads/ with releases.json, latest.json and README history. Source stays in GitHub, not nested in release ZIP. GitHub Releases are not canonical. Current index remains empty until a separately authorized version-specific publication. Production remains blocked by exact SHA/archive-bound signing or unsigned consent, verified rollback, Candidate/Release CI and source/tag provenance. Existing 3.0.8 unsigned QA artifact is not approved as a production release. productionEnabled=false; signingDecision=unknown; rollbackVerified=false."
 }
