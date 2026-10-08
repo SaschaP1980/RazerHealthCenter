@@ -84,7 +84,11 @@ class Approval(unittest.TestCase):
                 self.assertNotIn("schedule:",text)
         stage=(ROOT/".github/workflows/rhc-release-stage.yml").read_text()
         self.assertIn("tools/rhc_release_live.py stage",stage)
-        self.assertIn("rhc-release-preflight.yml", (ROOT/"tools/rhc_release_live.py").read_text())
+        live_source=(ROOT/"tools/rhc_release_live.py").read_text()
+        self.assertIn('("model.go", Path(args.root) / "model.go")',live_source)
+        self.assertIn('("CHANGELOG.md", Path(args.root) / "CHANGELOG.md")',live_source)
+        for workflow_name in ("rhc-release-preflight.yml","rhc-infrastructure-ci.yml"):
+            self.assertIn("/actions/workflows/"+workflow_name+"/dispatches",live_source)
         final=(ROOT/".github/workflows/rhc-release-finalize.yml").read_text()
         self.assertIn("tools/rhc_release_finish.py",final)
         self.assertIn("release_sha",final)
