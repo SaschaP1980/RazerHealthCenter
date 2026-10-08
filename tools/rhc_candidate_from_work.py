@@ -125,7 +125,7 @@ def main():
     require(work_sha == expected, "work head changed")
     commit = gh("GET", "/git/commits/" + work_sha)
     comparison = gh("GET", "/compare/" + main_sha + "..." + work_sha)
-    statuses = gh("GET", "/commits/" + work_sha + "/status")
+    statuses = gh("GET", "/commits/" + work_sha + "/statuses")
     work_model = remote_model(work_sha)
     main_model = remote_model(main_sha)
     enforce_version_only_model_edit(main_model, work_model)
@@ -140,7 +140,7 @@ def main():
         compareStatus=comparison["status"], behindBy=comparison["behind_by"],
         aheadBy=comparison["ahead_by"], files=comparison["files"],
         mainVersion=model_version(main_model), workVersion=version,
-        statuses=statuses["statuses"], policy=policy,
+        statuses=statuses, policy=policy,
         candidateExists=existing is not None))
     # Exclusive mutation boundary; verify live refs again before any write.
     require(gh("GET", "/branches/main")["commit"]["sha"] == main_sha, "main moved")
