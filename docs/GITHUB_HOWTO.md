@@ -20,7 +20,7 @@ Use the Issue for acceptance, observed failures, causal evidence and performance
 
 ## Nonpublishing foundation verified; production pipeline remains disabled
 
-Infrastructure PR [#4](https://github.com/SaschaP1980/RazerHealthCenter/pull/4) merged deterministic Go/Windows package checks, hosted Linux/Windows matrix, Work-Path exact-SHA Development Completion, strict atomic Candidate Entry and a release-policy rehearsal. Production policy remains `productionEnabled=false`; Candidate promotion deliberately fails and no Release Orchestrator, tag/pointer activation or postpublication verification is enabled. Original app/reference version stays 3.0.8.
+Infrastructure PR [#4](https://github.com/SaschaP1980/RazerHealthCenter/pull/4) merged deterministic Go/Windows package checks, hosted Linux/Windows matrix, Work-Path exact-SHA Development Completion, strict atomic Candidate Entry and a release-policy rehearsal. Production policy remains `productionEnabled=false`; Candidate promotion deliberately fails and no Release Orchestrator, tag/pointer activation or postpublication verification is enabled. The frozen original v3.0.8 source and EXE remain historical Golden evidence. RHC-16 migrates current app/reference to four-part 3.0.8.0 while keeping QA archives unchanged.
 
 ## Target pipeline, not yet production enabled
 
@@ -40,3 +40,7 @@ GitHub **Stage-1 branch protection is ACTIVE and verified**: [`RHC - Protect mai
 ## Reporting
 
 Use measured wall time anchored to GitHub Issue creation, candidate-run creation, exact gate GREEN, promotion, Release Verification and Issue closure. Do not conflate user-message timestamps, queue time, agent thinking effort or Actions job-runtime. Every error/retry must identify an observed output and cause class. See the reusable intake template.
+
+## Current application version scheme (RHC-16)
+
+Read `model.go` for the current **four-component** `MAJOR.MINOR.PATCH.HOTFIX` version; first migrated source is `3.0.8.0`. Each new Candidate branch and release archive is `candidate/vX.Y.Z.H`, `release/vX.Y.Z.H` and `RazerHealthCenter-Portable-vX.Y.Z.H.zip`. For a hotfix on 3.0.8.0 use 3.0.8.1 and trailer `Release-Profile: hotfix`; it increments only the HOTFIX component exactly once. Existing v3.0.8 QA artifact is historical and must not be renamed or entered into official release indexes. Historical Golden source intake is pinned to PR #2 HEAD; current source goes through the two independently reproducible Go builds and native Windows safety checks. No production release is enabled by this schema migration.

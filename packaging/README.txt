@@ -1,4 +1,4 @@
-Razer Synapse + Chroma Health Center v3.0.8
+Razer Synapse + Chroma Health Center v3.0.8.0
 
 Portable Windows x64 build.
 

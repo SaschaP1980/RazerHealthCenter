@@ -28,7 +28,7 @@ def main():
     versions=re.findall(r'^\s*appVersion\s*=\s*"([^"]+)"\s*$',prior,re.M)
     require(len(versions)==1 and SEMVER.fullmatch(versions[0]),'invalid main version')
     message=git(root,'log','-1','--pretty=%B')
-    profiles=re.findall(r'^Release-Profile: (version-only|patch)$',message,re.M)
+    profiles=re.findall(r'^Release-Profile: (version-only|patch|hotfix)$',message,re.M)
     issues=re.findall(r'^RHC-Issue: ([1-9][0-9]*)$',message,re.M)
     require(len(profiles)==1 and len(issues)==1,'missing unique RHC Issue/profile trailer')
     result=validate_candidate(previous=versions[0],version=version,

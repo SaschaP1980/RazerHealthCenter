@@ -34,3 +34,7 @@ The owner currently has no Windows code-signing certificate; this **does not** a
 - A Work-Path request must end with literal `Development-Completion: requested`. The workflow only records `development-completion/gate=success` after independent 2/2 hosted jobs completed on the **same unchanged Work SHA** while current `main` remains unchanged. Failed/skipped/invalid workflows do not count.
 - Candidate promotion / automatic release: **NOT IMPLEMENTED**, M4 is **PARTIAL** until implemented and tested end-to-end on a later authorized version.
 - Migration RHC-1 M5 (mandatory PR/status, signing and rollback) and M6 (Razer native device acceptance) remain OPEN.
+
+## RHC-16 — four-component source version migration
+
+All future current application versions, Candidate refs and release ZIPs use `MAJOR.MINOR.PATCH.HOTFIX`, initialized at `3.0.8.0`. `rhc-source-intake.yml` is an explicitly historical source-golden audit: both jobs check out immutable PR #2 source ref `2a28a08ba75ecb404df03847cdf1e5eaba941acd`, prove 321 original files and original 3.0.8 EXE hash. `rhc-infrastructure-ci.yml` instead validates current source with two independent byte-identical Windows GUI builds, strict four-part packages and the Linux/Windows and i18n/repair safety gates. The pre-existing QA ZIP under `downloads/qa/` stays exactly v3.0.8 TEST / UNSIGNED; no publication is authorized. Existing nonpublishing candidate promotion failure remains intact.

@@ -34,7 +34,7 @@ class Downloads(unittest.TestCase):
         (self.downloads / "releases.json").write_text(
             json.dumps({"schemaVersion": 1, "releases": []}) + "\n")
 
-    def release(self, version="3.0.9", sha="a" * 40, utc="2026-10-08T11:00:00Z"):
+    def release(self, version="3.0.8.1", sha="a" * 40, utc="2026-10-08T11:00:00Z"):
         name = d.filename(version)
         outer = self.base / name
         d.make_lean_zip(self.src, self.exe, outer)
@@ -44,10 +44,16 @@ class Downloads(unittest.TestCase):
         self.assertEqual(d.verify(self.downloads), [])
         self.assertFalse((self.downloads / "latest.json").exists())
 
+    def test_three_part_legacy_release_version_rejected(self):
+        for bad in ("3.0.8", "v3.0.8", "3.0.9", "3.0.8.1.0", "3.0.8.-1"):
+            with self.assertRaises(ValueError):
+                d.filename(bad)
+        self.assertEqual(d.filename("3.0.8.0"), "RazerHealthCenter-Portable-v3.0.8.0.zip")
+
     def test_lbs_archive_file_names(self):
-        self.assertEqual(d.filename("3.0.9"), "RazerHealthCenter-Portable-v3.0.9.zip")
-        self.assertRaises(ValueError, d.filename, "3.0.9-beta")
-        self.assertRaises(ValueError, d.filename, "03.0.9")
+        self.assertEqual(d.filename("3.0.8.1"), "RazerHealthCenter-Portable-v3.0.8.1.zip")
+        self.assertRaises(ValueError, d.filename, "3.0.8.1-beta")
+        self.assertRaises(ValueError, d.filename, "03.0.8.1")
 
     def test_one_version_has_lean_portable_and_index(self):
         row = self.release()
@@ -67,9 +73,9 @@ class Downloads(unittest.TestCase):
     def test_two_versions_newest_first_previous_unchanged(self):
         old = self.release()
         before = (self.downloads / old["file"]).read_bytes()
-        new = self.release("3.0.10", "b" * 40, "2026-10-09T13:00:00Z")
+        new = self.release("3.0.8.2", "b" * 40, "2026-10-09T13:00:00Z")
         self.assertEqual([x["version"] for x in d.verify(self.downloads)],
-                         ["3.0.10", "3.0.9"])
+                         ["3.0.8.2", "3.0.8.1"])
         self.assertEqual((self.downloads / old["file"]).read_bytes(), before)
         self.assertEqual(json.loads((self.downloads / "latest.json").read_text()), new)
 
@@ -79,9 +85,9 @@ class Downloads(unittest.TestCase):
             self.release()
 
     def test_cannot_rollback_latest_version(self):
-        self.release("3.0.10")
+        self.release("3.0.8.2")
         with self.assertRaisesRegex(ValueError, "must increase"):
-            self.release("3.0.9")
+            self.release("3.0.8.1")
 
     def test_zip_tamper_detected(self):
         row = self.release()
@@ -94,7 +100,7 @@ class Downloads(unittest.TestCase):
         self.release()
         path = self.downloads / "latest.json"
         x = json.loads(path.read_text())
-        x["version"] = "3.0.10"
+        x["version"] = "3.0.8.2"
         path.write_text(json.dumps(x))
         with self.assertRaisesRegex(ValueError, "pointer mismatch"):
             d.verify(self.downloads)
@@ -110,15 +116,15 @@ class Downloads(unittest.TestCase):
             d.verify(self.downloads)
 
     def test_legacy_duplicate_source_zip_inside_portable_blocked(self):
-        archive = self.base / d.filename("3.0.9")
+        archive = self.base / d.filename("3.0.8.1")
         d.make_lean_zip(self.src, self.exe, archive)
         with zipfile.ZipFile(archive, "a") as z:
-            z.writestr("RazerHealthCenter-Source-v3.0.9.zip", b"bad")
+            z.writestr("RazerHealthCenter-Source-v3.0.8.1.zip", b"bad")
         with self.assertRaisesRegex(ValueError, "allowlist"):
-            d.make_record(archive, "3.0.9", "2026-10-08T11:00:00Z", "a" * 40)
+            d.make_record(archive, "3.0.8.1", "2026-10-08T11:00:00Z", "a" * 40)
 
     def test_no_unexpected_empty_directories(self):
-        archive = self.base / d.filename("3.0.9")
+        archive = self.base / d.filename("3.0.8.1")
         d.make_lean_zip(self.src, self.exe, archive)
         with zipfile.ZipFile(archive, "a") as z:
             z.writestr("Runtime/", b"")
@@ -126,12 +132,12 @@ class Downloads(unittest.TestCase):
             d.portable_zip_check(archive)
 
     def test_wrong_sha_or_timestamp_blocks_publication_record(self):
-        archive = self.base / d.filename("3.0.9")
+        archive = self.base / d.filename("3.0.8.1")
         d.make_lean_zip(self.src, self.exe, archive)
         with self.assertRaisesRegex(ValueError, "source SHA"):
-            d.make_record(archive, "3.0.9", "2026-10-08T11:00:00Z", "BAD")
+            d.make_record(archive, "3.0.8.1", "2026-10-08T11:00:00Z", "BAD")
         with self.assertRaisesRegex(ValueError, "publishedUtc|timestamp"):
-            d.make_record(archive, "3.0.9", "2026-10-08T11:00:00+02:00", "a" * 40)
+            d.make_record(archive, "3.0.8.1", "2026-10-08T11:00:00+02:00", "a" * 40)
 
     def test_readme_drift_detected(self):
         self.release()

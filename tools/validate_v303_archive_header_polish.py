@@ -17,10 +17,10 @@ checks = []
 def ck(name, ok):
     checks.append((name, bool(ok)))
 
-ck('app/reference version 3.0.8',
-   'appVersion                   = "3.0.8"' in model and
-   'referenceVersion             = "3.0.8"' in model)
-ck('catalog version 3.0.8', manifest.get('catalogVersion') == '3.0.8')
+ck('app/reference version 3.0.8.0',
+   'appVersion                   = "3.0.8.0"' in model and
+   'referenceVersion             = "3.0.8.0"' in model)
+ck('catalog version 3.0.8.0', manifest.get('catalogVersion') == '3.0.8.0')
 ck('redundant archive title removed from catalog', 'logs.historical.archive_title' not in loc)
 ck('redundant archive subtitle removed from catalog', 'logs.historical.archive_subtitle' not in loc)
 ck('historical duration localized as DAUER', loc.get('logs.historical.duration') == 'DAUER')
@@ -64,11 +64,11 @@ ck('completion count says Prüfgruppen',
    'logs.historical.gate_count' in hist and 'gate.progress.completed' not in hist)
 ck('live-style progress remains absent',
    'status.progress.percent' not in hist and 'bar := rect{' not in hist)
-ck('v3.0.8 validator is build gated', 'validate_v303_archive_header_polish.py' in build)
+ck('v3.0.8.0 validator is build gated', 'validate_v303_archive_header_polish.py' in build)
 
 failed = [name for name, ok in checks if not ok]
 for name, ok in checks:
     print(('PASS: ' if ok else 'FAIL: ') + name)
-print(f'v3.0.8 archive header polish regression: {len(checks)-len(failed)}/{len(checks)} PASS')
+print(f'v3.0.8.0 archive header polish regression: {len(checks)-len(failed)}/{len(checks)} PASS')
 if failed:
     sys.exit(1)

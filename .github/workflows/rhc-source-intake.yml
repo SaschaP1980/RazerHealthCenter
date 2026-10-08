@@ -1,6 +1,8 @@
 name: RHC v3.0.8 Source Intake (PR validation; no release)
 
-# This is a non-publishing migration validation gate, NOT production CI/CD.
+# Immutable historical 3.0.8 Golden intake gate; two jobs always checkout the
+# original import Work SHA, while current HEAD 3.0.8.0 is validated by infrastructure CI.
+# This is NOT a current-head source manifest check and NOT production CI/CD.
 # Pull requests run against the exact proposed merge tree; absent source fails closed.
 on:
   workflow_dispatch:
@@ -21,6 +23,7 @@ on:
       - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
       - 'go.mod'
       - 'model.go'
+      - 'tools/rhc_release_contracts.py'  # historical audit also runs when version contracts evolve
       - 'build.sh'
       - '**/*.go'
       - '**/*.ps1'
@@ -42,6 +45,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
         with:
           persist-credentials: false
+          ref: 2a28a08ba75ecb404df03847cdf1e5eaba941acd # frozen original 321-file source for v3.0.8
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 (Node 24)
         with:
           go-version: '1.23.2'
@@ -81,6 +85,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
         with:
           persist-credentials: false
+          ref: 2a28a08ba75ecb404df03847cdf1e5eaba941acd # frozen original 321-file source for v3.0.8
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 (Node 24)
         with:
           go-version: '1.23.2'

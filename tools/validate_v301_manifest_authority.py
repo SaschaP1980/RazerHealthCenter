@@ -17,7 +17,7 @@ loc=txt('locales/de-DE.json')
 build=txt('build.sh')
 eng=txt('health-engine-v1.4.6.ps1')
 
-ck('app/reference version 3.0.8', 'appVersion                   = "3.0.8"' in model and 'referenceVersion             = "3.0.8"' in model)
+ck('app/reference version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
 ck('health engine 1.4.6 selected', 'engineVersion                = "1.4.6"' in model and 'health-engine-v1.4.6.ps1' in runtime)
 ck('health engine 1.4.6 exists', bool(eng))
 ck('no static Known-Good baseline object', '$Baseline = ' not in eng and '$Baseline=' not in eng)
@@ -41,6 +41,6 @@ ck('validator build-gated', 'validate_v301_manifest_authority.py' in build)
 failed=[n for n,o in checks if not o]
 for n,o in checks:
     print(('PASS' if o else 'FAIL')+': '+n)
-print(f'v3.0.8 manifest authority regression: {len(checks)-len(failed)}/{len(checks)} PASS')
+print(f'v3.0.8.0 manifest authority regression: {len(checks)-len(failed)}/{len(checks)} PASS')
 if failed:
     raise SystemExit(1)

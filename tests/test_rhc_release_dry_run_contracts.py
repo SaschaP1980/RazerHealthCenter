@@ -11,7 +11,7 @@ import rhc_release_dry_run as dry
 
 A, B, C = ("a" * 40, "b" * 40, "c" * 40)
 H1, H2 = ("1" * 64, "2" * 64)
-VERSION = "3.0.9"  # Hypothetical fixture only; application stays v3.0.8.
+VERSION = "3.0.8.1"  # Hypothetical fixture only; application stays v3.0.8.0.
 
 
 def asset(kind, digest):
@@ -24,7 +24,7 @@ def fixture():
     return {
         "candidate": {
             "mainSha": B, "parentSha": B, "sha": A, "currentMainSha": B,
-            "version": VERSION, "previousVersion": "3.0.8",
+            "version": VERSION, "previousVersion": "3.0.8.0",
             "issue": 5, "profile": "version-only",
             "ref": "candidate/v" + VERSION,
             "changedPaths": ["model.go", "CHANGELOG.md"],
@@ -127,8 +127,8 @@ class DryRun(unittest.TestCase):
             ("candidate", "parentSha", A),
             ("candidate", "currentMainSha", A),
             ("candidate", "sha", "short"),
-            ("candidate", "version", "3.0.8"),
-            ("candidate", "ref", "candidate/v3.0.8"),
+            ("candidate", "version", "3.0.8.0"),
+            ("candidate", "ref", "candidate/v3.0.8.0"),
             ("candidate", "issue", 0),
             ("candidate", "profile", "bad"),
             ("candidate", "changedPaths", ["model.go"]),
@@ -211,7 +211,7 @@ class DryRun(unittest.TestCase):
         for key, val in [("head", B), ("base", A), ("currentMainSha", A),
                          ("approved", False), ("checksPassed", False),
                          ("protectedDiff", False), ("count", 2),
-                         ("resultSha", "short"), ("resultVersion", "3.0.8"),
+                         ("resultSha", "short"), ("resultVersion", "3.0.8.0"),
                          ("postMergeMainSha", B), ("postMergeTagExists", True)]:
             with self.subTest(field=key):
                 s = fixture()
@@ -219,7 +219,7 @@ class DryRun(unittest.TestCase):
                 self.assertRaises(ValueError, dry.simulate, s, policy())
 
     def test_draft_cannot_precede_merge_or_be_incomplete(self):
-        for key, val in [("id", ""), ("tag", "v3.0.8"),
+        for key, val in [("id", ""), ("tag", "v3.0.8.0"),
                          ("tagTargetSha", A), ("sourceSha", A),
                          ("isDraft", False), ("releaseNotes", False),
                          ("complete", False), ("assets", [asset("Source", H1)])]:
@@ -232,7 +232,7 @@ class DryRun(unittest.TestCase):
         self.assertRaises(ValueError, dry.simulate, s, policy())
 
     def test_unsigned_approval_requires_exact_artifact_specific_consent(self):
-        for key, val in [("kind", "generic"), ("version", "3.0.8"),
+        for key, val in [("kind", "generic"), ("version", "3.0.8.0"),
                          ("mergedSha", A), ("assets", [asset("Source", H1)]),
                          ("approver", ""), ("decidedAt", ""),
                          ("unsignedDisclosure", False), ("smartScreenDisclosure", False),
@@ -247,10 +247,10 @@ class DryRun(unittest.TestCase):
         self.assertRaises(ValueError, dry.simulate, s, policy())
 
     def test_postverify_and_immutable_recovery_fail_closed(self):
-        for key, val in [("id", "other"), ("tag", "v3.0.8"),
+        for key, val in [("id", "other"), ("tag", "v3.0.8.0"),
                          ("tagTargetSha", A), ("assets", []),
                          ("immutable", False), ("isPublished", False),
-                         ("postVerify", False), ("latestVersion", "3.0.8"),
+                         ("postVerify", False), ("latestVersion", "3.0.8.0"),
                          ("previousReleaseAvailable", False),
                          ("raceDetected", True)]:
             with self.subTest(field=key):

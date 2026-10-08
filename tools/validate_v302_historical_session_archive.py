@@ -15,7 +15,7 @@ build=read('build.sh')
 checks=[]
 def ck(name, ok): checks.append((name,bool(ok)))
 
-ck('app/reference version 3.0.8', 'appVersion                   = "3.0.8"' in model and 'referenceVersion             = "3.0.8"' in model)
+ck('app/reference version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
 ck('historical persistence fields removed', 'json:"historicalLogStamp' not in state and 'json:"historicalActive' not in state and 'persistedUIState' not in state)
 ck('startup explicitly resets historical session state', all(x in state for x in ['a.logHistoricalStamp = ""','a.logHistoricalOpen = false','a.logHistoricalActive = false']))
 ck('historical state is not written to persistent UI state', 'os.WriteFile' not in state and 'json.Marshal' not in state)
@@ -34,9 +34,9 @@ m=re.search(r'func \(a \*App\) drawHistoricalMeasurementView\(.*?\n}\n\nfunc \(a
 historical_fn=m.group(0) if m else ''
 ck('historical live progress bar removed', 'status.progress.percent' not in historical_fn and 'bar := rect{' not in historical_fn)
 ck('historical uses static completion information', 'tr("logs.historical.completed")' in historical_fn and 'logs.historical.gate_count' in historical_fn and 'formatClock(m.Duration)' in historical_fn)
-ck('v3.0.8 validator is build gated', 'validate_v302_historical_session_archive.py' in build)
+ck('v3.0.8.0 validator is build gated', 'validate_v302_historical_session_archive.py' in build)
 
 failed=[n for n,o in checks if not o]
 for n,o in checks: print(('PASS: ' if o else 'FAIL: ')+n)
-print(f'v3.0.8 historical session/archive regression: {len(checks)-len(failed)}/{len(checks)} PASS')
+print(f'v3.0.8.0 historical session/archive regression: {len(checks)-len(failed)}/{len(checks)} PASS')
 if failed: sys.exit(1)
