@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "productionEnabled": false,
+  "distribution": "unknown",
+  "signingDecision": "unknown",
+  "rollbackVerified": false,
+  "requiredCandidateContexts": [
+    "rhc/preflight/linux",
+    "rhc/preflight/windows",
+    "rhc/preflight/candidate"
+  ],
+  "requiredReleaseContexts": [
+    "rhc/release/source",
+    "rhc/release/portable",
+    "rhc/release/verification"
+  ],
+  "notes": "Nonpublishing migration. Enabling production requires owner signoff, native E2E, secret/branch policy, working independent release pipeline and rollback proof."
+}
