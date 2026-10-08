@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - 'candidate/v*'
+  workflow_dispatch:
 permissions:
   contents: read
+  statuses: write
 jobs:
   linux:
     name: Linux Candidate exact-main and deterministic Go artifacts
@@ -40,6 +42,15 @@ jobs:
           python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages2" > "$RUNNER_TEMP/manifest2"
           cmp "$RUNNER_TEMP/manifest1" "$RUNNER_TEMP/manifest2"
           echo 'RHC_CANDIDATE_LINUX=PASS (no release promotion)'
+      - name: Record successful Linux Candidate check at exact SHA
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
+            -f state=success -f context='rhc/preflight/linux' \
+            -f description='Linux Candidate preflight passed on exact commit' > /dev/null
   windows:
     name: Windows native PowerShell 5.1 and Go Candidate safety
     runs-on: windows-2025
@@ -90,6 +101,33 @@ jobs:
           python -B tools/validate_repair_safety.py
           if ($LASTEXITCODE -ne 0) { throw 'Repair safety failure' }
           Write-Output "RHC_CANDIDATE_WINDOWS=PASS files=$($ps1.Count); no promotion"
+      - name: Record successful native Windows Candidate check at exact SHA
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X POST "repos/$env:GITHUB_REPOSITORY/statuses/$env:GITHUB_SHA" -f state=success -f context='rhc/preflight/windows' -f description='Native Windows Candidate preflight passed on exact commit'
+          if ($LASTEXITCODE -ne 0) { throw 'Windows candidate status write failed' }
+  qualification:
+    name: Exact-SHA Candidate qualification (nonpublishing)
+    needs: [linux, windows]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Emit qualified Candidate status only after two green OS jobs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LINUX_RESULT: ${{ needs.linux.result }}
+          WINDOWS_RESULT: ${{ needs.windows.result }}
+        run: |
+          set -euo pipefail
+          test "$LINUX_RESULT" = success
+          test "$WINDOWS_RESULT" = success
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
+            -f state=success -f context='rhc/preflight/candidate' \
+            -f description='Linux and native Windows Candidate gates passed' > /dev/null
+          echo 'RHC_CANDIDATE_GATE=PASS; production remains blocked'
   promotion:
     name: Promotion deliberately BLOCKED until RHC release activation
     needs: [linux, windows]
