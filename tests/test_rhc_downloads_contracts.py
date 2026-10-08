@@ -30,7 +30,7 @@ class Downloads(unittest.TestCase):
         self.empty()
 
     def empty(self):
-        (self.downloads / "README.md").write_text(d.render_readme([]))
+        (self.downloads / "README.md").write_text(d.render_readme([]), encoding="utf-8")
         (self.downloads / "releases.json").write_text(
             json.dumps({"schemaVersion": 1, "releases": []}) + "\n")
 
@@ -136,7 +136,7 @@ class Downloads(unittest.TestCase):
     def test_readme_drift_detected(self):
         self.release()
         f = self.downloads / "README.md"
-        f.write_text(f.read_text() + "fake version\n")
+        f.write_text(f.read_text(encoding="utf-8") + "fake version\n", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "README history drift"):
             d.verify(self.downloads)
 
