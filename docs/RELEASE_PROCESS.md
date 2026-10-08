@@ -2,7 +2,7 @@
 
 ## Current state: NOT ACTIVATED
 
-Do not create a production RHC release from this document alone. RHC v3.0.8 **source import and exact Linux/Windows hosted qualification have completed** (PR #2; GitHub Actions run #37737410046), and a read-only Candidate Preflight and Release Contract Rehearsal are now staged on `work/RHC-3`. However **the production Release Orchestrator and publication activation do not yet exist**. This document is the target process adapted from LBS's audited architecture, not permission to release.
+Do not create a production RHC release from this document alone. RHC v3.0.8 **source import and exact Linux/Windows hosted qualification have completed** (PR #2; GitHub Actions run #37737410046), and the **read-only Candidate Preflight, exact-SHA Development Completion and Release Contract Rehearsal are now merged on `main` by PR #4**. However **the production Release Orchestrator and publication activation do not yet exist**. This document is the target process adapted from LBS's audited architecture, not permission to release.
 
 ## Source-native build contract
 

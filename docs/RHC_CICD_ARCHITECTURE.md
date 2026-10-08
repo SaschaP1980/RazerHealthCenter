@@ -1,6 +1,6 @@
 # RHC-3 — Candidate, Build, Deployment and Release architecture
 
-**Status:** IN DEVELOPMENT / NONPUBLISHING. Implementation on `work/RHC-3`. App is **3.0.8**, original 321 source blobs untouched. Never infer that RHC production releases are active because this file or read-only qualification workflows exist.
+**Status:** NONPUBLISHING INFRASTRUCTURE MERGED in [PR #4](https://github.com/SaschaP1980/RazerHealthCenter/pull/4), source freeze and Linux/Windows/Work-Path gates verified. App is **3.0.8**, original 321 source blobs untouched. **Production Candidate promotion and Release Orchestrator remain BLOCKED/not implemented.**
 
 ## What is reused from Lenovo Boot Selector
 
@@ -26,7 +26,7 @@ The staged [RHC Candidate Preflight](../.github/workflows/rhc-candidate-prefligh
 ## Evidence and acceptance
 
 - Local test-first contract: original baseline lacks `rhc_release_contracts` → RED; code added → 6/6 GREEN; golden 3.0.8 standalone local Source+Portable ZIPs twice are byteidentical; original source untouched.
-- Hosted [Infrastructure Qualification run #37739340380](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37739340380) Linux and Windows both GREEN on checkpoint `517e4801989474780b8173dee5035d5f5a03b3e0`, and later [run #37739956526](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37739956526) GREEN for extended contract tests. Run #37739956589 independently verified the **no-publish** release-rehearsal guard. Latest final Work-head qualification and exact-SHA Development Completion remain pending.
+- Hosted [Infrastructure Qualification run #37739340380](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37739340380) Linux and Windows both GREEN on checkpoint `517e4801989474780b8173dee5035d5f5a03b3e0`, and later [run #37739956526](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37739956526) GREEN for extended contract tests. Run #37739956589 independently verified the **no-publish** release-rehearsal guard. Final [Work-head Infrastructure #37740741287](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37740741287) Linux+Windows **15/15 PASS**, [Development Completion #37740741265](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37740741265) **PASS exact SHA**, and independent [PR Source Intake #37740941297](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37740941297) + [PR Infrastructure #37740941296](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37740941296) both PASS; PR #4 merged at `3a36e3cb3ba3f46a278a35150d0998ef004b1cdc`.
 - A Work-Path request must end with literal `Development-Completion: requested`. The workflow only records `development-completion/gate=success` after independent 2/2 hosted jobs completed on the **same unchanged Work SHA** while current `main` remains unchanged. Failed/skipped/invalid workflows do not count.
 - Candidate promotion / automatic release: **NOT IMPLEMENTED**, M4 is **PARTIAL** until implemented and tested end-to-end on a later authorized version.
 - Migration RHC-1 M5 (mandatory PR/status, signing and rollback) and M6 (Razer native device acceptance) remain OPEN.

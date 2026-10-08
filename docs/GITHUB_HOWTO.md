@@ -18,6 +18,10 @@ Use the Issue for acceptance, observed failures, causal evidence and performance
 4. Check remote state immediately before writes; commit atomic reviewed diffs without overwriting concurrent changes.
 5. Never invent a GitHub Action run, status, test total, release package URL, tag or SHA. Cite exact hosted logs for machine gate claims.
 
+## Nonpublishing foundation verified; production pipeline remains disabled
+
+Infrastructure PR [#4](https://github.com/SaschaP1980/RazerHealthCenter/pull/4) merged deterministic Go/Windows package checks, hosted Linux/Windows matrix, Work-Path exact-SHA Development Completion, strict atomic Candidate Entry and a release-policy rehearsal. Production policy remains `productionEnabled=false`; Candidate promotion deliberately fails and no Release Orchestrator, tag/pointer activation or postpublication verification is enabled. Original app/reference version stays 3.0.8.
+
 ## Target pipeline, not yet production enabled
 
 - Source intake: exact source manifest and hashes, archive-exclusion policy, Go 1.23.2 Windows binary from clean source, diagnostic/repair validators and PS5.1 evidence.
