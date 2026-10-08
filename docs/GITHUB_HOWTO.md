@@ -31,7 +31,7 @@ Use the Issue for acceptance, observed failures, causal evidence and performance
 
 RHC repository was created publicly. Do not import historical diagnostic logs, forensics dumps, personal exports, executable binaries, signing certificates, user accounts or credentials without content classification. An empty regex scan is not a complete privacy/license review. Preserve repair confirmation, allowlists, UAC specificity and post-repair read-only verification. Never introduce an automated native repair step in CI.
 
-GitHub repository administrator configuration (branch protection, Actions write scopes, required status checks, secret management) requires independent inspection and potentially explicit owner configuration. A connected GitHub App's write permission does not prove branch protection is configured.
+GitHub **Stage-1 branch protection is ACTIVE and verified**: [`RHC - Protect main` ruleset #24701145](https://github.com/SaschaP1980/RazerHealthCenter/rules/24701145) targets `~DEFAULT_BRANCH` (currently `main`) with `deletion` and `non_fast_forward` prohibitions, no bypass exceptions, and `branches/main.protected=true`. This prevents regular branch deletion and force pushes, **not** ordinary fast-forward direct pushes. Required pull requests and status checks are **NOT ENABLED** until the RHC release automation is qualified. Recheck branch rules, Actions write scopes, exact mandatory status contexts, secret management and bot permissions prior to enabling production promotion. The legacy branch protection admin endpoint may return 403 from the integration without invalidating the separate readable ruleset.
 
 ## Reporting
 

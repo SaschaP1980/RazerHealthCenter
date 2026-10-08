@@ -1,6 +1,6 @@
 # RHC v3.0.8 — Migration state and evidence ledger
 
-**Status: SOURCE BASELINE MIGRATED AND HOSTED-VERIFIED.** The exact 321-file v3.0.8 source is now on GitHub `main` after PR #2. RHC production Candidate/Release automation, branch protection, updater/signing policy and physical Razer acceptance are **not yet approved or complete**. This is not a product release manifest.
+**Status: SOURCE BASELINE MIGRATED AND HOSTED-VERIFIED.** The exact 321-file v3.0.8 source is now on GitHub `main` after PR #2. RHC production Candidate/Release automation, mandatory PR/status protections, updater/signing policy and physical Razer acceptance are **not yet approved or complete**. **Branch-protection stage 1 (deletion and force-push prevention) is ACTIVE.** This is not a product release manifest.
 
 ## Authority transition
 
@@ -41,7 +41,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | M2 | 321-file source tree imported to `main` with exact original content-byte identity | **PASS — PR #2 merged, original source SHA inventory verified on both hosted OSes** |
 | M3 | GitHub-hosted source intake reproduces golden EXE; Linux and native Windows PS5.1 checks | **PASS — run #37737410046, Linux and Windows jobs both success on exact head** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **NOT IMPLEMENTED** |
-| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **NOT CONFIGURED / NOT VERIFIED** |
+| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — active no-deletion/no-force-push ruleset verified; PR/status, secrets, distribution and rollback still OPEN** |
 | M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
 
 **Release permission:** none. No synthetic production tag, no `downloads/latest.json` activation and no attempt to mark M2–M6 GREEN because M0 or M1 passed.
@@ -61,7 +61,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - RHC-specific rolling-comment template added; reusable migration playbook and tested fail-closed ZIP intake helper were committed separately. Import helper blob SHA `3d7497f94c6fa18d75930cf906970a7fddfff0f2` matches the locally tested helper byte-for-byte.
 - Helper simulation: missing README replacement flag blocked, dry run PASS without mutation, missing public-publication review blocked, explicit staged import wrote **321/321 source file bytes** with hash match. **Simulation was in an isolated local Git checkout, NOT source import into this GitHub repository.**
 - Portable ZIP internal SHA256SUMS: **6/6 checks independently PASS**. Product source ZIP remains external intake material until PR migration.
-- GitHub repository rulesets query returned **zero rulesets**. Branch-protection query returned **403 Resource not accessible by integration**; required protection is **unverified**, not inferred from connector write ability.
+- **Historical bootstrap observation (before owner configuration):** GitHub repository rulesets query returned **zero rulesets**; branch-protection endpoint returned **403 Resource not accessible by integration**. Superseded by the active Stage-1 Ruleset verification documented below. The 403 endpoint is not needed for reading the actual ruleset.
 - GitHub Actions workflow-list / label-list endpoints could not be queried through the connector due to endpoint validation. Workflow YAML exists on `main`, but **no hosted workflow was executed** and the custom RHC label taxonomy is not confirmed provisioned.
 - A public-source privacy/license review is **OPEN**; no v3.0.8 source upload or release was performed. The exact PR-based procedure is in [SOURCE_IMPORT_PLAYBOOK.md](SOURCE_IMPORT_PLAYBOOK.md).
 
@@ -94,8 +94,17 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - The temporary **write-capable** source staging workflow was removed before the final exact-SHA qualification; the remaining `rhc-source-intake.yml` workflow has only `contents: read` and **cannot publish**.
 - RHC uses `.gitattributes` to preserve all original file bytes across Windows/Linux and explicit `GOFLAGS=-buildvcs=false` for the archive-based golden EXE test. Both were validated on GitHub runners.
 - **Important outstanding packaging risk:** Owner-uploaded original ZIP, original inventory and extra import documents remain at repository root. Existing `tools/package_source.py` recursively packages most repo files and currently does not exclude ZIP inputs; its policy needs an explicit reproducibility/security correction **before any future production Source ZIP is published**. Do not alter the original v3.0.8 byte-frozen source files during baseline import.
-- Repository policy remains unverified: no rulesets observed, branch protection API returned 403 for the integration; no owner-supplied attestation of external license/privacy clearance for the already-public archive. This is not a claim of a comprehensive legal audit.
+- **Policy snapshot at source-migration merge time (historical):** no rulesets were then observed and branch-protection API returned 403. This is superseded by the Stage-1 Ruleset verification documented below. No owner-supplied attestation of external license/privacy clearance for the already-public archive; automated credential heuristics are not a comprehensive legal audit.
 - Source import is complete; **RHC-1 remains OPEN** for M4–M6 (release machinery, repository security/distribution policy, and real native acceptance).
+
+## Stage-1 main branch protection — independently verified
+
+- Repository owner enabled [`RHC - Protect main` ruleset #24701145](https://github.com/SaschaP1980/RazerHealthCenter/rules/24701145) on **2026-10-08**, target `branch`, `enforcement: active`, conditions `ref_name.include: ["~DEFAULT_BRANCH"]` (currently `main`).
+- Rules **exactly** `deletion` (no matching branch deletion) and `non_fast_forward` (force-push blocked). GitHub's live `branches/main` endpoint reports `protected: true`.
+- `bypass_actors: []`, `current_user_can_bypass: never`; no exemptions configured. Normal fast-forward ref updates remain allowed because the ruleset does not restrict updates.
+- **Explicitly not enabled yet:** required PRs, required status checks, linear history and signed commits. Set these only alongside a validated RHC Candidate/Release orchestration and exact status contexts; the existing v3.0.8 source-intake workflow is not a general release gate. Stage 1 is **not** protection against an arbitrary direct fast-forward push.
+- The GitHub integration still receives HTTP 403 on the legacy `branches/main/protection` admin endpoint, but the ruleset detail is readable and authoritative; do not misclassify the verified ruleset as unknown.
+- Next review in M5: choose whether `~DEFAULT_BRANCH` tracking is sufficient or whether an explicit literal `main` ref must remain protected even if repository default changes. Configure/fail-test PR/status/automation behavior, permissions, secrets and rollback separately.
 
 ## Next action
 

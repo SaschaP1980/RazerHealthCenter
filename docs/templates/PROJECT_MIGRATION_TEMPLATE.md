@@ -30,6 +30,8 @@
 - Check whether `main` has a commit. If unborn, use a simple first README commit; do not call `compare`/`update_ref` with fabricated base SHA. Read new head/tree after initialization.
 - Create new-chat entry point, current status, development path guidelines, release target design and this migration template. Do not label bootstrap docs as the complete source of truth.
 - Track file/checksum inventory, source tree and release-binary hash separately. Prevent Git storage of local build outputs, private logs, caches, secrets and platform-specific generated intermediates unless deliberately canonical.
+- **Protect the default branch as an explicit setup gate:** the owner should configure an ACTIVE GitHub branch ruleset targeting `~DEFAULT_BRANCH` (or the exact intended branch); block deletions and non-fast-forward/force pushes, with no bypass actors by default. Re-query the full ruleset detail and `branches/<default>` to confirm effective enforcement. A UI screenshot of selected unsaved checkboxes or a missing warning is **not** proof of activation. If an integration cannot read the legacy branch-protection endpoint (403), use the readable ruleset and effective `protected` branch flag instead; record residual visibility limitations.
+- **Split baseline protection from merge-gate enforcement:** do not turn on mandatory PRs/required status contexts until the target project's release workflow and required checks are implemented and tested. Stage 1 protects history/deletion only; ordinary direct fast-forward pushes remain possible and must not be described as blocked.
 
 ## Stage 2 — Validate the original product before import
 
@@ -58,7 +60,7 @@
 
 ## Stage 6 — Qualify and activate CI/CD explicitly
 
-- Prove real hosted Linux and Windows gate totals, timings and exact SHA. Measure queue/setup/build/test and orchestration separately. Verify PR protection/ruleset and Actions token permissions in live repository state.
+- Prove real hosted Linux and Windows gate totals, timings and exact SHA. Measure queue/setup/build/test and orchestration separately. Re-read the ACTIVE main-branch ruleset (matching branch, deletion and non-fast-forward, bypass actors) and the effective `protected` flag; then validate how required PRs/status checks interact with the actual Candidate promotion and Release merge, including bot permissions and fail-closed checks. Only enable mandatory PRs/status rules when their intended workflows and checks have passed on the exact SHA.
 - Only after tests and user authorization enable promotion and production publishing. Keep manual review or fail-closed gates for high-risk policies (signing, updater, repair behavior, destructive migration).
 - Record first release separately from baseline migration. No fake source-tag or release ZIP just to make dashboards green.
 
@@ -102,5 +104,7 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 11. **Hosted success is a per-SHA statement:** source verification and platform builds must pass on the exact final PR head before merge; post-merge documentation may record that source success but must not claim a new release.
 12. **Temporary elevated workflow lifetime:** remove one-shot write-enabled source staging workflows *before* qualification of the final mergeable PR tree; the remaining permanent intake workflow should be read-only.
 13. **Source packaging after archive upload:** a user may upload a canonical Source ZIP at repository root. If source packaging blindly traverses the entire repo, the next Source ZIP may recursively include its own archived source and private provenance files. Establish explicit packaging inclusion/exclusion and deterministic metadata **before** enabling release automation.
+
+14. **Default branch protected flag vs ruleset detail:** a newly created repository can show an unprotected `main` while its build pipeline is already rigorous. The owner-created RHC Stage-1 ruleset was verified via `rulesets/<id>`: `active`, `~DEFAULT_BRANCH`, `deletion`, `non_fast_forward`, empty bypass, and `branches/main.protected=true`. Required PR and status checks remained deliberately open. Record the full effective rules, not just the banner or a successful UI save.
 
 **Maintenance rule:** this template is expected to evolve in small reviewable documentation commits after each migration and each confirmed issue.
