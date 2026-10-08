@@ -63,6 +63,16 @@ class Approval(unittest.TestCase):
             with self.assertRaises(ValueError):
                 live.required_main_rules()
 
+    def test_main_required_checks_do_not_deadlock_nonrelease_prs(self):
+        import rhc_main_rules as admin
+        self.assertEqual(tuple(admin.CONTEXTS),
+                         ("rhc/infra/linux","rhc/infra/windows"))
+        self.assertEqual(live.MAIN_CONTEXTS,
+                         ["rhc/infra/linux","rhc/infra/windows"])
+        # Release-only contexts are independently checked by the finalizer.
+        self.assertIn("trusted_contexts", (ROOT/"tools/rhc_release_finish.py").read_text())
+        self.assertIn("RELEASE", (ROOT/"tools/rhc_release_finish.py").read_text())
+
     def test_new_workflow_has_readonly_preflight_and_exact_sha_contexts(self):
         wf=(ROOT/".github/workflows/rhc-release-preflight.yml").read_text()
         for token in ("workflow_dispatch:","statuses: write",
