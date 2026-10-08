@@ -114,6 +114,49 @@ class GitHubPostverify(unittest.TestCase):
         self.assertEqual(writes,[("POST","/git/refs"),("PUT","/pulls/47/merge"),
                                  ("DELETE","/git/refs/heads/"+ref)])
 
+    def test_draft_pr_must_be_marked_ready_before_tag_or_merge(self):
+        # The stage controller creates a Draft. GitHub rejects merging a Draft.
+        # Finalize must perform a separately gated, verified ready transition
+        # BEFORE creating the immutable tag, not after a failed merge request.
+        api=Remote()
+        evidence={"mainSha":A,"candidateSha":C,"version":VERSION,
+                  "sha256":H,"pr":47}
+        ref="release/v"+VERSION
+        observed=[]
+        def ready(pr_number, branch_name, head, main):
+            self.assertEqual((pr_number,branch_name,head,main),(47,ref,B,A))
+            self.assertFalse(api.tag)
+            self.assertFalse(api.merged)
+            observed.append("ready")
+        with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22",
+                                    "GH_TOKEN":"MOCK-TOKEN"}),\
+             patch.object(release,"check_live_staged_release",return_value=evidence),\
+             patch.object(release,"ready_release_pr",create=True,side_effect=ready),\
+             patch.object(release,"branch",side_effect=
+                lambda name: {"object":{"sha":B}} if api.branch else None),\
+             patch.object(release,"gh",side_effect=api.gh):
+            outcome=release.finish(ROOT,ref,B)
+        self.assertEqual(outcome["result"],"PUBLISHED_VERIFIED")
+        self.assertEqual(observed,["ready"])
+
+    def test_failed_ready_transition_must_never_create_tag(self):
+        api=Remote()
+        evidence={"mainSha":A,"candidateSha":C,"version":VERSION,
+                  "sha256":H,"pr":47}
+        ref="release/v"+VERSION
+        with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22",
+                                    "GH_TOKEN":"MOCK-TOKEN"}),\
+             patch.object(release,"check_live_staged_release",return_value=evidence),\
+             patch.object(release,"ready_release_pr",create=True,
+                          side_effect=ValueError("Draft PR readiness unverified")),\
+             patch.object(release,"branch",side_effect=
+                lambda name: {"object":{"sha":B}} if api.branch else None),\
+             patch.object(release,"gh",side_effect=api.gh):
+            with self.assertRaisesRegex(ValueError,"readiness unverified"):
+                release.finish(ROOT,ref,B)
+        self.assertFalse(api.tag)
+        self.assertFalse(api.merged)
+
     def test_uncertain_owner_gate_does_not_start_any_remote_write(self):
         with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":""}),\
              patch.object(release,"gh",side_effect=AssertionError("GH called")):
