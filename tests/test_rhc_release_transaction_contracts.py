@@ -48,6 +48,7 @@ def release_case():
                      "approvalId": "OWNER-RELEASE-2026-10-08-VERSION-BOUND"},
         "pr": {"state": "open", "baseSha": A, "headSha": C,
                "approvedByGate": True, "changedFiles": [
+                   "model.go", "CHANGELOG.md",
                    "downloads/RazerHealthCenter-Portable-v3.0.8.1.zip",
                    "downloads/releases.json", "downloads/latest.json",
                    "downloads/README.md"]},
