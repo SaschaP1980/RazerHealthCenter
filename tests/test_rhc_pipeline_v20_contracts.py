@@ -99,6 +99,7 @@ class FutureVersionWorkContracts(unittest.TestCase):
             "tools/validate_v307_ps51_appengine_diagnostic.py",
             "tools/validate_healthcheck_selection_v237.py",
             "tools/validate_gate_finalization_v238.py",
+            "tools/validate_ui_recovery.py",
         )
         for path in paths:
             with self.subTest(path=path):
