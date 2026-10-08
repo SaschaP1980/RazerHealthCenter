@@ -31,6 +31,7 @@ class Server:
         self.candidate_created = False
         self.writes = []
         self.status_ok = True
+        self.trusted_creator = True
         self.main_moved = False
         self.model_tampered = False
         self.fail_dispatch = False
@@ -65,11 +66,11 @@ class Server:
             return {"status": "ahead", "ahead_by": 1, "behind_by": 0,
                     "files": [{"filename": "model.go", "status": "modified"},
                               {"filename": "CHANGELOG.md", "status": "added"}]}
-        if path == "/commits/" + B + "/status":
-            return {"statuses": [{"context": "development-completion/gate",
+        if path == "/commits/" + B + "/statuses":
+            return [{"context": "development-completion/gate",
                 "state": "success" if self.status_ok else "pending",
                 "description": "PASS main=" + A,
-                "creator": {"login": "github-actions[bot]"}}]}
+                "creator": {"login": "github-actions[bot]" if self.trusted_creator else "untrusted-user"}}]
         if path == "/contents/model.go?ref=" + A:
             return encoded(BASE)
         if path == "/contents/model.go?ref=" + B:
@@ -113,6 +114,13 @@ class CandidateApiSimulation(unittest.TestCase):
             with self.subTest(scenario=scenario), self.assertRaises(ValueError):
                 self.execute(server)
             self.assertEqual(server.writes, [])
+
+    def test_non_bot_status_creator_is_rejected_without_writes(self):
+        server = Server()
+        server.trusted_creator = False
+        with self.assertRaises(ValueError):
+            self.execute(server)
+        self.assertEqual(server.writes, [])
 
     def test_main_advance_fails_before_mutation(self):
         server = Server()
