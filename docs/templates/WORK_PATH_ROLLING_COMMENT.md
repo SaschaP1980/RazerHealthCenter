@@ -1,6 +1,6 @@
 # RHC Work-Path — Single rolling Build & Release recovery comment
 
-Use as soon as a durable `work/RHC-<GitHub Issue number>` Work-Path is explicitly authorized, **even before its branch exists**. Unimplemented hosted or release gates remain `NOT IMPLEMENTED`, not PASS. This template does **not** apply to ordinary Fast-Path Patch/Hotfixes or to the initial migration while Candidate/Release automation is not yet installed.
+Use as soon as a durable `work/RHC-<GitHub Issue number>` Work-Path is explicitly authorized, **even before its branch exists**. Unimplemented hosted or release gates remain `NOT IMPLEMENTED`, not PASS. This template **does** apply to the authorized RHC-3 infrastructure Work-Path while production Candidate/Release is incomplete; it does **not** apply to branchless Fast-Path Patch/Hotfixes or documentation-only work. The initial unborn-repository bootstrap is not a product Work-Path.
 
 **Mandatory BOOTSTRAP gate — before the Work branch exists:**
 
@@ -27,7 +27,7 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 **Agent-State:** ACTIVE | WAITING_FOR_GITHUB | BLOCKED_EXTERNAL | STOPPED | COMPLETED
 **Issue:** [RHC-<number>](https://github.com/SaschaP1980/RazerHealthCenter/issues/<number>)
 **Base main:** `<SHA>`
-**Work branch / exact head:** `work/RHC-<number>` / `<NOT CREATED in BOOTSTRAP | verified SHA | deleted after publication>`
+**Work branch / exact head:** `work/RHC-<number>` / `<NOT CREATED in BOOTSTRAP | verified SHA | deleted after verified nonpublishing merge or publication>`
 **Last checkpoint:** `<verified main SHA in BOOTSTRAP | verified Work SHA after branch creation>`
 **Bootstrap readback:** `<GitHub comment ID + verified creation/readback | NOT VERIFIED — STOP>`
 **Version:** <product version from model.go or later verified authority>
@@ -124,7 +124,7 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 ### Release
 
 - Release run/status: <id, status, exact candidate SHA>
-- Reproducibility, source archive, binary package, signing/distribution: <verifications>
+- Reproducibility, GitHub source provenance, lean binary package, signing/distribution: <verifications or NOT IMPLEMENTED>; original v3.0.8 Source ZIP is historical, not a new-version download
 - Public version pointer contract: <verified RHC-specific pointer or NOT CONFIGURED>
 - Pre-activation proof: <exact pass summary, prior public version>
 - Single PR/merge: <PR, head, merge main SHA>
@@ -168,4 +168,4 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 - Next owner/action or final completion: <details>
 ~~~
 
-On success, update this **same** comment to `Agent-State: COMPLETED` after final Release Verification; correct stale "pending" in completed singleton sections before Issue closure. Do not conceal a missing mandatory RHC-specific gate behind an LBS-green reference.
+For genuinely scoped **nonpublishing** work, `COMPLETED` requires verified PR/main/CI/cleanup with release/native fields honestly OPEN/not applicable; parent RHC-1/RHC-3 stay open while their gates remain. A **real product release** requires actual final Release Verification before `COMPLETED`. Update the same comment and correct stale singleton fields before any eligible Issue closure. Do not conceal a missing mandatory RHC-specific gate behind an LBS-green reference.

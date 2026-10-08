@@ -1,6 +1,6 @@
 # RHC migration lessons ledger
 
-This document captures observed problems from [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1). Reusable controls are generalized in `docs/templates/PROJECT_MIGRATION_TEMPLATE.md`.
+**Historical observed-event ledger** for [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1). Preserve failures and corrections as evidence, but do not mistake the old three-part 3.0.8, 12-empty-directory ZIP, early branch-policy or GitHub-Draft decisions for current operating policy. RHC-16 active `3.0.8.0` and RHC-12 `repo-downloads` are governed by [release process](RELEASE_PROCESS.md), [status](MIGRATION_STATUS.md) and live contracts. Generalized rules belong in [migration template](templates/PROJECT_MIGRATION_TEMPLATE.md).
 
 | ID | Observed event | Evidence classification | Correction / prevention |
 | --- | --- | --- | --- |

@@ -1,19 +1,19 @@
-# RHC-5 — GitHub Release Dry-Run and unsigned publication approval
+# RHC-5 — Historical GitHub Draft simulation (nonpublishing)
 
 > **Historical validation design, superseded for distribution after the RHC-12 owner decision on 2026-10-08.** The GitHub Releases/Draft model and `distribution=github-release` in this document are old nonpublishing fixtures, not the current RHC release architecture. Current authority is [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md): versioned immutable `main/downloads/*.zip`, `releases.json`, `latest.json` and a single PR/merge activation. All safety/unsigned-release and rollback gates remain blocked until separately approved.
 
-**Status: PLAN ONLY / NO PUBLISHING.** [RHC-5](https://github.com/SaschaP1980/RazerHealthCenter/issues/5) tracks the future implementation and hosted verification of this plan. This document does not turn on any workflow or relax an authorization gate. `model.go` remains at v3.0.8.
+**Current:** The pure nonpublishing simulation **merged in [PR #9](https://github.com/SaschaP1980/RazerHealthCenter/pull/9)**. The Draft/Publish delivery design below remains historical test evidence, **not** current architecture. Active version is `3.0.8.0` (RHC-16), distribution is RHC-12 `repo-downloads`; `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false` remain unchanged.
 
-## Owner decision and release authority
+## Superseded historical owner decision (not current release authority)
 
 - No Windows code-signing certificate is currently available (owner-reported 2026-10-08).
-- The canonical distribution choice remains **GitHub Releases** (published Source/Portable ZIPs, checksums, release notes, evidence); a LBS-style catalog is **derived read-only** from published Releases, not a second public file store/update pointer.
+- **Superseded:** This design formerly chose GitHub Releases and a derived catalog. RHC-12 expressly replaced it with immutable `main/downloads/` ZIPs and a single release PR merge. See [current contract](RELEASE_PROCESS.md); do not implement this Draft publisher.
 - An **unsigned release is a proposal, not approval**. The current authoritative policy stays `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`. Existing `publication_policy()` therefore refuses a production run.
 - SHA-256 checksums, deterministic builds and GitHub attestations establish integrity/provenance according to their separate scopes. They do not add a publisher signature to the EXE, grant a Windows Authenticode identity or guarantee absence of SmartScreen warnings. Never instruct the product to bypass user/OS security prompts.
 
-## The first implementation: pure nonpublishing state-machine simulation
+## Historical nonpublishing state-machine design (since implemented)
 
-Implement and test in a dedicated reviewed RHC Work branch after authorization of implementation work. The test workflow uses read-only permissions (`contents: read`, with `actions: read` only if actually needed); it has **no upload/Release/tag/branch mutation API call, credential with write scope, dispatch-to-publishing workflow or persisted Draft object**.
+The original plan specified dedicated Work branch implementation; this pure simulation has subsequently been merged via PR #9. The test workflow uses read-only permissions (`contents: read`, with `actions: read` only if actually needed); it has **no upload/Release/tag/branch mutation API call, credential with write scope, dispatch-to-publishing workflow or persisted Draft object**.
 
 | State | Evidence required before advancing | Dry-run action |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ Implement and test in a dedicated reviewed RHC Work branch after authorization o
 
 This first rehearsal must not create even a **Draft**, because creating one requires GitHub write access and may involve tag state. Staging real artifacts is a **later, separately authorized** integration phase.
 
-## Event order for a future actual release (not authorized here)
+## Superseded actual GitHub-Draft release sequence (history; do not implement)
 
 1. Qualify the versioned Candidate and independent release packages on exact pinned SHAs. Temporary build artifacts may reside in private/nonpublic CI artifacts with bounded retention.
 2. Premerge gate rechecks source/current-main ancestry, complete archives and approved release scope. One reviewed source PR merge advances `main` but **does not publish binaries**.
@@ -41,13 +41,14 @@ This first rehearsal must not create even a **Draft**, because creating one requ
 
 Until a dedicated version Issue contains all of the following, the orchestrator **must refuse** unsigned publication:
 
-- Explicit owner approval for that particular `vX.Y.Z` release; record approver and decision timestamp in its Issue.
+- **Historical three-part fixture notation only.** A future real approval must identify the four-part `vX.Y.Z.H`, exact source and ZIP SHA/size, owner and timestamp in its Issue.
 - Exact **final merged source SHA**, source tag/version and **each** Source/Portable artifact SHA-256 and size, with matching independent hosted build evidence.
 - A direct acknowledgement that the Windows executable is **not Authenticode-signed**, that checksums do not establish publisher identity, and that Windows/SmartScreen may show warnings. No instructions to bypass protections.
 - Explicit expected README/release-note disclosure, approved manual integrity verification method, and confirmation that rollback/recovery and repository release protection requirements have been met.
 
 The eventual release gate should validate a machine-readable signed-off approval record tied to version, final SHA and digests; a generic `unsigned-approved` string alone is insufficient. A per-version new consent is needed for a changed artifact SHA/commit. **This document and RHC-5 do not grant that consent.**
 
+**Historical scope:** The Draft/Source-ZIP recovery cases are fail-closed test fixtures; they neither authorize a GitHub Draft nor specify the RHC-12 `repo-downloads` source-tag/catalog/ZIP publication sequence. For new work see [current release process](RELEASE_PROCESS.md).
 ## Failure injection and restart guarantees
 
 | Failure scenario | Expected result |
@@ -76,7 +77,7 @@ The eventual release gate should validate a machine-readable signed-off approval
 Real integration additionally needs (1) explicit unsigned approval for each version or verified code signing, (2) verified release immutability setting (applies to future releases), (3) branch PR/status restrictions and bot/minimum permissions, (4) rollback/retention validation and (5) owner-authorized release test. RHC-1 M5/M6 and RHC-3 M4 stay open until independently proven. This plan deliberately does not claim hardware acceptance or authorize v3.0.9.
 
 
-## RHC-5 implementation checkpoint (unmerged Work branch)
+## RHC-5 historical Work checkpoint (PR #9 subsequently merged)
 
 This section documents the read-only implementation scope, not approval to
 publish or to promote a Candidate. The branch work/RHC-5 is based on main

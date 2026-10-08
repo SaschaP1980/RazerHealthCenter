@@ -1,6 +1,6 @@
 # RHC v3.0.8 — Safe source import playbook
 
-**Historical playbook — completed via PR #2.** All 321 original sources were verified and merged at `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`; both hosted Linux and Windows passed in [run #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046). Retain the procedures below as reproducible migration history; they are **not** an instruction to repeat the already-completed import or authorize a release/repair. Current state: [migration status](MIGRATION_STATUS.md).
+**Archival source-intake procedure, completed via PR #2.** The original 321 **v3.0.8** files merged at `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`, with [Linux/Windows evidence #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046). Current app is `3.0.8.0` (RHC-16) and distribution `repo-downloads` (RHC-12); old commands and hashes below remain historical, not a new release workflow. See [migration status](MIGRATION_STATUS.md) and [release process](RELEASE_PROCESS.md).
 
 ## Preconditions
 
@@ -75,4 +75,4 @@ If GitHub refuses to display the manual workflow before the source ref is merged
 
 After verified PR and hosted gate PASS, update `docs/MIGRATION_STATUS.md` and Issue RHC-1 with the actual source-import commit, SHA manifest, runner versions/validator counts, failed attempts, branch/ruleset statuses and real RHC acceptance requirements. Only declare GitHub the complete source of truth when all required approved files and build inputs are retrievable and reproduce the baseline.
 
-**Do not start v3.0.9 or implement production Candidate/Release orchestration implicitly.** Those are separate gates in RHC-1.
+**Historical source-intake restriction:** three-part v3.0.9 was not authorized at that stage; it is **not** a prohibition on a later separately authorized four-part `3.0.9.0`. Production Candidate/Release remains gated under RHC-1/RHC-3.

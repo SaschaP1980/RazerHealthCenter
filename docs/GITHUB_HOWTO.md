@@ -2,11 +2,11 @@
 
 ## Current limitation
 
-GitHub `main` is now the **canonical source-of-truth for RHC v3.0.8 source**: 321 original files were imported in PR #2 and exact-byte/Windows-build CI passed. The **future production release pipeline is not activated**; do not mistake the source-intake workflow for release authorization. See `docs/MIGRATION_STATUS.md`.
+Current GitHub `main` is the **development source authority**: app/reference version is `3.0.8.0` after RHC-16. The 321-file v3.0.8 source imported and hosted-tested in PR #2 is **historical Golden evidence**, not current-version build or publication authorization. Production promotion/Release Orchestrator remains disabled. See [`MIGRATION_STATUS.md`](MIGRATION_STATUS.md) and [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 ## Identity and issues
 
-A newly created GitHub Issue #N uses title prefix `[RHC-N]`; `N` is the actual GitHub Issue number, never a separate allocation. Use `work/RHC-N` only for justified Work-Path cases; normal Hotfixes use branchless Candidate preparation. Important labels once provisioned: `priority: high|medium|low`, `dev-path: fast|work-branch`; do not claim labels exist before querying GitHub.
+A newly created GitHub Issue #N uses title prefix `[RHC-N]`; `N` is the actual GitHub Issue number, never a separate allocation. Use `work/RHC-N` only for justified Work-Path cases; normal Hotfixes use branchless Candidate preparation. Labels were provisioned during migration; recheck actual current metadata before assigning `priority: critical|high|medium|low` or `dev-path: fast|work-branch`. Only Issue-backed **executable** work requires one `dev-path`; documentation/backlog does not.
 
 Use the Issue for acceptance, observed failures, causal evidence and performance measurements. For Work-Path, maintain exactly **one cumulative Rolling Build & Release comment**; use searchable `RHC<N>CHAT<12 random uppercase hex characters>` markers posted in the working chat (only after issue number known), preserve original marker through handoffs. IDs are search markers, not private-chat URLs. The normal Fast-Path does **not** require Work-Path rolling heartbeats.
 
@@ -29,7 +29,13 @@ Infrastructure PR [#4](https://github.com/SaschaP1980/RazerHealthCenter/pull/4) 
 - Work-path Candidate: recoverable `work/RHC-N` checkpoints plus exact-SHA Development Completion, one mutable rolling Issue comment, then a clean current-main-parent Candidate with work provenance.
 - Candidate promotion: current-main ancestry and both hosted gates rechecked at exact candidate SHA. Fail closed on stale refs, missing status, version collision or mismatched code.
 - Release: reproducible package & source checks, source tag and exact package integrity, single PR, preactivation check that public latest still points to prior version, merge as sole activation switch, postrelease verification and safe branch cleanup.
-- Production publishing and the new version metadata/update distribution policy are **not yet implemented**. Do not infer RHC update-pointer semantics from LBS.
+- **Distribution architecture** is already selected as RHC-12 `repo-downloads` with read-only catalog checks; full production Candidate promotion, Release Orchestrator, source tag, publication PR/preactivation/postverification, signing or artifact-specific unsigned consent, rollback and native Razer acceptance remain **incomplete**. GitHub Releases/Draft delivery is superseded; no updater.
+
+## Current Candidate and continuity contracts
+
+A fresh chat must follow [`INITIAL_PROMPT.md`](INITIAL_PROMPT.md), all normative documentation and actual executable contracts; simply reading the entry point does not authorize arbitrary Issues/changes. A pure documentation-only diff uses one atomic reviewed guarded `main` commit, without Work-Path, version or Candidate; changed code, workflow, tools, tests or machine-readable inputs are **not** documentation-only.
+
+A Candidate needs changed `model.go` and `CHANGELOG.md` (absent at present), exactly one real `RHC-Issue: N` **including Hotfix**, and `Release-Profile: version-only|patch|hotfix`. `version-only` is exactly the two-file diff; HOTFIX increases component four by one. Unforeseen Candidate failures are corrected, if within scope, on the **same** Candidate branch and re-qualified at its new SHA, never bypassing the deliberately blocked promotion. Issue closure and durable GitHub recovery comments require genuine acceptance and evidence, not old chat memory.
 
 ## Public source and security
 

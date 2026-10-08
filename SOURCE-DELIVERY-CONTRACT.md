@@ -1,14 +1,13 @@
-# Source Delivery Contract
+# Source Delivery Contract — current and historical requirements
 
-Every new application version must be delivered with the complete, independently
-buildable source snapshot in addition to the Portable ZIP.
+## Current RHC-12 / RHC-16 delivery authority
 
-Required artifacts per version:
+**GitHub source is canonical:** every future authorized four-part application version must have an independently buildable, **exact-source-SHA/tag-pinned** complete snapshot of Go code, Health/Repair Engines, PowerShell scripts, PE resources, assets, locales, validators, build scripts and documentation. Source provenance, cache/archive exclusion and reproducibility remain mandatory release gates.
 
-1. Portable ZIP containing the runnable Windows application and runtime support
-   directory structure.
-2. Complete Source ZIP containing all Go source, Health Engine source, Repair
-   Engine source, assets, PE resources, locale catalog, validators, build scripts
-   and documentation required for an independent rebuild.
+The **single required user-facing binary package** is one immutable **lean seven-file** `main/downloads/RazerHealthCenter-Portable-vMAJOR.MINOR.PATCH.HOTFIX.zip`. No extra Source ZIP, nested ZIP, empty runtime folders or separate EXE. One verified PR merge adds the ZIP and simultaneously updates `downloads/releases.json`, `downloads/latest.json` and `downloads/README.md`. See [current release process](docs/RELEASE_PROCESS.md).
 
-A standalone EXE is not a required user-facing artifact.
+**No production release authorized:** `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`; Candidate promotion, Release Orchestrator and real hardware acceptance remain incomplete. Original historical v3.0.8 Source ZIP and archived v3.0.8 TEST / UNSIGNED QA are not official new-version downloads.
+
+## Superseded pre-RHC-12 source-ZIP delivery rule (historical)
+
+The original source handover required **two** distributable ZIPs per version: one Portable ZIP with runtime folder structure, and one independently buildable **Source ZIP** containing Go, Health/Repair Engines, assets, PE resources, locales, validators, build scripts and documentation. A standalone EXE was not required. This **separate distributed Source ZIP requirement was explicitly superseded by RHC-12**; independently buildable **GitHub source** remains mandatory. Historical reproducible Source-ZIP tests in `tools/rhc_release_contracts.py` still serve as nonpublishing test fixtures, not as the production download contract.

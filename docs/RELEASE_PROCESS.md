@@ -8,6 +8,12 @@
 
 **No public release is authorized yet:** `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`. The existing unsigned v3.0.8 QA build in GitHub Actions is NOT entered in the public release history, is NOT a production release and does not create `latest.json`. The preserved QA artifact remains v3.0.8; current application source is migrated to 3.0.8.0.
 
+## Current RHC Candidate / documentation boundary
+
+Current `tools/rhc_candidate_entry.py` requires changed `model.go` **and** `CHANGELOG.md`, one real `RHC-Issue: N` trailer **also for Hotfix**, and one `Release-Profile: version-only|patch|hotfix`. `version-only` changes **only** those two paths; `hotfix` increments only the fourth version component. `CHANGELOG.md` is absent on `main` and must be added for a future approved Candidate, never bypassed. These RHC executable contracts differ from LBS.
+
+Documentation-/Issue-metadata-only diffs have **no** Work branch, version, Candidate or Release and use one reviewed atomic `main` commit. Machine-consumed policy/workflow/test/code/tool changes are not documentation-only. Scoped “Implementiere”/“Baue” instructions do **not** approve unsigned Windows publishing or disable separate rollout/rollback/native Razer gates.
+
 ## Canonical build and distribution
 
 - Source authority: GitHub `main`; `model.go` owns `appVersion` and `referenceVersion` (four-part MAJOR.MINOR.PATCH.HOTFIX). Exact source commits and historical tags determine build provenance.
@@ -32,7 +38,7 @@ This explicit test-only publication does **not** meet product release gates, imp
 5. After verified preactivation, create the source tag with exact provenance, merge a single reviewed Release PR into `main`; **this merge atomically makes ZIP and latest pointer public**. The already-implemented merged-branch cleanup checks and removes unchanged Work/release branches as supported; release-specific temporary branch lifecycle must be added and independently verified.
 6. Independently re-read new `main`, real package bytes and SHA, latest pointer, full history, source tag, required status contexts, PR, and actual branch cleanup. Do not claim successful release until post-merge verification passes. If publication partially fails, preserve prior immutable ZIPs and block re-running a version; recover with authorized new version where appropriate.
 
-**Current boundary:** RHC-12 selects and validates the archive format and guarded catalog only. Full production Candidate promotion, Release Orchestrator, signed/unsigned approvals, native hardware acceptance, rollback proof and actual first `vX.Y.Z` release remain separate requirements under RHC-3/RHC-1. A green nonpublishing rehearsal is not publication authority.
+**Current boundary:** RHC-12 selects and validates the archive format and guarded catalog only. Full production Candidate promotion, Release Orchestrator, signed/unsigned approvals, native hardware acceptance, rollback proof and actual first four-component `vX.Y.Z.H` release remain separate requirements under RHC-3/RHC-1. A green nonpublishing rehearsal is not publication authority.
 
 ## Historical release dry-run
 

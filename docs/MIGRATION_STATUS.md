@@ -1,14 +1,18 @@
-# RHC v3.0.8 — Migration state and evidence ledger
+# RHC migration — current v3.0.8.0 and historical v3.0.8 evidence
 
-**Status: SOURCE BASELINE MIGRATED AND HOSTED-VERIFIED.** The exact 321-file v3.0.8 source is now on GitHub `main` after PR #2. RHC production Candidate/Release automation, mandatory PR/status protections, updater/signing policy and physical Razer acceptance are **not yet approved or complete**. **Branch-protection stage 1 (deletion and force-push prevention) is ACTIVE.** This is not a product release manifest.
+**Current authority:** Original 321-file v3.0.8 source imported and hosted-tested via PR #2 is historical Golden evidence. Current app/reference is **`3.0.8.0`** (RHC-16), distribution is **`repo-downloads`** (RHC-12), and the archived v3.0.8 **TEST / UNSIGNED** artifact remains nonproduction. Production promotion/Release Orchestrator, mandatory PR/status rules, signing or artifact-specific unsigned approval, rollback and physical Razer acceptance remain **OPEN**. Stage-1 no-delete/no-force-push is active. The dated interim sections below are historical snapshots, not instructions for new work.
 
 ## Authority transition
 
 - Destination: [RazerHealthCenter](https://github.com/SaschaP1980/RazerHealthCenter), default branch `main`.
 - Migration tracking Issue: [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1).
-- Current canonical development **source** baseline: **v3.0.8** in `main`, merged from [PR #2](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), final source-qualified PR head `2a28a08ba75ecb404df03847cdf1e5eaba941acd`, merge commit `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`. Original ZIP and portable archives remain provenance, not build authority.
+- Historical **v3.0.8 source-intake** [PR #2](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), head `2a28a08ba75ecb404df03847cdf1e5eaba941acd`, merge `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`. Current build authority is **live `main` plus `model.go`**, not the old ZIP/EXE hash.
 - Prior Lenovo Boot Selector process is a **pattern**, never the runtime/build authority for RHC. Use the generic migration template in `docs/templates/PROJECT_MIGRATION_TEMPLATE.md`.
 - The complete source and hosted reproducibility checks are now recoverable from GitHub. **Release/distribution authority remains a separate unimplemented phase**; do not infer a published RHC release from source verification.
+
+### Later decisions governing new operations
+
+RHC-12 superseded GitHub Releases/Draft with `repo-downloads`; RHC-16 moved **current** app/Candidate versions from v3.0.8 to **3.0.8.0**, preserving all old Source/QA SHA-256 Golden evidence. RHC-5's nonpublishing code was merged in [PR #9](https://github.com/SaschaP1980/RazerHealthCenter/pull/9), so its former unmerged Work checkpoint is only history. Current [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), policy and machine contracts prevail.
 
 ## Verified input identity (2026-10-08)
 
@@ -24,7 +28,7 @@ Independent local validation used **Go 1.23.2 Linux/amd64** with `GOPROXY=off`, 
 
 The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-background-runtime report says 20/20 GREEN versus 3/20 on v3.0.7, and original full validation 20.20 seconds / clean rebuild 18.74 seconds. These numbers are **provided historical reports** and must not be mislabeled as newly hosted results.
 
-## Product/build characteristics verified from the source
+## Historical v3.0.8 product/build characteristics at original intake
 
 - `go.mod`: module `razerhealthmonitor`, Go **1.23.2**, no external dependency entries/go.sum.
 - `model.go`: `appVersion = "3.0.8"` and `referenceVersion = "3.0.8"`.
@@ -41,7 +45,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | M2 | 321-file source tree imported to `main` with exact original content-byte identity | **PASS — PR #2 merged, original source SHA inventory verified on both hosted OSes** |
 | M3 | GitHub-hosted source intake reproduces golden EXE; Linux and native Windows PS5.1 checks | **PASS — run #37737410046, Linux and Windows jobs both success on exact head** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **PARTIAL PASS — reproducible Go/Windows build/Source+Portable and exact-SHA Development Completion merged in PR #4; Candidate gates staged nonpublishing; production Release Orchestrator still BLOCKED** |
-| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — GitHub Releases distribution selected and main no-delete/no-force-push ruleset active; PR/status, signing/trust, secrets, immutability validation and rollback remain OPEN** |
+| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — `repo-downloads` selected, read-only catalog checks and Stage-1 no-delete/no-force-push verified; required PR/status permissions, artifact-specific Windows trust, release orchestration, rollback and hardware acceptance remain OPEN** |
 | M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
 
 **Release permission:** none. No synthetic production tag, no `downloads/latest.json` activation and no attempt to mark M2–M6 GREEN because M0 or M1 passed.
@@ -140,7 +144,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - [RHC-5](https://github.com/SaschaP1980/RazerHealthCenter/issues/5) tracks the nonpublishing exact-SHA release simulation and negative tests. The [detailed implementation plan](RHC_RELEASE_DRY_RUN_PLAN.md) specifies pure Draft/Publish fixtures, no GitHub write scopes, no actual Draft/tag/Release, all-or-nothing readiness and idempotent interrupted-run recovery.
 - M4 remains PARTIAL, M5 remains PARTIAL, M6 remains OPEN. **No GitHub Release resources, tags, product version increments or released EXEs** are permitted by this plan.
 
-## Next action
+## Next action (historical GitHub-Releases plan, superseded by RHC-12)
 
 GitHub Releases distribution has been selected. Next design and nonpublishing-qualify Candidate promotion, Draft Release staging, prepublication checks, source PR merge, immutable Release activation, postrelease verification and failure recovery; separately settle signing/trust, immutable setting and rollback before any real deployment. Keep RHC-3 and parent RHC-1 open; no v3.0.9 and no native repair changes.
 

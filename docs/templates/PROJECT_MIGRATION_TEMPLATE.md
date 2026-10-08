@@ -1,6 +1,6 @@
 # Reusable GitHub project migration template (v0.1)
 
-**Purpose:** establish an existing product's source, build, safety contracts and release policy as auditable GitHub authority **without changing product behavior or silently publishing a release**. This template is *product-neutral*. Use `docs/MIGRATION_STATUS.md` and RHC-1 as its first real-world case study.
+**Purpose:** establish product source/build/safety/release authority on GitHub **without silent publication**. Product-neutral template; the [RHC migration ledger](../MIGRATION_STATUS.md) is the **historical** first case. Its original v3.0.8 ZIP with 12 empty directories, three-part source version and Draft-release proposal do **not** override RHC-16 `3.0.8.0` or RHC-12 `repo-downloads` (new lean seven-file ZIP, GitHub source, no separate Source ZIP). Check [current release rules](../RELEASE_PROCESS.md).
 
 ## Mandatory intake variables
 

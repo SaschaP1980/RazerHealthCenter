@@ -12,13 +12,19 @@ The Go Razer Health Center includes PowerShell diagnostic and repair scripts. Fu
 
 ## Version and development path
 
-Current version input is `model.go` with `appVersion` and `referenceVersion`; release level uses the product's actual version contract, not LBS's 4-part version by default. Any later schema change requires an explicit tested migration.
+**RHC-16 is complete:** `model.go` app/reference is `3.0.8.0`, and current/new app, Candidate and Release versions use strict `MAJOR.MINOR.PATCH.HOTFIX`. Original three-part v3.0.8 Source/QA stays historical; Engine/History/Razer version domains remain separate. The earlier instruction not to use four components is superseded.
 
-- Documentation-only: one atomic documented change on a fresh verified base; no product version bump, Candidate or Release.
+- Documentation-only Markdown/Issue metadata with no machine-enforced changes: one atomic lease-guarded reviewed `main` commit; **no** Work branch, `dev-path` label, version, Candidate or Release. The topic of a document does not change its scope.
 - Narrow Patch/Hotfix: branchless Fast-Path by default; test a confirmed failure RED where applicable, fix, run relevant focused GREEN/syntax/determinism checks, create **one exact release-ready candidate** on current `main`, inspect complete diff, then hosted Candidate Preflight.
 - Major/Minor or substantial risk/migration: persistent `work/RHC-<issue>` with scoped checkpoints, exact-SHA Development Completion and Candidate Entry before any Candidate.
 - Process benchmarking Work-Path for an otherwise simple Hotfix requires explicit user permission, a durable exception reason and same exact-SHA qualification gates. Never escalate merely to have more commits.
-- For Issue-backed implementation use exactly one valid `dev-path: fast` or `dev-path: work-branch` label once labels are installed.
+- For Issue-backed **executable** development select exactly one live-verified `dev-path: fast` or `dev-path: work-branch` label. Labels were provisioned during migration; recheck current catalog before applying. Documentation/backlog work has no `dev-path` requirement.
+
+### Candidate, Issue and test-first requirements (implemented RHC contracts)
+
+Today `tools/rhc_candidate_entry.py` requires exact current-`main` parentage, a single atomic Candidate commit, one actual `RHC-Issue: N` trailer (**also for Hotfix**) and one `Release-Profile: version-only|patch|hotfix` trailer. Both `model.go` and `CHANGELOG.md` must change; `version-only` changes **exactly** those two paths, and `hotfix` increases only the fourth number by one. `CHANGELOG.md` does not yet exist on `main`; a future authorized Candidate must add it in scope. Do not import LBS' different Issue/profile semantics.
+
+A confirmed defect gets a **permanent focused RED test against the exact unfixed SHA**, then a fix and the same test GREEN; a deliberately failing Candidate is never the RED test. For changed validators, Python tools and workflows, select a non-destructive real CLI/consumer smoke, not just syntax. Preserve Go, PowerShell 5.1, repair-safety, PE/ZIP reproducibility and four distinct evidence categories (local, hosted Linux, hosted native Windows, physical Razer). Issue closure follows its verified acceptance gates; unresolved parent RHC-1/RHC-3 remain open.
 
 ## Work-Path rolling record
 
@@ -62,7 +68,7 @@ Manual `workflow_dispatch` with a merged PR number is reserved for fault recover
 
 ## Canonical distribution after RHC-12 owner decision
 
-Use the LenovoBootSelector storage model: immutable released Portable ZIPs under `main/downloads/`, an append-only `downloads/releases.json` history, generated `downloads/README.md` and a `downloads/latest.json` pointer only once a version has been published. Source is in GitHub and does not belong in the Portable ZIP. New versions must be strictly increasing and previous ZIPs byte-unchanged; tests use `tools/rhc_downloads.py` and a read-only hosted downloads CI workflow. The former GitHub Releases/Draft mechanism was superseded and remains a historical rehearsal only. An Actions QA artifact is not a released package.
+Use RHC-12's `repo-downloads` model derived from LenovoBootSelector: immutable **lean seven-file** released Portable ZIPs under `main/downloads/`, an append-only `downloads/releases.json` history, generated `downloads/README.md` and a `downloads/latest.json` pointer only once a version has been published. Source is in GitHub and does not belong in the Portable ZIP. New versions must be strictly increasing and previous ZIPs byte-unchanged; tests use `tools/rhc_downloads.py` and a read-only hosted downloads CI workflow. The former GitHub Releases/Draft mechanism was superseded and remains a historical rehearsal only. An Actions QA artifact is not a released package.
 
 Do not create tags, publish a ZIP, advance `latest.json` or enable production release until the real Candidate/Release orchestrator, native/device gates, version-scoped signing/unsigned approval and rollback evidence pass. Routine code/CI merges remain autonomous; release authorization stays distinct.
 
