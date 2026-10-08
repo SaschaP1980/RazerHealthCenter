@@ -104,6 +104,7 @@ class GitHubPostverify(unittest.TestCase):
         with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22",
                                     "GH_TOKEN":"MOCK-TOKEN"}),\
              patch.object(release,"check_live_staged_release",return_value=evidence),\
+             patch.object(release,"ready_release_pr",return_value={"ready":True}),\
              patch.object(release,"branch",side_effect=
                 lambda name: {"object":{"sha":B}} if api.branch else None),\
              patch.object(release,"gh",side_effect=api.gh):
@@ -156,6 +157,43 @@ class GitHubPostverify(unittest.TestCase):
                 release.finish(ROOT,ref,B)
         self.assertFalse(api.tag)
         self.assertFalse(api.merged)
+
+    def test_real_ready_transition_checks_exact_pr_and_confirms_readback(self):
+        import types
+        ref="release/v"+VERSION
+        result={"state":"open","merged":False,"draft":True,
+                "head":{"sha":B,"ref":ref},"base":{"sha":A}}
+        calls=[]
+        def query(method,path,payload=None,allow404=False):
+            calls.append((method,path))
+            if path=="/pulls/47":
+                return dict(result)
+            if path=="/branches/main":
+                return {"commit":{"sha":A}}
+            raise AssertionError("unexpected read "+path)
+        def ready_run(args,**kwargs):
+            self.assertEqual(args[:3],["gh","pr","ready"])
+            result["draft"]=False
+            return types.SimpleNamespace(returncode=0,stderr="")
+        with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22",
+                                    "GH_TOKEN":"MOCK-TOKEN"}),\
+             patch.object(release,"gh",side_effect=query),\
+             patch.object(release,"branch",return_value={"object":{"sha":B}}),\
+             patch.object(release.subprocess,"run",side_effect=ready_run) as runner:
+            self.assertTrue(release.ready_release_pr(47,ref,B,A)["ready"])
+            self.assertEqual(runner.call_count,1)
+        self.assertEqual([x for x in calls if x[1]=="/pulls/47"],
+                         [("GET","/pulls/47"),("GET","/pulls/47")])
+        # Missing a real Draft->Ready confirmation must block before any tag.
+        result["draft"]=True
+        with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22",
+                                    "GH_TOKEN":"MOCK-TOKEN"}),\
+             patch.object(release,"gh",side_effect=query),\
+             patch.object(release,"branch",return_value={"object":{"sha":B}}),\
+             patch.object(release.subprocess,"run",
+                          return_value=types.SimpleNamespace(returncode=0,stderr="")):
+            with self.assertRaisesRegex(ValueError,"readiness unverified"):
+                release.ready_release_pr(47,ref,B,A)
 
     def test_uncertain_owner_gate_does_not_start_any_remote_write(self):
         with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":""}),\
