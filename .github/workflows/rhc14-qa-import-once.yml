@@ -1,0 +1,94 @@
+name: RHC-14 One-time Verified QA Artifact Intake (temporary)
+
+# Ephemeral workflow on work/RHC-14 ONLY. Removed before PR merge.
+on:
+  push:
+    branches:
+      - 'work/RHC-14'
+    paths:
+      - '.github/workflows/rhc14-qa-import-once.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: rhc14-single-use-import
+  cancel-in-progress: false
+
+jobs:
+  import-verified-qa-binary:
+    if: github.repository == 'SaschaP1980/RazerHealthCenter' && github.ref == 'refs/heads/work/RHC-14'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Retrieve exact vetted GitHub Actions artifact and validate bytes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TMPFILE="$RUNNER_TEMP/rhc-v308-verified-original.zip"
+          curl --fail --silent --show-error --location --retry 3 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11542516436/zip" \
+            --output "$TMPFILE"
+          export RHC_QA_SOURCE_ZIP="$TMPFILE"
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import zipfile
+          from pathlib import Path
+
+          original = Path(os.environ["RHC_QA_SOURCE_ZIP"])
+          archive = original.read_bytes()
+          expected_sha = "277757f4a09fa12791e2912c3a59f32f277ef8b65756b5f0dd491516738f97c0"
+          expected_size = 8696796
+          assert len(archive) == expected_size, "Artifact size mismatch"
+          assert hashlib.sha256(archive).hexdigest() == expected_sha, "Artifact SHA-256 mismatch"
+          allowed = {
+              "README-I18N.txt", "README.txt", "RazerHealthCenter.exe",
+              "SAFETY-MODEL.txt", "SHA256SUMS.txt",
+              "i18n-manifest.json", "locales/de-DE.json"
+          }
+          with zipfile.ZipFile(original) as z:
+              names = z.namelist()
+              assert len(names) == len(allowed) and set(names) == allowed, "Payload files mismatch"
+              assert z.testzip() is None, "Archive CRC failure"
+              payload = {name: z.read(name) for name in names}
+          expected_exe = "6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a"
+          assert hashlib.sha256(payload["RazerHealthCenter.exe"]).hexdigest() == expected_exe
+          assert payload["RazerHealthCenter.exe"].startswith(b"MZ")
+          expected_sums = "".join(
+              f"{hashlib.sha256(payload[name]).hexdigest()}  {name}\n"
+              for name in sorted(allowed - {"SHA256SUMS.txt"})
+          ).encode("utf-8")
+          assert payload["SHA256SUMS.txt"] == expected_sums, "Internal checksum mismatch"
+          dest = Path("downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip")
+          assert not dest.exists(), "Immutable QA artifact already exists"
+          dest.parent.mkdir(exist_ok=True, parents=True)
+          dest.write_bytes(archive)
+          assert hashlib.sha256(dest.read_bytes()).hexdigest() == expected_sha
+          print("RHC14_QA_INTAKE=PASS files=7 zipbytes=8696796 sha256="+expected_sha)
+          PY
+      - name: Commit exact QA archive only to verified Work branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/work/RHC-14'
+          git fetch --no-tags origin work/RHC-14
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
+          test "$(git status --short)" = '?? downloads/'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip
+          test "$(git diff --cached --name-only)" = 'downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip'
+          git commit -m 'test(RHC-14): stage byte-identical unsigned v3.0.8 QA artifact'
+          git push origin HEAD:refs/heads/work/RHC-14
+          echo 'RHC14_QA_BRANCH_PUSH=PASS'
