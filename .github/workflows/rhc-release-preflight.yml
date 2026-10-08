@@ -1,0 +1,136 @@
+name: RHC Release Exact-SHA Preflight (production-gated)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  statuses: write
+  actions: read
+  issues: read
+  pull-requests: read
+concurrency:
+  group: rhc-release-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  source:
+    if: startsWith(github.ref_name, 'release/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_BRANCH: ${{ github.ref_name }}
+      RELEASE_SHA: ${{ github.sha }}
+      GOPROXY: off
+      GOSUMDB: off
+      GOTOOLCHAIN: local
+      GOFLAGS: -buildvcs=false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Check owner, source, immutable history on actual release PR
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          python3 -B tools/rhc_release_verify.py
+          python3 -m unittest discover -s tests -p 'test_rhc_release_transaction_contracts.py' -v
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$RELEASE_SHA" \
+            -f state=success -f context='rhc/release/source' \
+            -f description='Exact source and RHC22 owner-bound approval verified' >/dev/null
+      - name: Double-build real Windows GUI and verify lean archive bytes
+        run: |
+          set -euo pipefail
+          bash build.sh "$RUNNER_TEMP/first"
+          bash build.sh "$RUNNER_TEMP/second"
+          cmp -s "$RUNNER_TEMP/first/RazerHealthCenter.exe" "$RUNNER_TEMP/second/RazerHealthCenter.exe"
+          python3 - <<'PY'
+          import hashlib,os,pathlib,sys,zipfile
+          sys.path.insert(0,'tools')
+          import rhc_downloads as d
+          from rhc_release_contracts import version_from_model
+          v=version_from_model('.')
+          f=pathlib.Path('downloads')/d.filename(v)
+          assert d.portable_zip_check(f)==sorted(d.EXPECTED_FILES)
+          with zipfile.ZipFile(f) as z: exe=z.read('RazerHealthCenter.exe')
+          assert exe==(pathlib.Path(os.environ['RUNNER_TEMP'])/'first'/'RazerHealthCenter.exe').read_bytes()
+          assert hashlib.sha256(f.read_bytes()).hexdigest()==d.catalog_read('downloads')[0]['sha256']
+          print('RHC_RELEASE_TWO_REAL_BUILDS=PASS')
+          PY
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$RELEASE_SHA" \
+            -f state=success -f context='rhc/release/portable' \
+            -f description='Independent PE builds and exact 7-file ZIP verified' >/dev/null
+      - name: Mark exceptions as fail-closed statuses
+        if: failure()
+        run: |
+          for context in rhc/release/source rhc/release/portable; do
+            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$RELEASE_SHA" \
+              -f state=failure -f context="$context" \
+              -f description='Owner-bound release source/portable verification BLOCKED' >/dev/null
+          done
+  windows:
+    if: startsWith(github.ref_name, 'release/v')
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Native PS5.1 and real Windows publisher trust state
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'PS5.1 required' }
+          Get-ChildItem -Recurse -Filter '*.ps1' -File | ForEach-Object {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count -gt 0) { throw 'PowerShell parser failed' }
+          }
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Go test failed' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE -ne 0) { throw 'Safety tests failed' }
+          $v=python -c "import sys;sys.path.insert(0,'tools');from rhc_release_contracts import version_from_model;print(version_from_model('.'))"
+          $dest=Join-Path $env:RUNNER_TEMP 'rhc-release-archive'
+          Expand-Archive "downloads/RazerHealthCenter-Portable-v$v.zip" $dest
+          $signature=Get-AuthenticodeSignature (Join-Path $dest 'RazerHealthCenter.exe')
+          $p=Get-Content config/rhc-release-policy.json -Raw | ConvertFrom-Json
+          if ($p.signingDecision -eq 'signed-verified') {
+            if ($signature.Status -ne 'Valid') { throw 'Authenticode invalid' }
+          } elseif ($p.signingDecision -eq 'unsigned-approved') {
+            if ($signature.Status -ne 'NotSigned') { throw 'Trust state != owner approval' }
+          } else { throw 'Signing approval absent' }
+          Write-Output 'RHC_RELEASE_NATIVE_WINDOWS=PASS'
+  verification:
+    needs: [source, windows]
+    if: always() && startsWith(github.ref_name, 'release/v')
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_SHA: ${{ github.sha }}
+      SOURCE_STATE: ${{ needs.source.result }}
+      WINDOWS_STATE: ${{ needs.windows.result }}
+    steps:
+      - name: Aggregate all hosted OS and owner-bound release gates
+        run: |
+          set -euo pipefail
+          if [[ "$SOURCE_STATE" != success || "$WINDOWS_STATE" != success ]]; then
+            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$RELEASE_SHA" \
+              -f state=failure -f context='rhc/release/verification' \
+              -f description='Exact-SHA release verification BLOCKED' >/dev/null
+            exit 1
+          fi
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$RELEASE_SHA" \
+            -f state=success -f context='rhc/release/verification' \
+            -f description='Owner/source, PE archive and native Windows qualified' >/dev/null
+          echo 'RHC_RELEASE_STATUS_GREEN_STAGED_ONLY=PASS'
