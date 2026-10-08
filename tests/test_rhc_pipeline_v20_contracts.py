@@ -80,6 +80,34 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn('for name in "RazerHealthCenter-Source-v', wf)
         self.assertIn("cmp -s", wf)
 
+    def test_all_retained_runtime_validators_use_current_four_part_app_version(self):
+        # These 14 validators were originally pinned to the historical 3.0.8.0.
+        # Never change catalog-domain historical fixture versions or weaken
+        # the other read-only/repair/PowerShell/Setup safety assertions.
+        paths = (
+            "tools/validate_setup_inventory.py",
+            "tools/validate_version_check.py",
+            "tools/validate_guided_calibration.py",
+            "tools/validate_historical_details_v240.py",
+            "tools/validate_v302_historical_session_archive.py",
+            "tools/validate_v303_archive_header_polish.py",
+            "tools/validate_v304_archive_surface_tint.py",
+            "tools/validate_v300_diagnostic_repair_platform.py",
+            "tools/validate_v301_manifest_authority.py",
+            "tools/validate_v305_false_green_guard.py",
+            "tools/validate_v306_appengine_recovery.py",
+            "tools/validate_v307_ps51_appengine_diagnostic.py",
+            "tools/validate_healthcheck_selection_v237.py",
+            "tools/validate_gate_finalization_v238.py",
+        )
+        for path in paths:
+            with self.subTest(path=path):
+                code = read(path)
+                self.assertIn("from rhc_release_contracts import version_from_model", code)
+                self.assertIn("version_from_model(root)", code)
+                self.assertNotIn('appVersion                   = "3.0.8.0"', code)
+                self.assertNotIn('referenceVersion             = "3.0.8.0"', code)
+
     def test_current_rhc12_preactivation_workflow_is_strictly_readonly(self):
         wf = read(".github/workflows/rhc-release-preactivation.yml")
         self.assertIn("RHC12_REAL_PRODUCTION_POLICY=BLOCKED", wf)

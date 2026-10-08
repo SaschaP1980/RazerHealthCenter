@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import sys
 root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ build=(root/'build.sh').read_text(encoding='utf-8')
 checks=[]
 def add(name, ok):
     checks.append((name, bool(ok)))
-add('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+add('current application version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 add('historical measurement stores gate snapshot', 'DetailAvailable' in model and 'GateStates' in model and 'GateInspections' in model)
 add('detail capability is validated from historical engine JSON', 'historicalDetailSnapshot' in hist and 'len(r.Gates) < gateCount' in hist)
 add('old or incomplete measurements remain listable', 'DetailUnavailableReason' in hist and 'logs.detail_unavailable.invalid' in hist)

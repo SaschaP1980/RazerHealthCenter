@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import json, sys
 
@@ -9,7 +10,7 @@ locale=json.loads(read('locales/de-DE.json'))['strings']; build=read('build.sh')
 checks=[]
 def add(name, cond): checks.append((name,bool(cond)))
 
-add('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+add('current application version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 add('health engine version 1.4.6', 'engineVersion                = "1.4.6"' in model and "$ScriptVersion = '1.4.6'" in health)
 add('Gate 3 evaluates issues rather than requiring positive count', "$issues = @($c | Where-Object { $_.Status -eq 'FAIL' -or $_.Status -eq 'UNKNOWN' })" in health and '$passed = ($issues.Count -eq 0)' in health)
 add('Gate 3 zero-requirement detail is explicit', 'Für die aktuell aktivierten Produkte ist kein RzDev/RzCommon-Filterstack erforderlich.' in health)

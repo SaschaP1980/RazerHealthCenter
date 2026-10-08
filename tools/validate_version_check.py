@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import re, sys
 root=Path(__file__).resolve().parents[1]
@@ -11,7 +12,7 @@ loc=(root/'locales/de-DE.json').read_text(encoding='utf-8')
 errors=[]
 def req(c,m):
     if not c: errors.append(m)
-req('appVersion                   = "3.0.8.0"' in model,'app version 3.0.8.0 missing')
+req(f'appVersion                   = "{version_from_model(root)}"' in model,'current application version missing')
 req('engineVersion                = "1.4.6"' in model,'engine version 1.4.6 missing')
 req('https://discovery3.razerapi.com/api/v1/endpoints' in vc,'official Razer discovery source missing')
 req('https://manifest3.razerapi.com/api/v1/releases/' in vc and '/tags/' in vc and '/products?' in vc,'official Razer product-manifest construction missing')

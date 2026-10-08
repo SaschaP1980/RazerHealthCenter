@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import json, sys
 
@@ -17,9 +18,9 @@ checks = []
 def ck(name, ok):
     checks.append((name, bool(ok)))
 
-ck('app/reference version 3.0.8.0',
-   'appVersion                   = "3.0.8.0"' in model and
-   'referenceVersion             = "3.0.8.0"' in model)
+ck('current application/reference version',
+   f'appVersion                   = "{version_from_model(root)}"' in model and
+   f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('catalog version 3.0.8.0', manifest.get('catalogVersion') == '3.0.8.0')
 ck('locale metadata version 3.0.8.0', locale_doc.get('_meta', {}).get('version') == '3.0.8.0')
 ck('archive surface is exact 4-percent preblend', 'archiveSurface' in ui and '0x001b1b0e' in ui)
