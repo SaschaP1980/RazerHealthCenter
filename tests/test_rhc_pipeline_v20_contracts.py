@@ -47,6 +47,28 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn("catalogVersion", check)
         self.assertIn("catalog version", check)
 
+    def test_candidate_preflight_accepts_dispatch_explicitly(self):
+        wf = read(".github/workflows/rhc-candidate-preflight.yml")
+        self.assertIn("workflow_dispatch:", wf)
+
+    def test_candidate_preflight_emits_real_sha_bound_linux_and_windows_statuses(self):
+        wf = read(".github/workflows/rhc-candidate-preflight.yml")
+        for context in ("rhc/preflight/linux", "rhc/preflight/windows", "rhc/preflight/candidate"):
+            with self.subTest(context=context):
+                self.assertIn(context, wf)
+        self.assertIn("needs: [linux, windows]", wf)
+        self.assertIn("statuses: write", wf)
+        self.assertIn("exit 1", wf)  # existing production promotion must stay blocked
+
+    def test_candidate_publication_workflow_is_gated_and_nonpublishing(self):
+        wf = read(".github/workflows/rhc-candidate-from-work.yml")
+        self.assertIn("workflow_run:", wf)
+        self.assertIn("RHC Development Completion (exact SHA gate)", wf)
+        self.assertIn("head_repository.full_name == github.repository", wf)
+        self.assertIn("persist-credentials: false", wf)
+        self.assertNotIn("create-release", wf)
+        self.assertNotIn("productionEnabled: true", wf)
+
 
 if __name__ == "__main__":
     unittest.main()
