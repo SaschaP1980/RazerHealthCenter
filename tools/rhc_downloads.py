@@ -153,7 +153,47 @@ def render_readme(rows):
         )
     if not rows:
         head.append("| No authorized published build yet | — | — | — | — |")
+    head.extend([
+        "",
+        "## Unsigned test builds (not official releases)",
+        "",
+        "An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).",
+        "QA archives are excluded from releases.json and latest.json and are not production releases.",
+    ])
     return "\n".join(head) + "\n"
+
+
+QA_MANIFEST = {"schemaVersion":1,"classification":"TEST / UNSIGNED","officialRelease":False,"signed":False,"version":"3.0.8","file":"RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip","size":8696796,"sha256":"277757f4a09fa12791e2912c3a59f32f277ef8b65756b5f0dd491516738f97c0","exeSha256":"6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a","sourceCommit":"09bcc0bff174739e3945f072a346bd036a7f3e4d","sourceRunId":37761207280,"sourceArtifactId":11542516436}
+QA_README = "# Razer Health Center v3.0.8 — TEST / UNSIGNED\n\n**TEST BUILD ONLY — NOT AN OFFICIAL RELEASE.** This file is published for manual Windows/Razer acceptance testing. It is not a production release, not a signed installer, and not the `latest.json` release.\n\n**Windows security:** `RazerHealthCenter.exe` has no Authenticode signature. Windows Defender SmartScreen or other security tools may warn about an unknown publisher. Do not disable security protection to use this test; only run this file if you trust its GitHub source and have verified the archive hash.\n\n## Package\n\n- [RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip](RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip) — original successful GitHub Actions artifact (unmodified).\n- ZIP size: **8,696,796 bytes**.\n- ZIP SHA-256: `277757f4a09fa12791e2912c3a59f32f277ef8b65756b5f0dd491516738f97c0`.\n- Windows EXE SHA-256: `6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a`.\n- Build source commit: [`09bcc0bff174739e3945f072a346bd036a7f3e4d`](https://github.com/SaschaP1980/RazerHealthCenter/commit/09bcc0bff174739e3945f072a346bd036a7f3e4d).\n- Provenance: [successful GitHub Actions run #37761207280](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37761207280), artifact ID `11542516436`.\n- Platform: Windows x64. ZIP contains exactly seven Portable files, `locales/de-DE.json` in its locale subfolder and no nested ZIP or Source ZIP.\n\n## Verify before manual testing\n\nAfter downloading the ZIP, run a read-only PowerShell hash check:\n\n```powershell\n(Get-FileHash .\\RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip -Algorithm SHA256).Hash.ToLowerInvariant()\n```\n\nCompare its output to the SHA-256 above. Extract the ZIP once. Internal `SHA256SUMS.txt` lists the checksums for the Portable runtime files. The health/repair functions remain subject to explicit safety controls; this hosted build does **not** constitute native Razer hardware acceptance.\n\n**Status:** QA archive only. Official `downloads/releases.json` remains empty and `downloads/latest.json` is absent. This archived TEST binary is never silently promoted to an official release.\n"
+
+def verify_qa_archive(downloads):
+    """Verify explicitly approved, immutable original TEST/UNSIGNED artifact."""
+    qa = Path(downloads) / "qa"
+    if not qa.exists():
+        return 0  # Keeps unit-test fixtures and initial unreleased catalog valid.
+    require(qa.is_dir() and not qa.is_symlink(), "QA archive path invalid")
+    expected_names = {"README.md", "manifest.json", QA_MANIFEST["file"]}
+    require({p.name for p in qa.iterdir()} == expected_names,
+            "unexpected or missing QA archive contents")
+    for filename in expected_names:
+        require((qa / filename).is_file() and not (qa / filename).is_symlink(),
+                "QA file missing or symlinked")
+    record = json.loads((qa / "manifest.json").read_text(encoding="utf-8"))
+    require(record == QA_MANIFEST, "QA metadata differs from pinned approved artifact")
+    require((qa / "README.md").read_text(encoding="utf-8") == QA_README,
+            "QA disclosure / README changed")
+    package = qa / QA_MANIFEST["file"]
+    raw = package.read_bytes()
+    require(len(raw) == QA_MANIFEST["size"]
+            and hashlib.sha256(raw).hexdigest() == QA_MANIFEST["sha256"],
+            "QA test artifact archive hash or size mismatch")
+    require(portable_zip_check(package) == sorted(EXPECTED_FILES),
+            "QA Portable ZIP payload is not seven expected files")
+    with zipfile.ZipFile(package) as z:
+        exe_hash = hashlib.sha256(z.read("RazerHealthCenter.exe")).hexdigest()
+    require(exe_hash == QA_MANIFEST["exeSha256"],
+            "QA executable SHA mismatch")
+    return 1
 
 
 def verify(downloads):
@@ -207,13 +247,15 @@ def verify(downloads):
         require(not latest.exists(), "latest pointer must not exist before first release")
     require((d / "README.md").read_text(encoding="utf-8") == render_readme(rows),
             "README history drift")
+    qa_count = verify_qa_archive(d)
     require({p.name for p in d.iterdir()} == {
         "README.md", "releases.json", *seen_files,
-        *(["latest.json"] if rows else [])
+        *(["latest.json"] if rows else []),
+        *(["qa"] if qa_count else [])
     }, "unexpected downloads contents")
     print("RHC_DOWNLOADS_VERIFY=" + json.dumps({
         "result": "PASS", "released": len(rows), "latest": rows[0]["version"] if rows else None,
-        "files": len(seen_files)}, sort_keys=True))
+        "files": len(seen_files), "qa": qa_count}, sort_keys=True))
     return rows
 
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "classification": "TEST / UNSIGNED",
+  "officialRelease": false,
+  "signed": false,
+  "version": "3.0.8",
+  "file": "RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip",
+  "size": 8696796,
+  "sha256": "277757f4a09fa12791e2912c3a59f32f277ef8b65756b5f0dd491516738f97c0",
+  "exeSha256": "6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a",
+  "sourceCommit": "09bcc0bff174739e3945f072a346bd036a7f3e4d",
+  "sourceRunId": 37761207280,
+  "sourceArtifactId": 11542516436
+}

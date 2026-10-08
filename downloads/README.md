@@ -12,3 +12,8 @@ Unreleased/unsigned QA artifacts from GitHub Actions are **not** official entrie
 | Version | Portable ZIP | Size (bytes) | SHA-256 | Source commit |
 | --- | --- | ---: | --- | --- |
 | No authorized published build yet | — | — | — | — |
+
+## Unsigned test builds (not official releases)
+
+An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).
+QA archives are excluded from releases.json and latest.json and are not production releases.

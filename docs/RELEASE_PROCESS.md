@@ -15,6 +15,12 @@
 - `tools/rhc_downloads.py` constructs bit-reproducible lean ZIPs and validates actual ZIP bytes, strict file allowlist, SHA-256/size, internal checksums, historical records, newest-version pointer and README consistency. `tools/rhc_release_contracts.py` retains its older v3.0.8 reproducibility/source tests; future production ZIP staging must use the *lean* publisher contract.
 - GitHub Releases API/assets are not canonical and no automatic updater is included now. Later manual download or updater links may refer to the GitHub `main/downloads/latest.json` catalog.
 
+## Explicitly approved one-off TEST / UNSIGNED QA archive (RHC-14)
+
+The owner separately authorized durable hosting of the already-successful v3.0.8 GitHub Actions artifact **as a TEST build only**. It resides under [`downloads/qa/`](../downloads/qa/README.md), not in the official `downloads/*.zip` history and not in `releases.json` or `latest.json`. Its unsigned Windows status, exact original archive and EXE SHA-256, successful source Work SHA and Actions run ID are pinned in `qa/manifest.json`; archive metadata and disclosures are read-only-verified on every catalog CI run. A one-time ephemeral write-enabled work-branch workflow imported the exact existing original ZIP; that workflow must not remain on `main`.
+
+This explicit test-only publication does **not** meet product release gates, imply Windows publisher trust, certify native Razer hardware, create a tag, enable production policy or set the update pointer. Future production releases still require separate gated Candidate/Release orchestration and exact-artifact signing/unsigned authorization.
+
 ## Future release transaction — requires implementation and explicit production gates
 
 1. Build a strictly newer version on the appropriate Fast/Work path from an exact approved current-`main` parent; establish real Candidate SHA, scope, no secrets and no unsafe repair changes. Linux Go/PE and Windows PS5.1 run independently on exact same SHA with validated Candidate statuses.
