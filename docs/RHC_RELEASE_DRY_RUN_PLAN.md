@@ -72,3 +72,42 @@ The eventual release gate should validate a machine-readable signed-off approval
 ## Blockers after the dry-run
 
 Real integration additionally needs (1) explicit unsigned approval for each version or verified code signing, (2) verified release immutability setting (applies to future releases), (3) branch PR/status restrictions and bot/minimum permissions, (4) rollback/retention validation and (5) owner-authorized release test. RHC-1 M5/M6 and RHC-3 M4 stay open until independently proven. This plan deliberately does not claim hardware acceptance or authorize v3.0.9.
+
+
+## RHC-5 implementation checkpoint (unmerged Work branch)
+
+This section documents the read-only implementation scope, not approval to
+publish or to promote a Candidate. The branch work/RHC-5 is based on main
+d88a81d5a025735e9d940295dc30609577e4d931; Draft PR #9 holds the work.
+Draft PR #7 for GPL remains independent and unmodified.
+
+- tools/rhc_release_dry_run.py validates eight pure hypothetical lifecycle
+  states. No GitHub client, filesystem writes, subprocess or release API.
+- tests/test_rhc_release_dry_run_contracts.py uses imaginary version 3.0.9,
+  artificial SHAs and simulated consent. No product version is changed and
+  the simulated owner consent is explicitly not a real publication approval.
+- Candidate status evidence must match the exact simulated SHA. Subsequent
+  gates cover two independent Go builds, Windows PS5.1/Go/safety observation,
+  the source/portable byte manifests, a single reviewed simulated merge,
+  final postmerge tag target, complete Draft, release approval and postverify.
+- Approval fixture is version/final-merged-SHA/archive-hash-and-size specific.
+  The actual unchanged production policy must deny publication.
+- Pure assess_recovery() classifies premerge, postmerge-unpublished, partial
+  Draft, and immutable postpublication failure states; uncertainty blocks.
+- The read-only dry-run workflow requests only contents: read, disables
+  persisted checkout credentials, and creates no GitHub release resources.
+- The RHC infrastructure workflow includes this Work branch and qualifies
+  separate Linux/Windows runners; Linux runs two independent original Go
+  Windows-GUI builds and packages with the separate executable outputs.
+- GPL Draft PR #7 is not merged. Thus live v3.0.8 packages on this branch
+  preserve the original seven-file Portable layout. The simulated future
+  fixture models the eight-file GPL-complete package *only after* separately
+  approved GPL integration. These are different evidence scopes.
+
+No real Candidate promotion, version increment, code signing, Draft/tag/Release,
+source merge, network upload, latest pointer or unsigned approval is authorized.
+
+Production blockers remain: rights/brand clearance, signing or version-scoped
+unsigned approval, mandatory PR/status protections, immutable-release setting,
+rollback/retention evidence, operator native Razer hardware validation and
+separately authorized real release integration. RHC-1 M4/M5/M6 stay open.
