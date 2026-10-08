@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Read-only live GH-bound release-branch preflight. No publication or token writes."""
+import base64
 import hashlib
 import io
 import json
@@ -52,6 +53,14 @@ def inspect(root, expected_branch, expected_sha):
     require([x["sha"] for x in p["parents"]] == [main_sha],
             "candidate source lineage invalid")
     trusted_contexts(gh("GET", "/commits/" + candidate + "/statuses"), CANDIDATE)
+    # The release PR must embed EXACT Candidate versioned source bytes.
+    # A matching version literal is insufficient: no silently altered Go
+    # source or changelog may become main as part of publication.
+    for rel in ("model.go", "CHANGELOG.md"):
+        source = gh("GET", "/contents/" + rel + "?ref=" + candidate)
+        require(source.get("encoding") == "base64"
+                and base64.b64decode(source["content"]) == (root / rel).read_bytes(),
+                "release source diverges from qualified Candidate: " + rel)
     policy = content_json("config/rhc-release-policy.json", main_sha)
     require(policy.get("productionEnabled") is True and
             policy.get("rollbackVerified") is True and
@@ -67,6 +76,7 @@ def inspect(root, expected_branch, expected_sha):
             "release PR head/base mismatch")
     diff = gh("GET", "/compare/" + main_sha + "..." + expected_sha)
     expected = {
+        "model.go", "CHANGELOG.md",
         "downloads/" + d.filename(version), "downloads/releases.json",
         "downloads/latest.json", "downloads/README.md"}
     require(diff["behind_by"] == 0 and diff["ahead_by"] == 1
