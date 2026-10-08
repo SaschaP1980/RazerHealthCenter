@@ -14,8 +14,9 @@ import sys
 from rhc_release_transaction import validate_main_rules
 
 REPO="SaschaP1980/RazerHealthCenter"
-CONTEXTS=("rhc/infra/linux","rhc/infra/windows",
-          "rhc/release/source","rhc/release/portable","rhc/release/verification")
+# Main rules must apply to EVERY PR, including ordinary nonrelease development.
+# Release-only contexts are enforced separately by rhc_release_finish.py.
+CONTEXTS=("rhc/infra/linux","rhc/infra/windows")
 
 
 def gh(method, path, payload=None):
