@@ -22,6 +22,16 @@ Current version input is `model.go` with `appVersion` and `referenceVersion`; re
 
 ## Work-Path rolling record
 
+**Work-Path bootstrap is a fail-closed prerequisite, not end-of-run paperwork.** For any authorized Issue-backed Work-Path:
+
+1. Verify Issue, owner authorization, fresh main SHA, version and approved/forbidden paths; an unborn repo may require an initial minimal bootstrap commit solely to obtain a real main SHA.
+2. **Before the Work branch, first code/workflow change, Work PR or related CI**, create the **single** Issue Rolling Comment in phase `BOOTSTRAP` with planned branch `NOT CREATED`, main SHA checkpoint, scope, risks and exact next action.
+3. Read the comment back through GitHub; validate its ID, persisted content, actual millisecond UTC heartbeat and `created_at`/`updated_at`. If absent, inconsistent or unverifiable, **STOP** before branch creation.
+4. Create the Work branch from the still-current SHA, re-read its head, update and re-read the **same comment before the first code commit**. If this fails, **BLOCKED**.
+5. Refresh exact work/main/CI checkpoints before consequential next actions and after significant commits. After interruptions re-fetch authoritative state instead of guessing. Record late initial comments as process violations regardless of GREEN tests.
+
+This gate does **not** apply to routine one-commit documentation Fast-Paths. See [Rolling Comment template](templates/WORK_PATH_ROLLING_COMMENT.md) and [migration bootstrap rule](templates/PROJECT_MIGRATION_TEMPLATE.md).
+
 Exactly one cumulative issue comment, updated *in place*, records RHC Issue, base SHA, Work SHA, last checkpoint, target version, allowed diff, risk, validator totals, timings, failures, recovery, Candidate, Release, cleanup and final verification. Singleton headings must not be duplicated. User-visible Work-Chat-ID `RHC<N>CHAT<12 uppercase random hexadecimal digits>` is emitted once per execution chat and recorded; on transfer append a new ID without overwriting origin. Search indexing is not guaranteed. A missing ID is `not issued`, never fabricated. A Work-Path rolling record is not the normal Fast-Path report.
 
 ## Validation sequence

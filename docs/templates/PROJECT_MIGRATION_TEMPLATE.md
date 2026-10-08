@@ -25,6 +25,18 @@
 - Freeze product-version and behavior scope. Initial repository bootstrap is not permission for an application update, firmware/service modification, signing decision or production release.
 - Create one migration Issue with acceptance gates and known limitations. Use actual GitHub Issue #N, rename to `[<CODE>-N]`, and document path decisions and unresolved questions.
 
+### Recovery bootstrap — mandatory before the first Work-Path mutation
+
+For each later **Issue-backed Work-Path**, establish its single persistent Rolling Comment **before** creating a Work branch, opening a Work PR, making the first code/workflow commit or dispatching related CI:
+
+1. Verify the Issue, owner authorization, current main SHA, product version, permitted diff and forbidden safety/release changes. If the repository is unborn, a minimal initial README/bootstrap commit may first establish a real main SHA, but must not start product Work.
+2. Create the Issue comment with `Current phase: BOOTSTRAP`, the planned Work branch marked `NOT CREATED`, verified main SHA as last checkpoint, scope, risks, and the precise next recovery action. Mark a Work-Chat-ID `not issued` unless it was actually shown in the execution chat.
+3. **Re-read** the comment through GitHub. Verify comment ID, stored body, independently sourced ISO 8601 UTC millisecond heartbeat and GitHub `created_at`/`updated_at`. If this bootstrap write or readback fails or is ambiguous: **STOP** before branch creation.
+4. Re-verify main, create the Work branch from its pinned SHA, read back the branch head, update the **same** comment and verify that edit **before the first code commit**. A stale ref or missing checkpoint **BLOCKS** further work.
+5. Before consequential transitions and after each significant commit/CI checkpoint, reconcile the live Issue, comment, refs, PR and CI; update SHA, failures and next action. After timeout/stream interruption, never guess or blindly retry an uncertain external write.
+
+An initial comment added *after* code commits does not retrospectively establish resume safety and must be recorded as a **process nonconformance**, separately from technical test results. This rule does **not** require a Rolling Comment for routine one-commit documentation Fast-Paths. RHC-5 [incident evidence](https://github.com/SaschaP1980/RazerHealthCenter/issues/5#issuecomment-6056455848).
+
 ## Stage 1 — Safely initialize GitHub
 
 - Check whether `main` has a commit. If unborn, use a simple first README commit; do not call `compare`/`update_ref` with fabricated base SHA. Read new head/tree after initialization.

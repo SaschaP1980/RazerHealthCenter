@@ -1,6 +1,16 @@
 # RHC Work-Path — Single rolling Build & Release recovery comment
 
-Use **only when a durable `work/RHC-<GitHub Issue number>` branch has been explicitly selected** and the project-specific Work-Path/hosted release gates are implemented. This template does **not** apply to ordinary Fast-Path Patch/Hotfixes or to the initial migration while Candidate/Release automation is not yet installed.
+Use as soon as a durable `work/RHC-<GitHub Issue number>` Work-Path is explicitly authorized, **even before its branch exists**. Unimplemented hosted or release gates remain `NOT IMPLEMENTED`, not PASS. This template does **not** apply to ordinary Fast-Path Patch/Hotfixes or to the initial migration while Candidate/Release automation is not yet installed.
+
+**Mandatory BOOTSTRAP gate — before the Work branch exists:**
+
+1. Confirm live Issue, owner approval, exact current main SHA, version source, permitted files and forbidden safety/release actions. An unborn repository may need a minimal repository bootstrap commit first; this does not authorize Work changes.
+2. Create this **single Issue Rolling Comment first**, with `Current phase: BOOTSTRAP`, the planned branch `NOT CREATED`, main SHA as last checkpoint, next precise action and a genuinely user-visible chat marker (else `not issued`). Do not create a branch, PR or code/workflow commit first.
+3. Re-fetch the saved comment; confirm its ID, text, fresh ISO 8601 UTC timestamp with milliseconds and GitHub `created_at`/`updated_at`. If creation, time or readback cannot be confirmed, **STOP** before the first branch mutation.
+4. Then verify main remains at the pinned SHA, create the branch, re-fetch its SHA and update **this same comment**. Verify the new comment text before the first code commit; if stale or ambiguous, **BLOCKED**.
+5. Refresh the exact checkpoint and next action before consequential writes and after significant commits/tests. After any timeout or interruption, re-read Issue, comment, main/Work refs, PR and CI. Never retry an uncertain write blindly. Late bootstrap is a process failure even when subsequent CI is GREEN.
+
+Ordinary Fast-Paths and one-commit documentation updates do not require this Work-Path Rolling Comment.
 
 Maintain one cumulative Issue comment. **Update each singleton section in place**, never append duplicate stale Candidate/Release sections. Numbered attempt sections are unique by attempt. Retain actual failures, counts and retries even when final status becomes PASS.
 
@@ -15,8 +25,9 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 **Agent-State:** ACTIVE | WAITING_FOR_GITHUB | BLOCKED_EXTERNAL | STOPPED | COMPLETED
 **Issue:** [RHC-<number>](https://github.com/SaschaP1980/RazerHealthCenter/issues/<number>)
 **Base main:** `<SHA>`
-**Work branch / exact head:** `work/RHC-<number>` / `<SHA | deleted after publication>`
-**Last checkpoint:** `<SHA>`
+**Work branch / exact head:** `work/RHC-<number>` / `<NOT CREATED in BOOTSTRAP | verified SHA | deleted after publication>`
+**Last checkpoint:** `<verified main SHA in BOOTSTRAP | verified Work SHA after branch creation>`
+**Bootstrap readback:** `<GitHub comment ID + verified creation/readback | NOT VERIFIED — STOP>`
 **Version:** <product version from model.go or later verified authority>
 **Current phase:** <phase>
 **Next action:** <exact evidence-based action>
@@ -65,7 +76,9 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 | --- | --- | --- |
 | User authorized scope | <known/unknown> | <reference> |
 | Issue created | <UTC> | <issue> |
+| Rolling Comment BOOTSTRAP created/read back | <UTC> | <verified comment ID, heartbeat and main SHA; BEFORE branch> |
 | Work branch created | <UTC/unknown> | <ref and SHA> |
+| First branch-head and rolling-comment update verified | <UTC/unknown> | <actual Work SHA / existing comment ID> |
 | Final checkpoint frozen | <UTC/unknown> | <SHA> |
 | Development Completion request/run | <UTC/unknown> | <run id> |
 | Development Completion GREEN | <UTC/unknown> | <exact summary> |
