@@ -267,6 +267,11 @@ def stage(args):
         # An explicit workflow_dispatch is essential for exact release SHA gates.
         gh("POST", "/actions/workflows/rhc-release-preflight.yml/dispatches",
            {"ref": "release/v" + args.version})
+        # GITHUB_TOKEN-created PRs do not reliably fire pull_request CI.
+        # The main Ruleset requires the common Linux+Windows jobs even for
+        # a Release PR; explicitly dispatch them on this exact release ref.
+        gh("POST", "/actions/workflows/rhc-infrastructure-ci.yml/dispatches",
+           {"ref": "release/v" + args.version})
         return {"result": "STAGED_PUBLIC_BRANCH_NOT_YET_MERGED",
                 "pr": pr["number"], "releaseSha": commit, "version": args.version,
                 "candidateSha": args.candidate_sha, "archiveSha256": record["sha256"],
