@@ -268,3 +268,53 @@ def simulate(snapshot, policy, *, stop_after=None, resume=None):
     return {"result": "SIMULATED_ONLY", "trace": trace, "githubMutations": False,
             "productionEnabled": False,
             "checkpoint": {"stage": trace[-1], "fingerprint": fingerprint}}
+
+
+def assess_recovery(snapshot, policy, checkpoint, observed):
+    """Read-only supervised recovery classification from a fresh authoritative snapshot.
+
+    Never attempts a GitHub retry. A merge is source activation, not public binary
+    activation. Postpublication inconsistency requires a new authorised version.
+    """
+    require(isinstance(checkpoint, dict) and checkpoint.get("stage") in STATES,
+            "missing durable checkpoint")
+    simulate(snapshot, policy, stop_after=checkpoint["stage"], resume=checkpoint)
+    require(isinstance(observed, dict), "unknown GitHub state: manual inspection required")
+    c = _get(snapshot, "candidate")
+    m = _get(snapshot, "merge")
+    stage_index = STATES.index(checkpoint["stage"])
+    merged = stage_index >= STATES.index("main-merged")
+    expected_main = m["resultSha"] if merged else c["mainSha"]
+    _same(observed.get("mainSha"), expected_main, "recovery main/head")
+    state = observed.get("releaseState")
+    require(state in ("absent", "draft", "published"), "unresolved timeout/API state")
+    if not merged:
+        require(state == "absent", "release must not predate the source merge")
+        return {"status": "PREMERGE_REVALIDATION", "public": False,
+                "action": "requalify-current-main-no-write"}
+    if state == "absent":
+        return {"status": "BLOCKED_UNPUBLISHED", "public": False,
+                "action": "supervised-idempotent-revalidation"}
+    _same(observed.get("tagTargetSha"), m["resultSha"], "recovery tag target")
+    _same(observed.get("draftId"), _get(snapshot, "draft")["id"],
+          "recovery release identity")
+    expected = _artifacts(_get(snapshot, "artifacts")["build1"], c["version"])
+    if state == "draft":
+        try:
+            complete = _artifacts(observed.get("assets"), c["version"]) == expected
+        except (TypeError, ValueError):
+            complete = False
+        return {"status": "UNPUBLISHED_DRAFT_VERIFIED" if complete else "BLOCKED_UNPUBLISHED",
+                "public": False, "action": "supervised-idempotent-revalidation"}
+    # Once published, never rewrite an immutable tag, Draft, or asset.
+    require(observed.get("immutable") is True,
+            "unexpected mutable published release: critical manual review")
+    try:
+        good = (observed.get("postVerify") is True and
+                _artifacts(observed.get("assets"), c["version"]) == expected and
+                observed.get("previousReleaseAvailable") is True and
+                observed.get("latestVersion") == c["version"])
+    except (TypeError, ValueError):
+        good = False
+    return {"status": "PUBLISHED_VERIFIED" if good else "CRITICAL_POSTPUBLISH_ATTENTION",
+            "public": True, "action": "no-in-place-mutation"}
