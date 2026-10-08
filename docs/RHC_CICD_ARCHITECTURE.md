@@ -12,7 +12,7 @@ The transferable contracts are a GitHub-current-SHA authority, exact Work-Branch
 - Go 1.23.2; original `build.sh` must complete all static, Go and PE/resource tests. Use `GOFLAGS=-buildvcs=false` for a reproducible archive-origin v3.0.8 Windows GUI build.
 - Hosted Windows 2025 must execute **real Windows PowerShell 5.1**, Go tests/vet, diagnostic/repair source checks. No live Razer hardware manipulation or repair invocation.
 - Existing original `tools/package_source.py` is not release-safe after the original ZIP was uploaded to the repository root: it traverses and repackages the archived ZIP. New `tools/rhc_release_contracts.py` instead packages only an explicit tracked-source allowlist with fixed timestamps/permissions and disallows root original archives, forensics, historical build logs, EXEs and cache/temporary files.
-- Portable package retains the original six user payload items plus its `SHA256SUMS.txt` and exactly 12 empty runtime directories. Both package outputs reproducible on repeat builds.
+- GPL-ready Portable packaging adds the root `LICENSE` to the six original payload items and generated `SHA256SUMS.txt` (8 files total), plus exactly 12 empty runtime directories. The original historical v3.0.8 Portable ZIP remains byte-identical and still has 7 regular files. Both package outputs reproducible on repeat builds.
 - The migration reference golden executable is `6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a`; this applies specifically to **v3.0.8**, never to future release versions.
 
 ## Explicit fail-closed publication barrier

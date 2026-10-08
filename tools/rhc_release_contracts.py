@@ -16,13 +16,14 @@ PORTABLE_DIRS = (
     'Runtime/assets', 'Runtime/assets/status', 'Runtime/assets/ui',
 )
 PORTABLE_ASSETS = {
+    'LICENSE': 'LICENSE',
     'README.txt': 'packaging/README.txt',
     'README-I18N.txt': 'README-I18N.txt',
     'i18n-manifest.json': 'i18n-manifest.json',
     'SAFETY-MODEL.txt': 'SAFETY-MODEL.txt',
     'locales/de-DE.json': 'locales/de-DE.json',
 }
-SOURCE_TOP = {'go.mod', 'build.sh', 'README.md', 'README-I18N.txt',
+SOURCE_TOP = {'LICENSE', 'go.mod', 'build.sh', 'README.md', 'README-I18N.txt',
               'i18n-manifest.json', 'SAFETY-MODEL.txt', 'SOURCE-DELIVERY-CONTRACT.md',
               '.gitattributes', '.gitignore'}
 SOURCE_DIRS = {'assets', 'diagnostics', 'repair', 'setup', 'locales', 'packaging',
@@ -93,7 +94,7 @@ def source_zip(root, output, *, source_paths=None):
     paths = list(source_paths if source_paths is not None else tracked(root))
     require(len(paths) == len(set(paths)), 'duplicate tracked source path')
     accepted = sorted(p for p in paths if permitted_source(p))
-    require({'go.mod', 'model.go', 'build.sh', 'tools/rhc_release_contracts.py'} <= set(accepted),
+    require({'LICENSE', 'go.mod', 'model.go', 'build.sh', 'tools/rhc_release_contracts.py'} <= set(accepted),
             'mandatory build source missing')
     require(len(accepted) >= 20, 'source inventory unexpectedly small')
     require(not any(p.lower().endswith(('.zip', '.exe', '.log')) for p in accepted),

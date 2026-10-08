@@ -82,9 +82,12 @@ jobs:
               assert all(not n.endswith(('.zip','.exe','.log')) for n in names)
               assert not any(n.startswith('forensics/') for n in names)
               assert 'go.mod' in names and 'tools/rhc_release_contracts.py' in names
+              assert 'LICENSE' in names
+              assert z.read('LICENSE').startswith(b'GNU GENERAL PUBLIC LICENSE')
           with zipfile.ZipFile(sys.argv[2]) as z:
               assert len([n for n in z.namelist() if n.endswith('/')])==12
-              assert len([n for n in z.namelist() if not n.endswith('/')])==7
+              assert len([n for n in z.namelist() if not n.endswith('/')])==8
+              assert z.read('LICENSE').startswith(b'GNU GENERAL PUBLIC LICENSE')
               assert z.testzip() is None
           print('RHC_INFRA_PACKAGE_INTEGRITY=PASS')
           PY
