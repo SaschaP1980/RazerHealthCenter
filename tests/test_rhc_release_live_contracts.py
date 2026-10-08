@@ -73,6 +73,22 @@ class Approval(unittest.TestCase):
         self.assertIn("trusted_contexts", (ROOT/"tools/rhc_release_finish.py").read_text())
         self.assertIn("RELEASE", (ROOT/"tools/rhc_release_finish.py").read_text())
 
+    def test_real_release_stage_and_finalize_are_owner_manual_dispatch_only(self):
+        for workflow in ("rhc-release-stage.yml","rhc-release-finalize.yml"):
+            with self.subTest(workflow=workflow):
+                text=(ROOT/".github/workflows"/workflow).read_text()
+                self.assertIn("workflow_dispatch:",text)
+                self.assertIn("github.actor == 'SaschaP1980'",text)
+                self.assertIn("EXPLICIT_OWNER_RHC22",text)
+                self.assertNotIn("push:",text)
+                self.assertNotIn("schedule:",text)
+        stage=(ROOT/".github/workflows/rhc-release-stage.yml").read_text()
+        self.assertIn("tools/rhc_release_live.py stage",stage)
+        self.assertIn("rhc-release-preflight.yml", (ROOT/"tools/rhc_release_live.py").read_text())
+        final=(ROOT/".github/workflows/rhc-release-finalize.yml").read_text()
+        self.assertIn("tools/rhc_release_finish.py",final)
+        self.assertIn("release_sha",final)
+
     def test_new_workflow_has_readonly_preflight_and_exact_sha_contexts(self):
         wf=(ROOT/".github/workflows/rhc-release-preflight.yml").read_text()
         for token in ("workflow_dispatch:","statuses: write",
