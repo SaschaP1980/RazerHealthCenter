@@ -4,12 +4,14 @@ Use **only when a durable `work/RHC-<GitHub Issue number>` branch has been expli
 
 Maintain one cumulative Issue comment. **Update each singleton section in place**, never append duplicate stale Candidate/Release sections. Numbered attempt sections are unique by attempt. Retain actual failures, counts and retries even when final status becomes PASS.
 
+**Heartbeat contract (mandatory):** On comment creation **and every substantive in-place update**, set `**Last heartbeat:**` to a **fresh, actual ISO 8601 UTC timestamp including date, time, seconds and milliseconds**, e.g. `2026-10-08T07:24:41.763Z`. Obtain the timestamp from a checked, timezone-aware current-time source immediately before submitting the edit; do not synthesize a clock time from the calendar date or from Issue/Workflow run dates. After the write, re-read the comment through GitHub and compare the stored heartbeat with its independently reported `updated_at` (GitHub API time has second precision and may differ by a few seconds). If the current time cannot be verified, use `unknown — time not verified` rather than a date-only placeholder or invented time. Preserve historical event times separately in the chronological ledger; **Last heartbeat is the current edit's heartbeat**, not the original issue creation or an old run timestamp.
+
 For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID format `RHC<N>CHAT<12 uppercase random hexadecimal characters>`. Generate one identifier per working chat **after the issue number is known**, using cryptographically secure random bytes; write the literal marker in a normal user-visible assistant message **before** recording it in GitHub. Additional chats get separate markers. Do not invent the ChatGPT internal conversation ID, URL, model-selector setting or reasoning effort; mark unsupported evidence `unknown`/`not issued`.
 
 ~~~markdown
 ## RHC-<GitHub Issue number> — Rolling Build & Release State
 
-**Last heartbeat:** <verified UTC>
+**Last heartbeat:** <actual ISO 8601 UTC timestamp with milliseconds, YYYY-MM-DDTHH:mm:ss.sssZ>
 **Agent-State:** ACTIVE | WAITING_FOR_GITHUB | BLOCKED_EXTERNAL | STOPPED | COMPLETED
 **Issue:** [RHC-<number>](https://github.com/SaschaP1980/RazerHealthCenter/issues/<number>)
 **Base main:** `<SHA>`
