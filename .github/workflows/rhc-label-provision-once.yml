@@ -1,0 +1,137 @@
+name: RHC one-time label provisioning (temporary)
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/rhc-label-provision-once.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  provision-once:
+    name: Create missing canonical labels, never change existing
+    if: "${{ endsWith(github.event.head_commit.message, 'RHC-LABEL-BOOTSTRAP-ONCE: requested') }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_REPO: SaschaP1980/RazerHealthCenter
+      PROJECT_CODE: RHC
+    steps:
+      - name: Verify exact invocation and immutable target
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "SaschaP1980/RazerHealthCenter"
+          test "$GITHUB_REF" = "refs/heads/main"
+          echo 'RHC_LABEL_PROVISION_SCOPE=target-repo-only; issue-assignments-unchanged; no-release'
+      - name: Provision from live LenovoBootSelector label metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          
+          source = "SaschaP1980/LenovoBootSelector"
+          target = os.environ["TARGET_REPO"]
+          code = os.environ["PROJECT_CODE"]
+          required = (
+              "bug", "enhancement", "priority: critical", "priority: high",
+              "priority: medium", "priority: low", "dev-path: fast",
+              "dev-path: work-branch", "wontfix",
+          )
+          
+          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target):
+              raise SystemExit("BLOCKED: invalid TARGET_REPO")
+          if not re.fullmatch(r"[A-Z][A-Z0-9]{1,15}", code):
+              raise SystemExit("BLOCKED: invalid PROJECT_CODE")
+          if source.casefold() == target.casefold():
+              raise SystemExit("BLOCKED: source and target must differ")
+          
+          def gh(*args):
+              return subprocess.check_output(["gh", "api", *args], text=True)
+          
+          def read_catalog(repository):
+              labels = []
+              for page in range(1, 101):
+                  payload = json.loads(gh(
+                      f"repos/{repository}/labels?per_page=100&page={page}"
+                  ))
+                  if not isinstance(payload, list):
+                      raise ValueError("GitHub labels response was not a list")
+                  labels.extend(payload)
+                  if len(payload) < 100:
+                      break
+              else:
+                  raise ValueError("Label pagination limit reached; no writes")
+              by_name = {}
+              for row in labels:
+                  if not isinstance(row, dict) or not isinstance(row.get("name"), str):
+                      raise ValueError("Invalid label record")
+                  key = row["name"].casefold()
+                  if key in by_name:
+                      raise ValueError("Ambiguous case-insensitive label duplicate")
+                  by_name[key] = row
+              return by_name
+          
+          donor = read_catalog(source)
+          existing = read_catalog(target)
+          if any(name.casefold() not in donor for name in required):
+              raise SystemExit("BLOCKED: incomplete canonical source label catalog")
+          
+          wanted = {}
+          for name in required:
+              row = donor[name.casefold()]
+              if row["name"] != name:
+                  raise SystemExit("BLOCKED: donor label name changed")
+              color = row.get("color")
+              description = row.get("description")
+              if not isinstance(color, str) or not re.fullmatch(r"[0-9A-Fa-f]{6}", color):
+                  raise SystemExit("BLOCKED: missing or invalid donor label color")
+              if not isinstance(description, str):
+                  raise SystemExit("BLOCKED: missing donor label description")
+              description = description.replace(
+                  "work/LBS-<issue>", f"work/{code}-<issue>"
+              )
+              wanted[name.casefold()] = dict(
+                  name=name, color=color, description=description
+              )
+          
+          # Additional one-time safety: reject conflicting existing labels BEFORE any POST.
+          drift = [row["name"] for key, row in wanted.items()
+                   if key in existing and (
+                       existing[key].get("color", "").casefold() != row["color"].casefold()
+                       or existing[key].get("description") != row["description"])]
+          if drift:
+              raise SystemExit("BLOCKED: existing label metadata conflict: " + ", ".join(drift))
+          
+          missing = [wanted[n.casefold()] for n in required if n.casefold() not in existing]
+          print(json.dumps({"target": target, "missing": missing}, ensure_ascii=False, indent=2))
+          for row in missing:
+              gh("repos/" + target + "/labels", "--method", "POST",
+                 "-f", "name=" + row["name"],
+                 "-f", "color=" + row["color"],
+                 "-f", "description=" + row["description"])
+          
+          after = read_catalog(target)
+          bad = [
+              name for key, row in wanted.items()
+              if (item := after.get(key)) is None or
+              item.get("color", "").casefold() != row["color"].casefold() or
+              item.get("description") != row["description"]
+              for name in [row["name"]]
+          ]
+          print(json.dumps({
+              "created": len(missing), "present": len(wanted),
+              "mismatchedExistingOrPostwrite": bad
+          }, ensure_ascii=False))
+          if bad:
+              raise SystemExit("BLOCKED: existing label drift or post-write mismatch; do not overwrite automatically")
+          PY
