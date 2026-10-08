@@ -88,3 +88,9 @@ Current authoritative `model.go` values are both `3.0.8.0`; all future app/relea
 6. No publication when any mandatory safety/release gate is missing, stale, uncertain or FAILED.
 
 Evidence is additive: retain actual failed attempts, corrections and lesson learned; a later GREEN does not erase an earlier failure.
+
+## RHC-20 release technical authority and recoverability
+
+Autonomously merge normal Work PRs only after real exact-SHA GREEN Linux/Windows gates; no human GitHub code review required. Candidate recovery is read-only (`RHC_CANDIDATE_RECOVERY=READ_ONLY`, `EXPECTED_MAIN_SHA`, `WORK_BRANCH`, `WORK_SHA`): existing refs, live trusted statuses and lost/uncertain dispatch must not provoke a blind replay. No Candidate success authorizes public distribution.
+
+The new Release stage/finish scripts require a separate exact-archive Owner RHC22 consent, native hardware/rollback, signing or specifically approved unsigned+SmartScreen risk, active production policy and effective main PR/status rules. Hosted source/portable/verification statuses are pinned to the Release HEAD, not a synthetic PR merge SHA. Uncertain GitHub writes return ATTENTION. Main ruleset 24701145 currently lacks PR/required checks; this external admin configuration is tracked in #22 and cannot be reported as complete.
