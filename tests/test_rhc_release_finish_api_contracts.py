@@ -58,10 +58,18 @@ class Remote:
             return {"parents":[{"sha":A},{"sha":B}],"tree":{"sha":F}}
         if method=="GET" and path=="/git/commits/"+A:
             return {"parents":[],"tree":{"sha":E}}
+        if method=="GET" and path=="/git/commits/"+C:
+            return {"parents":[{"sha":A}],"tree":{"sha":"7"*40}}
         if method=="GET" and path=="/git/trees/"+E+"?recursive=1":
             return {"truncated":False,"tree":[]}
+        if method=="GET" and path=="/git/trees/"+"7"*40+"?recursive=1":
+            return {"truncated":False,"tree":[
+                {"path":"model.go","sha":"5"*40,"type":"blob"},
+                {"path":"CHANGELOG.md","sha":"6"*40,"type":"blob"}]}
         if method=="GET" and path=="/git/trees/"+F+"?recursive=1":
             return {"truncated":False,"tree":[
+                {"path":"model.go","sha":"5"*40,"type":"blob"},
+                {"path":"CHANGELOG.md","sha":"6"*40,"type":"blob"},
                 {"path":PKG,"sha":"1"*40,"type":"blob"},
                 {"path":IDX,"sha":"2"*40,"type":"blob"},
                 {"path":PTR,"sha":"3"*40,"type":"blob"},
