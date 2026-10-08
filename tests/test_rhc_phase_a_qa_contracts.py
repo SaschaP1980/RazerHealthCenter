@@ -140,7 +140,7 @@ class PhaseAQATests(unittest.TestCase):
         for must in ("contents: read", "windows-2025", "ubuntu-24.04",
                      "needs: windows", "tools/rhc_phase_a_qa.py",
                      "test_rhc_phase_a_qa_contracts.py", "upload-artifact",
-                     "Get-AuthenticodeSignature", "GITHUB_SHA"):
+                     "Get-AuthenticodeSignature", "SOURCE_SHA", "github.sha"):
             self.assertIn(must, workflow)
         for forbidden in ("contents: write", "gh release create", "git push",
                           "refs/tags", "EXPLICIT_OWNER_RHC22",
