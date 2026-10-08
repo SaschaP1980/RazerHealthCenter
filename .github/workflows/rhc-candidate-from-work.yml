@@ -1,0 +1,35 @@
+name: RHC Candidate From Verified Work (nonpublishing)
+on:
+  workflow_run:
+    workflows:
+      - RHC Development Completion (exact SHA gate)
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: write
+  statuses: read
+
+concurrency:
+  group: rhc-candidate-from-work-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  candidate-from-work:
+    name: Fail-closed atomic version-only Candidate transfer
+    if: "${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && startsWith(github.event.workflow_run.head_branch, 'work/RHC-') && contains(github.event.workflow_run.head_commit.message, 'Release-Profile: version-only') && contains(github.event.workflow_run.head_commit.message, 'Development-Completion: requested') }}"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Verify main and Work exact SHAs, create one Candidate, dispatch preflight
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          WORK_BRANCH: "${{ github.event.workflow_run.head_branch }}"
+          WORK_SHA: "${{ github.event.workflow_run.head_sha }}"
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_candidate_from_work.py

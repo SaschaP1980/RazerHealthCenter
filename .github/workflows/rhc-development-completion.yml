@@ -54,8 +54,10 @@ jobs:
           done
           test -n "$RUN_ID" || { echo 'Hosted matrix timed out'; exit 1; }
           JOBS="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs?per_page=100")"
-          LINUX="$(jq -r '[.jobs[] | select(.name | startswith("Linux original Go build"))][0].conclusion // ""' <<< "$JOBS")"
-          WINDOWS="$(jq -r '[.jobs[] | select(.name | startswith("Windows PowerShell 5.1"))][0].conclusion // ""' <<< "$JOBS")"
+          LINUX="$(jq -r '[.jobs[] | select(.name == "rhc/infra/linux")][0].conclusion // ""' <<< "$JOBS")"
+          WINDOWS="$(jq -r '[.jobs[] | select(.name == "rhc/infra/windows")][0].conclusion // ""' <<< "$JOBS")"
+          test "$(jq -r '[.jobs[] | select(.name == "rhc/infra/linux")] | length' <<< "$JOBS")" = '1'
+          test "$(jq -r '[.jobs[] | select(.name == "rhc/infra/windows")] | length' <<< "$JOBS")" = '1'
           test "$LINUX" = 'success' && test "$WINDOWS" = 'success'
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$CURRENT_MAIN"
           test "$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)" = "$SHA"
