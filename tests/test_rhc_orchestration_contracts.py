@@ -56,9 +56,11 @@ class Gates(unittest.TestCase):
                   candidate_statuses=status_for(gate.REQUIRED_CANDIDATE_CONTEXTS),
                   release_statuses=status_for(gate.REQUIRED_RELEASE_CONTEXTS),policy=policy)
         with self.assertRaisesRegex(ValueError,'disabled'):gate.validate_preactivation(**data)
-        approved=dict(policy,productionEnabled=True,distribution='github-release',
+        approved=dict(policy,productionEnabled=True,distribution='repo-downloads',
                       signingDecision='unsigned-approved',rollbackVerified=True)
         self.assertEqual(gate.validate_preactivation(**dict(data,policy=approved))['result'],'PASS')
+        with self.assertRaisesRegex(ValueError,'repo-downloads'):
+            gate.publication_policy(dict(approved,distribution='github-release'))
         for change in [{'public_version':'3.0.9'},{'staged_version':'3.0.8'},{'candidate_sha':'bad'},
                        {'release_statuses':status_for(gate.REQUIRED_RELEASE_CONTEXTS[:-1])}]:
             with self.assertRaises(ValueError):gate.validate_preactivation(**dict(data,policy=approved,**change))

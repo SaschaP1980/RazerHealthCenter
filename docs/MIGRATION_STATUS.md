@@ -143,3 +143,9 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 ## Next action
 
 GitHub Releases distribution has been selected. Next design and nonpublishing-qualify Candidate promotion, Draft Release staging, prepublication checks, source PR merge, immutable Release activation, postrelease verification and failure recovery; separately settle signing/trust, immutable setting and rollback before any real deployment. Keep RHC-3 and parent RHC-1 open; no v3.0.9 and no native repair changes.
+
+## Distribution decision superseded — RHC-12 (2026-10-08, later owner instruction)
+
+The earlier same-day GitHub Releases-only distribution agreement recorded above was explicitly **superseded** by the owner. The current authority is `config/rhc-release-policy.json.distribution=repo-downloads` and `docs/RELEASE_PROCESS.md`. Use LenovoBootSelector's source-controlled immutable historical release ZIPs and `downloads/README.md`, `downloads/releases.json`, `downloads/latest.json` (latest only after an authorized release), in a single merge activation. Source remains in GitHub; runtime ZIP has seven files and no nested/source archive.
+
+RHC-12 implements a read-only catalog/ZIP checksum validator, staging helpers, adversarial tests and baseline empty catalog. It **does not** publish the earlier unsigned v3.0.8 test artifact, change the product version, create a tag, override release policy or declare production release GREEN. Archive publisher/orchestrator and owner-specific signing/unsigned decisions, native Razer acceptance and rollback remain OPEN. Earlier M5 entries and GitHub Releases/Draft notes above are historical, not present-day instructions.

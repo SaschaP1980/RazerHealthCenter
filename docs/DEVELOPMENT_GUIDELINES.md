@@ -46,6 +46,12 @@ RHC-10 implementation PR #11 performs exactly one historical catch-up of merged 
 
 Manual `workflow_dispatch` with a merged PR number is reserved for fault recovery by the assistant; do not ask the owner to click GitHub for normal development. Do not apply cleanup to candidate/release refs until their separate, verified release orchestration lifecycle is implemented.
 
+## Canonical distribution after RHC-12 owner decision
+
+Use the LenovoBootSelector storage model: immutable released Portable ZIPs under `main/downloads/`, an append-only `downloads/releases.json` history, generated `downloads/README.md` and a `downloads/latest.json` pointer only once a version has been published. Source is in GitHub and does not belong in the Portable ZIP. New versions must be strictly increasing and previous ZIPs byte-unchanged; tests use `tools/rhc_downloads.py` and a read-only hosted downloads CI workflow. The former GitHub Releases/Draft mechanism was superseded and remains a historical rehearsal only. An Actions QA artifact is not a released package.
+
+Do not create tags, publish a ZIP, advance `latest.json` or enable production release until the real Candidate/Release orchestrator, native/device gates, version-scoped signing/unsigned approval and rollback evidence pass. Routine code/CI merges remain autonomous; release authorization stays distinct.
+
 ## Validation sequence
 
 1. Read exact current base; identify allowed code/file changes and protected repair/firmware boundaries.
