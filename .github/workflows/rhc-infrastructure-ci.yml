@@ -61,6 +61,13 @@ jobs:
           expected='6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a'
           test "$actual" = "$expected" || { echo "RHC_EXE_MISMATCH: $actual"; exit 1; }
           echo "RHC_INFRA_GOLDEN_EXE=PASS $actual"
+          # RHC-5: a second independent clean Windows GUI build must reproduce
+          # the exact original golden EXE before package-digest comparison.
+          bash build.sh "$RUNNER_TEMP/rhc-build2"
+          second="$(sha256sum "$RUNNER_TEMP/rhc-build2/RazerHealthCenter.exe" | cut -d' ' -f1)"
+          test "$second" = "$actual" || { echo "RHC_INDEPENDENT_BUILD_MISMATCH: $second"; exit 1; }
+          cmp -s "$RUNNER_TEMP/rhc-build1/RazerHealthCenter.exe" "$RUNNER_TEMP/rhc-build2/RazerHealthCenter.exe"
+          echo "RHC5_TWO_INDEPENDENT_GO_BUILDS=PASS sha256=$second"
       - name: Deterministically package source/portable twice
         shell: bash
         run: |
@@ -69,7 +76,7 @@ jobs:
             --exe "$RUNNER_TEMP/rhc-build1/RazerHealthCenter.exe" --out "$RUNNER_TEMP/rhc-package1" \
             | sed -E 's/"files": \[[^]]*\]/"files": "(list omitted)"/g'
           python3 -B tools/rhc_release_contracts.py --root . \
-            --exe "$RUNNER_TEMP/rhc-build1/RazerHealthCenter.exe" --out "$RUNNER_TEMP/rhc-package2" \
+            --exe "$RUNNER_TEMP/rhc-build2/RazerHealthCenter.exe" --out "$RUNNER_TEMP/rhc-package2" \
             | sed -E 's/"files": \[[^]]*\]/"files": "(list omitted)"/g'
           for name in RazerHealthCenter-Source-v3.0.8.zip RazerHealthCenter-Portable-v3.0.8.zip; do
             cmp -s "$RUNNER_TEMP/rhc-package1/$name" "$RUNNER_TEMP/rhc-package2/$name" || {
