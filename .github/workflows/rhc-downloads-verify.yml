@@ -83,5 +83,5 @@ jobs:
               echo "Existing release ZIP changed or was deleted: $status $path" >&2
               exit 1
             fi
-          done < <(git diff --name-status "$BASE" HEAD -- 'downloads/*.zip')
+          done < <(git diff --name-status "$BASE" HEAD -- 'downloads/*.zip' 'downloads/qa/*.zip')
           echo 'RHC_DOWNLOADS_HISTORY=PASS'

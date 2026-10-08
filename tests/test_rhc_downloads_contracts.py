@@ -156,5 +156,61 @@ class Downloads(unittest.TestCase):
             d.verify(self.downloads)
 
 
+
+class QAOnlyArchive(unittest.TestCase):
+    """Tests against the exact tracked original binary, not a synthetic release."""
+
+    def setUp(self):
+        import shutil
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.downloads = Path(self.temp.name) / "downloads"
+        shutil.copytree(ROOT / "downloads", self.downloads)
+
+    def test_pinned_original_qa_binary_validates(self):
+        self.assertEqual(d.verify(self.downloads), [])
+        self.assertFalse((self.downloads / "latest.json").exists())
+        self.assertEqual(json.loads((self.downloads / "releases.json").read_text(
+            encoding="utf-8"))["releases"], [])
+
+    def test_qa_archive_bytes_cannot_be_tampered(self):
+        p = self.downloads / "qa" / d.QA_MANIFEST["file"]
+        p.write_bytes(p.read_bytes() + b"tamper")
+        with self.assertRaisesRegex(ValueError, "QA test artifact archive hash"):
+            d.verify(self.downloads)
+
+    def test_qa_provenance_metadata_must_be_pinned(self):
+        p = self.downloads / "qa" / "manifest.json"
+        record = json.loads(p.read_text(encoding="utf-8"))
+        record["officialRelease"] = True
+        p.write_text(json.dumps(record), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "metadata differs"):
+            d.verify(self.downloads)
+
+    def test_qa_unsigned_disclosure_immutable(self):
+        p = self.downloads / "qa" / "README.md"
+        p.write_text("Official signed release!\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "QA disclosure"):
+            d.verify(self.downloads)
+
+    def test_qa_duplicate_artifact_is_rejected(self):
+        (self.downloads / "qa" / "ExtraBuild.zip").write_bytes(b"fake zip")
+        with self.assertRaisesRegex(ValueError, "unexpected or missing QA"):
+            d.verify(self.downloads)
+
+    def test_qa_latest_pointer_must_remain_absent(self):
+        (self.downloads / "latest.json").write_text("{}", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "latest pointer must not exist"):
+            d.verify(self.downloads)
+
+    def test_qa_index_is_not_the_release_index(self):
+        self.assertEqual(d.catalog_read(self.downloads), [])
+        self.assertEqual(d.verify_qa_archive(self.downloads), 1)
+        self.assertFalse(d.QA_MANIFEST["officialRelease"])
+        self.assertFalse(d.QA_MANIFEST["signed"])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
