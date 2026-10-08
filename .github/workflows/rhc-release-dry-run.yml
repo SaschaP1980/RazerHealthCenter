@@ -1,0 +1,68 @@
+name: RHC-5 Release State Dry Run (read-only)
+on:
+  push:
+    branches:
+      - 'work/RHC-5'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/rhc_release_dry_run.py'
+      - 'tests/test_rhc_release_dry_run_contracts.py'
+      - '.github/workflows/rhc-release-dry-run.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture-simulation:
+    name: Pure simulated release lifecycle and adversarial recovery
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Confirm release remains fail-closed and source v3.0.8
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/verify_source_intake.py --root .
+          python3 - <<'PY'
+          import json, pathlib, re, sys
+          policy=json.loads(pathlib.Path('config/rhc-release-policy.json').read_text())
+          assert policy['productionEnabled'] is False
+          assert policy['distribution'] == 'github-release'
+          assert policy['signingDecision'] == 'unknown'
+          assert policy['rollbackVerified'] is False
+          m=pathlib.Path('model.go').read_text()
+          assert re.search(r'appVersion\s*=\s*"3\.0\.8"',m)
+          assert re.search(r'referenceVersion\s*=\s*"3\.0\.8"',m)
+          sys.path.insert(0,'tools')
+          from rhc_orchestration_contracts import publication_policy
+          try:
+              publication_policy(policy)
+          except ValueError as exc:
+              assert 'disabled' in str(exc)
+          else:
+              raise AssertionError('UNSAFE: real publish policy accepted dry-run')
+          print('RHC5_REAL_PRODUCTION_POLICY=BLOCKED')
+          PY
+      - name: Exercise read-only future fixture transitions and adversarial failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
+          python3 - <<'PY'
+          import json,sys
+          sys.path[:0]=['tests','tools']
+          from test_rhc_release_dry_run_contracts import fixture,policy
+          from rhc_release_dry_run import simulate
+          result=simulate(fixture(),policy())
+          assert len(result['trace'])==8
+          assert result['githubMutations'] is False
+          assert result['productionEnabled'] is False
+          print('RHC5_FIXTURE_ONLY_STATE_TRACE='+json.dumps(result['trace']))
+          print('RHC5_DRY_RUN=PASS no tag, Draft, Release, merge, signature or publication')
+          PY
