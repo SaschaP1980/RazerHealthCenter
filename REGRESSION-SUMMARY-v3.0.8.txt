@@ -1,0 +1,36 @@
+Razer Synapse + Chroma Health Center v3.0.8 regression summary
+
+New v3.0.8 background-runtime semantics:
+- canonical v3.0.7 source: RED 3/20 PASS, exit 1
+- v3.0.8 source: GREEN 20/20 PASS
+
+Retained build gates:
+- i18n validation PASS (413 keys)
+- repair safety / confirmation / read-only diagnostics PASS
+- setup inventory PASS
+- guided/live 44/44
+- guided flow 13/13
+- guided UX 20/20
+- tray menu 10/10
+- historical details 21/21
+- historical session/archive 17/17
+- archive header 22/22
+- archive tint 9/9
+- diagnostic/repair platform 24/24
+- manifest authority 20/20
+- false-green guard 21/21
+- AppEngine recovery 25/25
+- PS5.1 AppEngine diagnostic 19/19
+- Healthcheck/UI 28/28
+- connection presentation 10/10
+- structured failure 11/11
+- gate finalization 14/14
+- live performance 13/13
+- PowerShell encoding 7/7
+- version check PASS
+- log evidence 13/13
+- Go tests PASS
+- i18n guard PASS
+- Windows amd64 vet/build PASS
+- resource patch / PE validation PASS
+- static UI/diagnostics/setup/repair/reference 103/103

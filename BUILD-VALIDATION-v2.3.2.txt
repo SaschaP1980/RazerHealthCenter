@@ -1,0 +1,121 @@
+Razer Synapse + Chroma Health Monitor v2.3.2
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.2
+- Health Engine: 1.4.3 (byte-identical to v2.3.1)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.1)
+- Fast Setup Live Probe: 1.0.1 (byte-identical to v2.3.1)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.1)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 328 UI keys
+
+v2.3.2 UI / presentation scope
+------------------------------
+- A running known-PID live refresh immediately marks the previous presence state
+  stale. The connection text remains visible but muted until the probe succeeds.
+- Each product row overlays an indeterminate Acid-Green progress bar inside the
+  VERBINDUNGS-PIDs cell while the fast live refresh is running.
+- After successful live verification, both PID and learned role label are Acid
+  Green; inactive known connections remain neutral/muted.
+- Gate 4 normal findings enrich physical-node presentation with Setup product
+  name, learned connection role and current verified alternative connection.
+- Gate 4 raw details and clipboard-copy evidence remain the original Health
+  Engine structured evidence unchanged; gate severity semantics are unchanged.
+- Normal and raw gate-detail documents include 52 px bottom scroll reserve so the
+  last line remains readable above the fixed Rohdetails/Kopieren button row.
+- The PROTOKOLLE range header retains its 1-10-von-N counter but removes the
+  redundant "Mausrad zum Scrollen" suffix; scroll behavior is unchanged.
+
+Live / guided architecture
+--------------------------
+Unchanged from v2.3.1:
+- persisted presentAtScan is historical until a current-session live refresh succeeds
+- startup with a valid inventory automatically runs the known-PID PresentOnly probe
+- known-PID live refresh avoids Registry history, DriverStore and INF traversal
+- current USB-root product identity must verify to stored productKey before presence
+  publication
+- RegisterDeviceNotificationW / WM_DEVICECHANGE events only trigger debounced
+  re-verification and are never identity/role evidence
+- probe-level errors fail closed
+- guided learning uses product-specific baseline -> event -> target delta probe
+- ambiguity, weak identity or descriptor-role conflict writes no role/history
+
+PID / identity / role safety
+----------------------------
+PASS: active Setup production logic has no known endpoint PID/model constants
+PASS: built EXE raw-byte scan has no known Viper/BlackWidow endpoint PID/model constants
+PASS: observed PIDs remain runtime inventory/history data only
+PASS: deviceClass uses generic PnP evidence, not PID/model mappings
+PASS: ContainerId remains supporting evidence, not a product merge key
+PASS: generic product identity prefers root BusReportedDeviceDesc
+PASS: Windows device events are triggers only, never semantic evidence
+PASS: live identity is reverified before presence publication
+PASS: guided calibration remains fail-closed on ambiguity/conflict
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard
+PASS: i18n catalog / placeholders (328 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 101/101
+PASS: 81/81 icon assets byte-identical to v2.3.1
+PASS: PE resource source payload byte-identical to v2.3.1
+PASS: Health Engine 1.4.3 byte-identical to v2.3.1
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.1
+PASS: Fast Setup Live Probe 1.0.1 byte-identical to v2.3.1
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.1
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: provisional Source ZIP clean rebuild produced a byte-identical internal EXE
+PASS: final Source ZIP integrity
+PASS: fresh extraction of final Source ZIP builds a byte-identical internal EXE
+
+Native acceptance status
+------------------------
+The v2.3.1 native diagnostic run already confirmed a successful startup fast-live
+probe and repeated WM_DEVICECHANGE-driven 2 -> 3 -> 2 presence transitions. v2.3.2
+does not change that probe/event architecture. Native acceptance for this release
+therefore focuses on the new visual refresh overlay, complete Acid-Green
+PID+role presentation, Gate 4 user-facing wording and final-line detail scrolling.
+
+Hashes
+------
+Release internal EXE SHA-256:
+0145f0da5cd8dd0b6fd7f80166f9ab1af5c3fb5a32bea615d262fe79c7a19e38
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Fast Setup Live Probe 1.0.1 source SHA-256:
+d4f4ea7ac71ebaa5038d90120bd887327667bc530b8662d976edcbb829e651ef
+Fast Setup Live Probe runtime UTF-8-BOM SHA-256:
+4127a2f6ae4cef1d9f86539fdc602a7858b99d0dea16ab8879d1f778e1541ef3
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+e18329c92002a3d04a1dd98f2d6a8893097f38297c0e4911e7d7a82dbba52a14

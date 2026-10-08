@@ -1,0 +1,60 @@
+Razer Synapse + Chroma Health Center v3.0.4 - Final Build Validation
+======================================================================
+
+Scope
+-----
+Single-token visual calibration on canonical v3.0.3: historical archive summary
+surface reduced from roughly 6% to roughly 4% cyan contribution. Historical
+session/archive semantics, Health Engine 1.4.6, VersionStatus schema 4 and the
+diagnostic/problem/repair safety architecture are unchanged.
+
+RED -> GREEN
+------------
+Canonical v3.0.3 against tools/validate_v304_archive_surface_tint.py:
+  2/9 PASS, exit 1 (expected RED)
+
+v3.0.4:
+  9/9 PASS (GREEN)
+
+Retained regression gates
+-------------------------
+Guided/live calibration:                 44/44 PASS
+Guided Flow:                             13/13 PASS
+Guided UX:                               20/20 PASS
+Rounded tray menu:                       10/10 PASS
+Historical measurement details:          21/21 PASS
+Historical session/archive lifecycle:    17/17 PASS
+Archive header polish:                   22/22 PASS
+Archive surface tint:                     9/9 PASS
+Diagnostic/repair platform:              24/24 PASS
+Manifest authority:                      20/20 PASS
+Healthcheck/UI:                           28/28 PASS
+Connection presentation:                 10/10 PASS
+Structured failure details:              11/11 PASS
+Gate applicability/finalization:         14/14 PASS
+Static UI/diagnostics/setup/repair/ref: 103/103 PASS
+
+Additional build gates
+----------------------
+go test .:                                PASS
+i18n guard:                              PASS
+Windows amd64 go vet:                    PASS
+Windows amd64 CGO=0 GUI build:           PASS
+Resource patch:                          PASS
+PE validation:                           PASS
+
+The aggregate build wrapper reached its execution window after the Python
+regression chain had passed. Remaining Go/i18n/vet/build/resource/PE/static
+checks were executed separately against the same source and passed.
+
+Release EXE SHA-256
+-------------------
+dd5d5160c5e798f1eb97f652dc018155ba57233df40a819e8560ccec745174a6
+
+Unchanged core component SHA-256
+--------------------------------
+Health Engine 1.4.6: a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+Setup Scanner 1.0.6: 8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Chroma Diagnostic Module 1.0.0: 6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+Chroma Repair Recipe 1.1.0: 4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+versioncheck.go: f122d5e1a736b0ea8a0eacb44aa460351aba6e6b1de90a33ea4399028bfd11f4

@@ -1,0 +1,104 @@
+Razer Synapse + Chroma Health Monitor v2.3.5
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.5
+- Health Engine: 1.4.3 (byte-identical to v2.3.4)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.4)
+- Fast Setup Live Probe: 1.1.0 (native SetupAPI implementation)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.4)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 328 UI keys
+
+v2.3.5 live-presence performance optimization
+--------------------------------------------
+- The production live-presence hot path no longer launches powershell.exe.
+- Startup and WM_DEVICECHANGE refreshes use native SetupAPI from Go.
+- SetupDiGetClassDevsW is restricted to currently present devices of the USB
+  enumerator; physical Razer USB roots are identified from their current
+  instance IDs.
+- Known-connection mode processes only PIDs already stored in the Setup
+  inventory; unrelated roots are skipped before property retrieval.
+- Current product identity is re-verified with
+  DEVPKEY_Device_BusReportedDeviceDesc before a PID becomes live.
+- Guided Wired/Wireless baseline and delta checks use the same native target-
+  product probe and can still discover a previously unknown current PID.
+- The former live PowerShell probe is no longer an active runtime payload and is
+  retained only in docs/setup-history for provenance.
+- PnP event bursts use a generation-based 800 ms quiet-window debounce before
+  a probe starts. Repeated pending events replace the pending generation; only
+  an event arriving while the short native probe is actually executing may
+  retain one follow-up refresh.
+- Diagnostics record implementation, requested PID set, verified present PID
+  set, changed PID transitions, enumerated USB-node count, matched Razer-root
+  count and native probe duration.
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard (3 active PowerShell payloads)
+PASS: i18n catalog / placeholders (328 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: live performance architecture validator 13/13
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 103/103
+PASS: active setup runtime contains only Setup Scanner 1.0.6 PowerShell source
+PASS: production device_monitor.go contains no powershell.exe live subprocess
+PASS: native SetupAPI functions compile in Windows amd64 CGO=0 build
+PASS: 81/81 icon assets byte-identical to v2.3.4
+PASS: PE resource source payload byte-identical to v2.3.4
+PASS: Health Engine 1.4.3 byte-identical to v2.3.4
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.4
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.4
+PASS: Portable internal SHA256SUMS
+PASS: Portable ZIP integrity
+
+Source reproducibility
+----------------------
+The final delivered Source ZIP is freshly extracted and rebuilt after packaging.
+The result is recorded separately in CLEAN-REBUILD-FINAL-v2.3.5.txt.
+
+Native acceptance focus
+------------------------
+Verify on Windows that startup and WM_DEVICECHANGE refreshes complete materially
+faster than v2.3.4. AppDebug should contain native-setupapi-usb and log requested,
+present, changed, usbNodes, matchedRoots and elapsedMs. For the known four-PID
+inventory, no PowerShell live probe should be started. Also re-test guided
+Wired/Wireless learning because its interactive baseline/delta probe is now native.
+
+Hashes
+------
+Release internal EXE SHA-256:
+2af8861a4ce70133fac59799f45e5d9af391cb8b3d78a59e7ae41ef1b444071d
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Native Fast Live Probe 1.1.0 implementation source (device_monitor.go) SHA-256:
+69f135e24aeadbdae74c509ff4edf0306cfec6d1ca0b78c0dae452a25a6eeefc
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+c2ae966aa34287037741bfa659fb9f614f6136a72ff3f8cf5ccda6a2ed9f6873

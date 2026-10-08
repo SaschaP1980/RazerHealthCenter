@@ -1,0 +1,95 @@
+Razer Synapse + Chroma Health Monitor v2.3.3
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.3
+- Health Engine: 1.4.3 (byte-identical to v2.3.2)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.2)
+- Fast Setup Live Probe: 1.0.1 (byte-identical to v2.3.2)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.2)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 328 UI keys
+
+v2.3.3 focused UI correction
+----------------------------
+- The per-product fast-live refresh indicator in VERBINDUNGS-PIDs is now drawn
+  in the same vertical band as the PID/role text.
+- The previous geometry at r.Bottom-7..r.Bottom-3 is removed; the track is
+  centered around (r.Top+r.Bottom)/2 and therefore no longer appears as a second
+  visual line below the connection text.
+- PID/role text stays muted while refreshing; the Acid-Green segment is painted
+  afterwards as the overlay. After completion, the overlay disappears and the
+  verified live PID plus role label use the existing Acid-Green state.
+- No live-probe, product identity, guided-learning, Gate 4, Health, Repair or
+  persistence semantics are changed by this patch.
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard
+PASS: i18n catalog / placeholders (328 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 102/102
+PASS: explicit overlay geometry regression check
+PASS: 81/81 icon assets byte-identical to v2.3.2
+PASS: PE resource source payload byte-identical to v2.3.2
+PASS: Health Engine 1.4.3 byte-identical to v2.3.2
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.2
+PASS: Fast Setup Live Probe 1.0.1 byte-identical to v2.3.2
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.2
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+
+Source reproducibility
+----------------------
+The final delivered Source ZIP must be freshly extracted and rebuilt after
+packaging. The result is recorded separately in CLEAN-REBUILD-FINAL-v2.3.3.txt
+so this validation file can remain byte-identical inside and outside the Source
+ZIP.
+
+Native acceptance focus
+------------------------
+During startup and WM_DEVICECHANGE refreshes, verify that the Acid-Green moving
+segment overlays the PID/role text band instead of appearing underneath it.
+Verify no row-height/layout shift occurs and that the final live PID+role color
+returns normally after refresh completion.
+
+Hashes
+------
+Release internal EXE SHA-256:
+7f6fda0851b819d7b98896484fde55090b36f4b185ba819d2c05e6a1763f8afc
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Fast Setup Live Probe 1.0.1 source SHA-256:
+d4f4ea7ac71ebaa5038d90120bd887327667bc530b8662d976edcbb829e651ef
+Fast Setup Live Probe runtime UTF-8-BOM SHA-256:
+4127a2f6ae4cef1d9f86539fdc602a7858b99d0dea16ab8879d1f778e1541ef3
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+6c1425ad6fa5762d1448858b7a6783660a8f5d7efef647bfaf09151b052f0031

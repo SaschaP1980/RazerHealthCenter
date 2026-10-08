@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "catalogVersion": "3.0.8",
+  "runtimeLocale": "de-DE",
+  "defaultLocale": "de-DE",
+  "fallbackLocale": "de-DE",
+  "availableLocales": [
+    "de-DE"
+  ],
+  "languageSwitchingImplemented": false,
+  "uiKeyCount": 413,
+  "technicalStatusValues": [
+    "PASS",
+    "WARN",
+    "FAIL",
+    "FAILED",
+    "UNKNOWN",
+    "INFO",
+    "CHECKING",
+    "WAITING",
+    "UNCHECKED"
+  ],
+  "localizationBoundary": "All presentation-owned visible UI text, including setup, repair and official Razer prod-manifest version-check presentation, comes from locales/de-DE.json. Machine-readable status values, JSON keys, progress protocol, setup/repair audit field names, diagnostic evidence payloads, file names, URLs and technical product/service identifiers remain stable.",
+  "placeholderSyntax": "{name}",
+  "pluralConvention": ".one / .other",
+  "sourceOfTruth": "locales/de-DE.json"
+}

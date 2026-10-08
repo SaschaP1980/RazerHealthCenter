@@ -1,0 +1,124 @@
+Razer Synapse + Chroma Health Monitor v2.3.7
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.7
+- Health Engine: 1.4.4 (selection-aware product scoping)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.6)
+- Fast Setup Live Probe: 1.1.0 native SetupAPI (device_monitor.go byte-identical to v2.3.6)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.6)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 338 UI keys
+
+v2.3.7 Healthcheck participation / Guided UI
+---------------------------------------------
+- SETUP column PROFILSTATUS is replaced by HEALTHCHECK.
+- Clicking an available product row toggles only that product's Healthcheck
+  participation. Active glyph/status are Acid Green; inactive glyph/status are
+  muted grey. The product name and live connection presentation retain their own
+  independent semantics.
+- The participation choice is persisted by productKey in the app-owned schema-2
+  inventory. Restart restores it. A later full Setup scan merges previous choices
+  for recognized products; newly discovered products retain scanner default=true.
+- Toggling participation immediately invalidates the current dashboard result to
+  UNGEPRÜFT. Historical measurement files are not deleted.
+- With zero active products, Setup scan and Healthcheck start are rejected before
+  executing their scan/engine paths and an in-window dark app modal explains that
+  at least one product must be active.
+- Health Engine 1.4.4 derives required PIDs and relevant connections only from
+  required=true products. During partial product selection, inventory-global
+  logicalProductIds are not gate-determining because schema 2 cannot attribute
+  them reliably to productKey; this prevents excluded products leaking into Gate 12.
+- Guided Learning adds "Gerät überspringen" as a product-level skip, separate from
+  the existing current-step "Überspringen". Already learned roles are retained.
+- The Setup action subtitles are shortened to fit the existing cards.
+
+Regression proof
+----------------
+RED on unchanged v2.3.6 baseline:
+- v2.3.7 Healthcheck/UI validator: 2/28 PASS, exit 1.
+- The two pre-existing passing checks are connection rendering independence and
+  absence of endpoint PID/model semantics; all new v2.3.7 requirements are absent.
+
+GREEN on v2.3.7:
+- v2.3.7 Healthcheck/UI validator: 28/28 PASS.
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard (3 production PowerShell payloads)
+PASS: i18n catalog / placeholders / presentation hardcode guard (338 keys)
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 44/44
+PASS: v2.3.6 Guided-flow compatibility regression validator 13/13
+PASS: v2.3.7 Healthcheck/UI regression validator 28/28
+PASS: live performance architecture validator 13/13
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator (PE32+ amd64 GUI, 16 sections, 11 resource entries)
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 103/103
+PASS: built EXE contains no known Viper/BlackWidow endpoint PID/model constants
+PASS: 81/81 UI assets byte-identical to v2.3.6
+PASS: PE resource source payload byte-identical to v2.3.6
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.6
+PASS: native Fast Live Probe / Guided core device_monitor.go byte-identical to v2.3.6
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.6
+PASS: Portable internal SHA256SUMS
+PASS: Portable ZIP integrity (18 entries: 7 files, 11 directory entries)
+
+Source reproducibility
+----------------------
+The final delivered Source ZIP is freshly extracted and rebuilt after packaging.
+The result is recorded separately in CLEAN-REBUILD-FINAL-v2.3.7.txt.
+
+Native acceptance focus
+------------------------
+1. Hover each SETUP product row: verify the subtle Status-table-like row hover.
+2. Toggle one product inactive: HEALTHCHECK must show DEAKTIVIERT with grey device
+   icon/status, while an actually present connection PID/role remains Acid Green.
+3. Open Status: the previous Health result must read UNGEPRÜFT until a new check.
+4. Run a Healthcheck with one product disabled and confirm excluded product-specific
+   checks do not affect the overall result.
+5. Restart the app: the per-product active/inactive choices must be restored.
+6. Run a full Setup scan while at least one product remains active: choices for
+   recognized products must survive the scan.
+7. Disable every product and click Setup-Scan starten: no scan may start; the custom
+   app modal must require at least one active device. Healthcheck start must likewise
+   be blocked without invoking the engine.
+8. Guided Learning: "Gerät überspringen" must advance directly to the next product,
+   while "Überspringen" continues to skip only the current Wired/Wireless step.
+9. Verify both shortened Setup-card subtitles are fully visible.
+
+Hashes
+------
+Release internal EXE SHA-256:
+c557d5940456413b30bd980458daca6ee9976d37a78bd6e45f7990bea62a0c86
+
+Health Engine 1.4.4 source SHA-256:
+eb5062b1c57c975ce06153422197b74be4fd6dca15c54694f679ac8915886473
+Health Engine runtime UTF-8-BOM SHA-256:
+ad0c61210f5ffbbf213537a47b4244a84ec71ebc28ae747647dc1148c4f667b1
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Native Fast Live Probe / Guided core implementation source
+(device_monitor.go) SHA-256:
+7900b6b09610bc85bd047c2a47cc272df7828067b1aa652e789091b460822abf
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+2df25aa33358f0a3fa3674f7ec0d9940905cf67f3c909c9c4429664fd9026134

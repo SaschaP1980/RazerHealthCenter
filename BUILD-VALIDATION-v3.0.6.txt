@@ -1,0 +1,118 @@
+Razer Synapse + Chroma Health Center v3.0.6 - Final Build Validation
+======================================================================
+
+Scope
+-----
+v3.0.6 fixes the registry-view bug in the v3.0.5 product-registration guard
+and integrates the first catalogued AppEngine user-mode recovery derived from
+the real Windows failure/recovery investigation of 16 September 2026.
+
+Registry-view correction
+------------------------
+- The official Razer manifest current_version_registry_key/value mapping is
+  evaluated explicitly against Windows Registry64 and Registry32.
+- A readable value in either view is PRESENT; the resolved view is persisted.
+- No hard-coded WOW6432Node insertion is used.
+- Version differences remain informational only and do not affect Health.
+
+AppEngine user-mode health / recovery
+-------------------------------------
+- New read-only diagnostic: RHC.DIAG.APPENGINE.USERMODE 1.0.0.
+- Gate 1 can become UNKNOWN / PRÜFUNG UNVOLLSTÄNDIG when the versioned
+  AppEngine user-mode runtime is missing or incomplete even if some
+  RazerAppEngine.exe process exists.
+- Known problem: RHC.APPENGINE.USERMODE.RUNTIME_INCOMPLETE.
+- New repair: RHC.REPAIR.APPENGINE.CONTROLLED_RUNTIME_RECOVERY 1.0.0.
+- Explicit in-app confirmation is mandatory before mutation.
+- The AppEngine recovery does not request automatic elevation.
+- START_ONLY_RECOVERY starts only the existing validated Synapse+Chroma launch
+  contract when no AppEngine process is active.
+- FULL_RUNTIME_RESTART is allowed only with a unique signed versioned runtime
+  and main process, and only the validated AppEngine runtime scope is stopped.
+- No services, drivers, registry values, installed packages, or Razer files /
+  configuration are modified by the recipe.
+- Repair exit code 0 is insufficient; a separate read-only AppEngine
+  diagnostic must verify runtime + Synapse + Chroma + systray.
+- Existing Chroma service repair remains confirmation-required and UAC-based.
+
+RED -> GREEN
+------------
+Canonical v3.0.5 against tools/validate_v306_appengine_recovery.py:
+  6/25 PASS, exit 1 (expected RED)
+
+v3.0.6:
+  25/25 PASS (GREEN)
+
+Retained regression gates
+-------------------------
+Guided/live calibration:                 44/44 PASS
+Guided Flow:                             13/13 PASS
+Guided UX:                               20/20 PASS
+Rounded tray menu:                       10/10 PASS
+Historical measurement details:          21/21 PASS
+Historical session/archive lifecycle:    17/17 PASS
+Archive header polish:                   22/22 PASS
+Archive surface tint:                     9/9 PASS
+Diagnostic/repair platform:              24/24 PASS
+Manifest authority:                      20/20 PASS
+v3.0.5 false-green guard:                21/21 PASS
+v3.0.6 AppEngine recovery:               25/25 PASS
+Healthcheck/UI:                           28/28 PASS
+Connection presentation:                 10/10 PASS
+Structured failure details:              11/11 PASS
+Gate applicability/finalization:         14/14 PASS
+Live Performance:                        13/13 PASS
+PowerShell Encoding:                      7/7 PASS
+Log Evidence:                            13/13 PASS
+Static UI/diagnostics/setup/repair/ref: 103/103 PASS
+Repair safety / confirmation invariant:       PASS
+Setup inventory:                              PASS
+Version check:                                PASS
+i18n catalog validation (413 keys):           PASS
+
+Additional build gates
+----------------------
+go test .:                                PASS
+i18n guard:                              PASS
+Windows amd64 go vet:                    PASS
+Windows amd64 CGO=0 GUI build:           PASS
+Resource patch:                          PASS
+PE validation:                           PASS
+Full validation/build elapsed:           17.439 s
+
+Release EXE SHA-256
+-------------------
+9082e2cefd546e37a539f16764379447ed9c5aed44fa999f653ad4252b1024f8
+
+Core component SHA-256
+---------------------
+Health Engine 1.4.6:
+  a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+Setup Scanner 1.0.6:
+  8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Chroma Diagnostic Module 1.0.0:
+  6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+Chroma Repair Recipe 1.1.0:
+  4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+AppEngine User-Mode Diagnostic 1.0.0:
+  16eb5d8d81072ac4cf9d2622df747ecfe4eaab9685645111809e3a6b5667c6f1
+AppEngine Recovery Recipe 1.0.0:
+  ff53cdabcd7c046c25e15ca30419986ace3012532b05e83a9b681e28de6f738a
+versioncheck.go:
+  503bf87dc422d039ad3f3eab2ba92b0f46674d202b0634ff1768392823c03627
+health_application_guard.go:
+  40eeb9edbb14d00f6455d0df8d712d4df3b63ab131583f647538547797787eea
+appengine_diagnostic.go:
+  de2ce45e1a1af7007d0d3b03f4d5361feb494bbc0c2bf16cd19bb22beb0230fe
+problem.go:
+  b8c9a6975b91a4ff4a475048d29f6c695511d29d66cf342484b900d5953695fe
+repair.go:
+  35273ee87bb19b8788105ab97abb81d419f512a3314452584ec5cd4ad5101d6e
+
+Native acceptance status
+------------------------
+The standalone non-elevated START_ONLY recovery prototype was successfully
+validated on the affected Windows system and restored tray, volume wheel,
+programmed key mappings, and Chroma. The integrated v3.0.6 build itself has not
+yet been natively accepted. Registry32 handling in the integrated Go build and
+the integrated FULL_RUNTIME_RESTART path still require native Windows acceptance.

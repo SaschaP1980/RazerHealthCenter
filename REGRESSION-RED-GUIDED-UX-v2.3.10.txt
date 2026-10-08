@@ -1,0 +1,21 @@
+FAIL: wired success stage exists
+FAIL: wireless success stage exists
+FAIL: prompt title is recognition-oriented
+FAIL: wired prompt is neutral before baseline
+FAIL: wireless prompt is neutral before baseline
+FAIL: physical USB instruction exists only as waiting copy
+FAIL: separate USB waiting status exists
+FAIL: separate wireless waiting status exists
+FAIL: wired commit stops on success stage
+FAIL: event wireless commit stops on success stage
+FAIL: confirmed wireless commit stops on success stage
+FAIL: success result is retained for acknowledgement
+FAIL: success acknowledgement action exists
+FAIL: wired acknowledgement enters wireless prompt
+FAIL: wireless acknowledgement advances product
+FAIL: success copy is explicit
+FAIL: continue button is localized
+PASS: mouse auto wireless flow retained
+PASS: non-mouse confirmation flow retained
+FAIL: new validator is build-gated
+Guided UX v2.3.10 checks: 2/20

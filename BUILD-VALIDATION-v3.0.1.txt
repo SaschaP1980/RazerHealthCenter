@@ -1,0 +1,73 @@
+Razer Synapse + Chroma Health Center v3.0.1
+Build validation
+Date: 2026-09-12
+
+Versions
+--------
+App / reference: 3.0.1
+Health Engine: 1.4.6
+Setup Scanner: 1.0.6
+Fast Setup Live Probe: 1.1.0
+Diagnostic Orchestrator: 1.0.0
+Problem Catalog: 1.0.0
+Repair Engine / Catalog: 2.0.0
+VersionStatus schema: 4
+ExportManifest schema: 4
+Locale: de-DE, 371 UI keys
+
+New v3.0.1 authority regression
+--------------------------------
+RED baseline (pre-change v3.0.0 authority model): 7/20 PASS, expected failure.
+GREEN v3.0.1: 20/20 PASS.
+
+Verified v3.0.1 contracts include:
+- no static local Known-Good baseline object in the active Health Engine;
+- old internal Chroma Known-Good version values absent from the active engine;
+- old local runtime SHA256 baselines absent from active normative checks;
+- internal Chroma registry version strings are inventory/non-normative;
+- Gate 3 version mismatch is not a baseline WARN;
+- LampArray/runtime hash mismatch is not normative;
+- cached-installer local Known-Good hash verdict removed;
+- official Razer Discovery + system-specific prod manifest path used;
+- current prod hash is discovered dynamically, not hardcoded;
+- Razer manifest registry mapping is used for local Synapse/Chroma versions;
+- public release-note scraping is no longer the version authority;
+- update state remains cyan INFO and is explicitly “NEUE VERSION VERFÜGBAR”.
+
+Full build gate
+---------------
+PowerShell reserved-PID: PASS (4 production payloads)
+i18n: PASS (371 catalog keys; 268 static Go keys; 3 plural bases)
+Repair safety / helper confinement / explicit confirmation / deep-diagnostic read-only: PASS
+Setup inventory: PASS
+Guided/live calibration: 44/44 PASS
+Guided flow: 13/13 PASS
+Guided UX: 20/20 PASS
+Tray menu: 10/10 PASS
+Historical measurement details: 21/21 PASS
+Diagnostic/problem/repair platform: 24/24 PASS
+Manifest authority: 20/20 PASS
+Healthcheck/UI: 28/28 PASS
+Connection presentation: 10/10 PASS
+Structured failure details: 11/11 PASS
+Gate applicability/finalization: 14/14 PASS
+Live performance: 13/13 PASS
+PowerShell encoding: 7/7 PASS
+Version check validation: PASS
+Log evidence architecture: 13/13 PASS
+go test: PASS
+i18n hardcode guard: PASS
+Windows amd64 go vet/build: PASS
+PE validation: PASS (amd64 GUI, 16 sections, 11 resource entries)
+Static recovery/reference checks: 103/103 PASS
+
+Build output
+------------
+Executable: RazerHealthCenter.exe
+Size: 13,007,872 bytes
+SHA-256: 7e00a39737832225bcb1c1316e8417a0559f0a89a057ad36daf6a6b7aff68c4a
+Health Engine SHA-256: a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+Build wall time: 34.05 s
+
+This validation is static/cross-build validation on the build host. Native Windows
+acceptance for v3.0.1 remains a separate release acceptance step.

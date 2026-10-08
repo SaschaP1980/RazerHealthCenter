@@ -1,0 +1,2724 @@
+{
+  "types": [
+    {
+      "name": "main.AdminHelperDone",
+      "kind": "*dwarf.StructType",
+      "size": 56,
+      "fields": [
+        {
+          "name": "Version",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "ExitCode",
+          "type": "int",
+          "offset": 16
+        },
+        {
+          "name": "RunError",
+          "type": "struct string",
+          "offset": 24
+        },
+        {
+          "name": "Duration",
+          "type": "struct string",
+          "offset": 40
+        }
+      ]
+    },
+    {
+      "name": "main.App",
+      "kind": "*dwarf.StructType",
+      "size": 3648,
+      "fields": [
+        {
+          "name": "mu",
+          "type": "sync.Mutex",
+          "offset": 0
+        },
+        {
+          "name": "hwnd",
+          "type": "uintptr",
+          "offset": 8
+        },
+        {
+          "name": "dpi",
+          "type": "int",
+          "offset": 16
+        },
+        {
+          "name": "iconIdle",
+          "type": "uintptr",
+          "offset": 24
+        },
+        {
+          "name": "iconPass",
+          "type": "uintptr",
+          "offset": 32
+        },
+        {
+          "name": "iconFail",
+          "type": "uintptr",
+          "offset": 40
+        },
+        {
+          "name": "iconIdleLarge",
+          "type": "uintptr",
+          "offset": 48
+        },
+        {
+          "name": "iconPassLarge",
+          "type": "uintptr",
+          "offset": 56
+        },
+        {
+          "name": "iconFailLarge",
+          "type": "uintptr",
+          "offset": 64
+        },
+        {
+          "name": "iconApp",
+          "type": "uintptr",
+          "offset": 72
+        },
+        {
+          "name": "iconAppSmall",
+          "type": "uintptr",
+          "offset": 80
+        },
+        {
+          "name": "iconStatusReady",
+          "type": "uintptr",
+          "offset": 88
+        },
+        {
+          "name": "iconStatusPass",
+          "type": "uintptr",
+          "offset": 96
+        },
+        {
+          "name": "iconStatusFail",
+          "type": "uintptr",
+          "offset": 104
+        },
+        {
+          "name": "iconTrayCheck",
+          "type": "uintptr",
+          "offset": 112
+        },
+        {
+          "name": "iconStatusPulse",
+          "type": "[8]uintptr",
+          "offset": 120
+        },
+        {
+          "name": "sidebarIcons",
+          "type": "[3][2]uintptr",
+          "offset": 184
+        },
+        {
+          "name": "componentIcons",
+          "type": "[13][4]uintptr",
+          "offset": 232
+        },
+        {
+          "name": "fontTitle",
+          "type": "uintptr",
+          "offset": 648
+        },
+        {
+          "name": "fontSubtitle",
+          "type": "uintptr",
+          "offset": 656
+        },
+        {
+          "name": "fontH1",
+          "type": "uintptr",
+          "offset": 664
+        },
+        {
+          "name": "fontBody",
+          "type": "uintptr",
+          "offset": 672
+        },
+        {
+          "name": "fontBodySemi",
+          "type": "uintptr",
+          "offset": 680
+        },
+        {
+          "name": "fontSmall",
+          "type": "uintptr",
+          "offset": 688
+        },
+        {
+          "name": "fontTiny",
+          "type": "uintptr",
+          "offset": 696
+        },
+        {
+          "name": "fontActionIcon",
+          "type": "uintptr",
+          "offset": 704
+        },
+        {
+          "name": "fontActionIconAlt",
+          "type": "uintptr",
+          "offset": 712
+        },
+        {
+          "name": "modalHwnd",
+          "type": "uintptr",
+          "offset": 720
+        },
+        {
+          "name": "modalTitle",
+          "type": "struct string",
+          "offset": 728
+        },
+        {
+          "name": "modalText",
+          "type": "struct string",
+          "offset": 744
+        },
+        {
+          "name": "modalHoverOK",
+          "type": "bool",
+          "offset": 760
+        },
+        {
+          "name": "modalHoverFolder",
+          "type": "bool",
+          "offset": 761
+        },
+        {
+          "name": "modalShowFolder",
+          "type": "bool",
+          "offset": 762
+        },
+        {
+          "name": "modalAccent",
+          "type": "uintptr",
+          "offset": 768
+        },
+        {
+          "name": "dataDir",
+          "type": "struct string",
+          "offset": 776
+        },
+        {
+          "name": "logsDir",
+          "type": "struct string",
+          "offset": 792
+        },
+        {
+          "name": "diagDir",
+          "type": "struct string",
+          "offset": 808
+        },
+        {
+          "name": "runtimeDir",
+          "type": "struct string",
+          "offset": 824
+        },
+        {
+          "name": "exportsDir",
+          "type": "struct string",
+          "offset": 840
+        },
+        {
+          "name": "enginePath",
+          "type": "struct string",
+          "offset": 856
+        },
+        {
+          "name": "debugPath",
+          "type": "struct string",
+          "offset": 872
+        },
+        {
+          "name": "session",
+          "type": "struct string",
+          "offset": 888
+        },
+        {
+          "name": "lastMeasurement",
+          "type": "main.MeasurementExportState",
+          "offset": 904
+        },
+        {
+          "name": "lastGateStates",
+          "type": "[13]struct string",
+          "offset": 1008
+        },
+        {
+          "name": "lastGateInspections",
+          "type": "[13]main.GateInspection",
+          "offset": 1216
+        },
+        {
+          "name": "checking",
+          "type": "bool",
+          "offset": 1840
+        },
+        {
+          "name": "overall",
+          "type": "struct string",
+          "offset": 1848
+        },
+        {
+          "name": "states",
+          "type": "[13]struct string",
+          "offset": 1864
+        },
+        {
+          "name": "liveGateDisplay",
+          "type": "[13]struct string",
+          "offset": 2072
+        },
+        {
+          "name": "gateInspections",
+          "type": "[13]main.GateInspection",
+          "offset": 2280
+        },
+        {
+          "name": "hoverGate",
+          "type": "int",
+          "offset": 2904
+        },
+        {
+          "name": "detailGate",
+          "type": "int",
+          "offset": 2912
+        },
+        {
+          "name": "detailScroll",
+          "type": "int",
+          "offset": 2920
+        },
+        {
+          "name": "detailRawExpanded",
+          "type": "bool",
+          "offset": 2928
+        },
+        {
+          "name": "detailCopyFeedback",
+          "type": "struct string",
+          "offset": 2936
+        },
+        {
+          "name": "hoverDetailClose",
+          "type": "bool",
+          "offset": 2952
+        },
+        {
+          "name": "hoverDetailRaw",
+          "type": "bool",
+          "offset": 2953
+        },
+        {
+          "name": "hoverDetailCopy",
+          "type": "bool",
+          "offset": 2954
+        },
+        {
+          "name": "lastCheck",
+          "type": "time.Time",
+          "offset": 2960
+        },
+        {
+          "name": "lastDuration",
+          "type": "time.Duration",
+          "offset": 2984
+        },
+        {
+          "name": "checkStarted",
+          "type": "time.Time",
+          "offset": 2992
+        },
+        {
+          "name": "currentGate",
+          "type": "struct string",
+          "offset": 3016
+        },
+        {
+          "name": "completedGates",
+          "type": "int",
+          "offset": 3032
+        },
+        {
+          "name": "quitting",
+          "type": "bool",
+          "offset": 3040
+        },
+        {
+          "name": "exporting",
+          "type": "bool",
+          "offset": 3041
+        },
+        {
+          "name": "exportResultPath",
+          "type": "struct string",
+          "offset": 3048
+        },
+        {
+          "name": "exportResultErr",
+          "type": "struct string",
+          "offset": 3064
+        },
+        {
+          "name": "exportResultTitle",
+          "type": "struct string",
+          "offset": 3080
+        },
+        {
+          "name": "elevated",
+          "type": "bool",
+          "offset": 3096
+        },
+        {
+          "name": "adminCheck",
+          "type": "bool",
+          "offset": 3097
+        },
+        {
+          "name": "backupStates",
+          "type": "[13]struct string",
+          "offset": 3104
+        },
+        {
+          "name": "backupOverall",
+          "type": "struct string",
+          "offset": 3312
+        },
+        {
+          "name": "hoverAction",
+          "type": "int",
+          "offset": 3328
+        },
+        {
+          "name": "hoverSidebar",
+          "type": "int",
+          "offset": 3336
+        },
+        {
+          "name": "currentView",
+          "type": "int",
+          "offset": 3344
+        },
+        {
+          "name": "logMeasurements",
+          "type": "struct []main.HistoricalMeasurement",
+          "offset": 3352
+        },
+        {
+          "name": "logSelected",
+          "type": "int",
+          "offset": 3376
+        },
+        {
+          "name": "logScroll",
+          "type": "int",
+          "offset": 3384
+        },
+        {
+          "name": "logScrollbarDragging",
+          "type": "bool",
+          "offset": 3392
+        },
+        {
+          "name": "logScrollbarDragOffset",
+          "type": "int",
+          "offset": 3400
+        },
+        {
+          "name": "logsLoading",
+          "type": "bool",
+          "offset": 3408
+        },
+        {
+          "name": "logsLastScan",
+          "type": "time.Time",
+          "offset": 3416
+        },
+        {
+          "name": "pressedAction",
+          "type": "int",
+          "offset": 3440
+        },
+        {
+          "name": "suppressHoverAction",
+          "type": "int",
+          "offset": 3448
+        },
+        {
+          "name": "mouseTracking",
+          "type": "bool",
+          "offset": 3456
+        },
+        {
+          "name": "tracePath",
+          "type": "struct string",
+          "offset": 3464
+        },
+        {
+          "name": "traceStop",
+          "type": "chan struct {}",
+          "offset": 3480
+        },
+        {
+          "name": "traceDone",
+          "type": "chan struct {}",
+          "offset": 3488
+        },
+        {
+          "name": "tracePongSeq",
+          "type": "uint64",
+          "offset": 3496
+        },
+        {
+          "name": "traceLastPongNs",
+          "type": "int64",
+          "offset": 3504
+        },
+        {
+          "name": "traceLastMsg",
+          "type": "uint32",
+          "offset": 3512
+        },
+        {
+          "name": "traceInWndProc",
+          "type": "int32",
+          "offset": 3516
+        },
+        {
+          "name": "traceWndStartNs",
+          "type": "int64",
+          "offset": 3520
+        },
+        {
+          "name": "traceLastWndNs",
+          "type": "int64",
+          "offset": 3528
+        },
+        {
+          "name": "traceMaxWndNs",
+          "type": "int64",
+          "offset": 3536
+        },
+        {
+          "name": "traceMouseMoves",
+          "type": "uint64",
+          "offset": 3544
+        },
+        {
+          "name": "traceSetCursor",
+          "type": "uint64",
+          "offset": 3552
+        },
+        {
+          "name": "tracePaints",
+          "type": "uint64",
+          "offset": 3560
+        },
+        {
+          "name": "traceInvalidations",
+          "type": "uint64",
+          "offset": 3568
+        },
+        {
+          "name": "traceHoverChanges",
+          "type": "uint64",
+          "offset": 3576
+        },
+        {
+          "name": "traceMouseLeaves",
+          "type": "uint64",
+          "offset": 3584
+        },
+        {
+          "name": "traceInPaint",
+          "type": "int32",
+          "offset": 3592
+        },
+        {
+          "name": "tracePaintStartNs",
+          "type": "int64",
+          "offset": 3600
+        },
+        {
+          "name": "traceLastPaintNs",
+          "type": "int64",
+          "offset": 3608
+        },
+        {
+          "name": "traceMaxPaintNs",
+          "type": "int64",
+          "offset": 3616
+        },
+        {
+          "name": "traceGUIThreadID",
+          "type": "uint32",
+          "offset": 3624
+        },
+        {
+          "name": "traceLoopThreadID",
+          "type": "uint32",
+          "offset": 3628
+        },
+        {
+          "name": "traceLastWndThreadID",
+          "type": "uint32",
+          "offset": 3632
+        },
+        {
+          "name": "traceThreadMismatches",
+          "type": "uint64",
+          "offset": 3640
+        }
+      ]
+    },
+    {
+      "name": "main.DiagnosticsExportManifest",
+      "kind": "*dwarf.StructType",
+      "size": 160,
+      "fields": [
+        {
+          "name": "SchemaVersion",
+          "type": "int",
+          "offset": 0
+        },
+        {
+          "name": "App",
+          "type": "struct string",
+          "offset": 8
+        },
+        {
+          "name": "AppVersion",
+          "type": "struct string",
+          "offset": 24
+        },
+        {
+          "name": "ExportedAt",
+          "type": "struct string",
+          "offset": 40
+        },
+        {
+          "name": "ExportMode",
+          "type": "struct string",
+          "offset": 56
+        },
+        {
+          "name": "AppSession",
+          "type": "struct string",
+          "offset": 72
+        },
+        {
+          "name": "SessionResolved",
+          "type": "bool",
+          "offset": 88
+        },
+        {
+          "name": "MeasurementInProgress",
+          "type": "bool",
+          "offset": 89
+        },
+        {
+          "name": "LastMeasurement",
+          "type": "*main.MeasurementExportState",
+          "offset": 96
+        },
+        {
+          "name": "SelectedMeasurement",
+          "type": "*main.MeasurementExportState",
+          "offset": 104
+        },
+        {
+          "name": "IncludedSessionFiles",
+          "type": "struct []string",
+          "offset": 112
+        },
+        {
+          "name": "IncludedMeasureFiles",
+          "type": "struct []string",
+          "offset": 136
+        }
+      ]
+    },
+    {
+      "name": "main.EngineCheck",
+      "kind": "*dwarf.StructType",
+      "size": 96,
+      "fields": [
+        {
+          "name": "Section",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "Status",
+          "type": "struct string",
+          "offset": 16
+        },
+        {
+          "name": "Check",
+          "type": "struct string",
+          "offset": 32
+        },
+        {
+          "name": "Actual",
+          "type": "struct string",
+          "offset": 48
+        },
+        {
+          "name": "Expected",
+          "type": "struct string",
+          "offset": 64
+        },
+        {
+          "name": "Detail",
+          "type": "struct string",
+          "offset": 80
+        }
+      ]
+    },
+    {
+      "name": "main.EngineResult",
+      "kind": "*dwarf.StructType",
+      "size": 48,
+      "fields": [
+        {
+          "name": "Gates",
+          "type": "struct []main.Gate",
+          "offset": 0
+        },
+        {
+          "name": "Checks",
+          "type": "struct []main.EngineCheck",
+          "offset": 24
+        }
+      ]
+    },
+    {
+      "name": "main.FailureDump",
+      "kind": "*dwarf.StructType",
+      "size": 104,
+      "fields": [
+        {
+          "name": "SchemaVersion",
+          "type": "int",
+          "offset": 0
+        },
+        {
+          "name": "ToolVersion",
+          "type": "struct string",
+          "offset": 8
+        },
+        {
+          "name": "Timestamp",
+          "type": "struct string",
+          "offset": 24
+        },
+        {
+          "name": "Overall",
+          "type": "struct string",
+          "offset": 40
+        },
+        {
+          "name": "Reason",
+          "type": "struct string",
+          "offset": 56
+        },
+        {
+          "name": "EngineExitCode",
+          "type": "int",
+          "offset": 72
+        },
+        {
+          "name": "Gates",
+          "type": "struct []main.Gate",
+          "offset": 80
+        }
+      ]
+    },
+    {
+      "name": "main.Gate",
+      "kind": "*dwarf.StructType",
+      "size": 48,
+      "fields": [
+        {
+          "name": "Name",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "Status",
+          "type": "struct string",
+          "offset": 16
+        },
+        {
+          "name": "Detail",
+          "type": "struct string",
+          "offset": 32
+        }
+      ]
+    },
+    {
+      "name": "main.GateInspection",
+      "kind": "*dwarf.StructType",
+      "size": 48,
+      "fields": [
+        {
+          "name": "Available",
+          "type": "bool",
+          "offset": 0
+        },
+        {
+          "name": "GateDetail",
+          "type": "struct string",
+          "offset": 8
+        },
+        {
+          "name": "Checks",
+          "type": "struct []main.EngineCheck",
+          "offset": 24
+        }
+      ]
+    },
+    {
+      "name": "main.HistoricalMeasurement",
+      "kind": "*dwarf.StructType",
+      "size": 168,
+      "fields": [
+        {
+          "name": "Stamp",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "StartedAt",
+          "type": "time.Time",
+          "offset": 16
+        },
+        {
+          "name": "CompletedAt",
+          "type": "time.Time",
+          "offset": 40
+        },
+        {
+          "name": "Overall",
+          "type": "struct string",
+          "offset": 64
+        },
+        {
+          "name": "Duration",
+          "type": "time.Duration",
+          "offset": 80
+        },
+        {
+          "name": "AppSession",
+          "type": "struct string",
+          "offset": 88
+        },
+        {
+          "name": "AppVersion",
+          "type": "struct string",
+          "offset": 104
+        },
+        {
+          "name": "EngineVersion",
+          "type": "struct string",
+          "offset": 120
+        },
+        {
+          "name": "Files",
+          "type": "struct []string",
+          "offset": 136
+        },
+        {
+          "name": "SessionResolved",
+          "type": "bool",
+          "offset": 160
+        }
+      ]
+    },
+    {
+      "name": "main.MeasurementExportState",
+      "kind": "*dwarf.StructType",
+      "size": 104,
+      "fields": [
+        {
+          "name": "Stamp",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "StartedAt",
+          "type": "time.Time",
+          "offset": 16
+        },
+        {
+          "name": "CompletedAt",
+          "type": "time.Time",
+          "offset": 40
+        },
+        {
+          "name": "Overall",
+          "type": "struct string",
+          "offset": 64
+        },
+        {
+          "name": "Files",
+          "type": "struct []string",
+          "offset": 80
+        }
+      ]
+    },
+    {
+      "name": "main.historicalSessionMeta",
+      "kind": "*dwarf.StructType",
+      "size": 48,
+      "fields": [
+        {
+          "name": "Session",
+          "type": "struct string",
+          "offset": 0
+        },
+        {
+          "name": "Version",
+          "type": "struct string",
+          "offset": 16
+        },
+        {
+          "name": "Path",
+          "type": "struct string",
+          "offset": 32
+        }
+      ]
+    },
+    {
+      "name": "main.msg",
+      "kind": "*dwarf.StructType",
+      "size": 48,
+      "fields": [
+        {
+          "name": "HWnd",
+          "type": "uintptr",
+          "offset": 0
+        },
+        {
+          "name": "Message",
+          "type": "uint32",
+          "offset": 8
+        },
+        {
+          "name": "WParam",
+          "type": "uintptr",
+          "offset": 16
+        },
+        {
+          "name": "LParam",
+          "type": "uintptr",
+          "offset": 24
+        },
+        {
+          "name": "Time",
+          "type": "uint32",
+          "offset": 32
+        },
+        {
+          "name": "Pt",
+          "type": "main.point",
+          "offset": 36
+        },
+        {
+          "name": "LPrivate",
+          "type": "uint32",
+          "offset": 44
+        }
+      ]
+    },
+    {
+      "name": "main.notifyIconData",
+      "kind": "*dwarf.StructType",
+      "size": 976,
+      "fields": [
+        {
+          "name": "CbSize",
+          "type": "uint32",
+          "offset": 0
+        },
+        {
+          "name": "HWnd",
+          "type": "uintptr",
+          "offset": 8
+        },
+        {
+          "name": "UID",
+          "type": "uint32",
+          "offset": 16
+        },
+        {
+          "name": "UFlags",
+          "type": "uint32",
+          "offset": 20
+        },
+        {
+          "name": "UCallbackMessage",
+          "type": "uint32",
+          "offset": 24
+        },
+        {
+          "name": "HIcon",
+          "type": "uintptr",
+          "offset": 32
+        },
+        {
+          "name": "SzTip",
+          "type": "[128]uint16",
+          "offset": 40
+        },
+        {
+          "name": "DwState",
+          "type": "uint32",
+          "offset": 296
+        },
+        {
+          "name": "DwStateMask",
+          "type": "uint32",
+          "offset": 300
+        },
+        {
+          "name": "SzInfo",
+          "type": "[256]uint16",
+          "offset": 304
+        },
+        {
+          "name": "UVersion",
+          "type": "uint32",
+          "offset": 816
+        },
+        {
+          "name": "SzInfoTitle",
+          "type": "[64]uint16",
+          "offset": 820
+        },
+        {
+          "name": "DwInfoFlags",
+          "type": "uint32",
+          "offset": 948
+        },
+        {
+          "name": "GuidItem",
+          "type": "[16]uint8",
+          "offset": 952
+        },
+        {
+          "name": "HBalloonIcon",
+          "type": "uintptr",
+          "offset": 968
+        }
+      ]
+    },
+    {
+      "name": "main.paintStruct",
+      "kind": "*dwarf.StructType",
+      "size": 72,
+      "fields": [
+        {
+          "name": "Hdc",
+          "type": "uintptr",
+          "offset": 0
+        },
+        {
+          "name": "FErase",
+          "type": "int32",
+          "offset": 8
+        },
+        {
+          "name": "RcPaint",
+          "type": "main.rect",
+          "offset": 12
+        },
+        {
+          "name": "FRestore",
+          "type": "int32",
+          "offset": 28
+        },
+        {
+          "name": "FIncUpdate",
+          "type": "int32",
+          "offset": 32
+        },
+        {
+          "name": "RgbReserved",
+          "type": "[32]uint8",
+          "offset": 36
+        }
+      ]
+    },
+    {
+      "name": "main.point",
+      "kind": "*dwarf.StructType",
+      "size": 8,
+      "fields": [
+        {
+          "name": "X",
+          "type": "int32",
+          "offset": 0
+        },
+        {
+          "name": "Y",
+          "type": "int32",
+          "offset": 4
+        }
+      ]
+    },
+    {
+      "name": "main.rect",
+      "kind": "*dwarf.StructType",
+      "size": 16,
+      "fields": [
+        {
+          "name": "Left",
+          "type": "int32",
+          "offset": 0
+        },
+        {
+          "name": "Top",
+          "type": "int32",
+          "offset": 4
+        },
+        {
+          "name": "Right",
+          "type": "int32",
+          "offset": 8
+        },
+        {
+          "name": "Bottom",
+          "type": "int32",
+          "offset": 12
+        }
+      ]
+    },
+    {
+      "name": "main.size",
+      "kind": "*dwarf.StructType",
+      "size": 8,
+      "fields": [
+        {
+          "name": "CX",
+          "type": "int32",
+          "offset": 0
+        },
+        {
+          "name": "CY",
+          "type": "int32",
+          "offset": 4
+        }
+      ]
+    },
+    {
+      "name": "main.trackMouseEvent",
+      "kind": "*dwarf.StructType",
+      "size": 24,
+      "fields": [
+        {
+          "name": "CbSize",
+          "type": "uint32",
+          "offset": 0
+        },
+        {
+          "name": "DwFlags",
+          "type": "uint32",
+          "offset": 4
+        },
+        {
+          "name": "HwndTrack",
+          "type": "uintptr",
+          "offset": 8
+        },
+        {
+          "name": "DwHoverTime",
+          "type": "uint32",
+          "offset": 16
+        }
+      ]
+    },
+    {
+      "name": "main.wndClassEx",
+      "kind": "*dwarf.StructType",
+      "size": 80,
+      "fields": [
+        {
+          "name": "CbSize",
+          "type": "uint32",
+          "offset": 0
+        },
+        {
+          "name": "Style",
+          "type": "uint32",
+          "offset": 4
+        },
+        {
+          "name": "LpfnWndProc",
+          "type": "uintptr",
+          "offset": 8
+        },
+        {
+          "name": "CbClsExtra",
+          "type": "int32",
+          "offset": 16
+        },
+        {
+          "name": "CbWndExtra",
+          "type": "int32",
+          "offset": 20
+        },
+        {
+          "name": "HInstance",
+          "type": "uintptr",
+          "offset": 24
+        },
+        {
+          "name": "HIcon",
+          "type": "uintptr",
+          "offset": 32
+        },
+        {
+          "name": "HCursor",
+          "type": "uintptr",
+          "offset": 40
+        },
+        {
+          "name": "HbrBackground",
+          "type": "uintptr",
+          "offset": 48
+        },
+        {
+          "name": "LpszMenuName",
+          "type": "*uint16",
+          "offset": 56
+        },
+        {
+          "name": "LpszClassName",
+          "type": "*uint16",
+          "offset": 64
+        },
+        {
+          "name": "HIconSm",
+          "type": "uintptr",
+          "offset": 72
+        }
+      ]
+    }
+  ],
+  "funcs": [
+    {
+      "name": "main.(*App).R",
+      "declLine": 577
+    },
+    {
+      "name": "main.(*App).actionAtPoint",
+      "lowPC": 5396000,
+      "highPC": 5396522,
+      "declFile": 2,
+      "declLine": 2040
+    },
+    {
+      "name": "main.(*App).addTray",
+      "declLine": 1286
+    },
+    {
+      "name": "main.(*App).animateCheckingPulse",
+      "lowPC": 5426432,
+      "highPC": 5426841,
+      "declFile": 2,
+      "declLine": 3034
+    },
+    {
+      "name": "main.(*App).animateCheckingPulse.deferwrap1",
+      "lowPC": 5426848,
+      "highPC": 5426917
+    },
+    {
+      "name": "main.(*App).appendUITrace",
+      "lowPC": 5337632,
+      "highPC": 5338117,
+      "declFile": 2,
+      "declLine": 633
+    },
+    {
+      "name": "main.(*App).applyProgressFile",
+      "lowPC": 5427680,
+      "highPC": 5429205,
+      "declFile": 2,
+      "declLine": 3068
+    },
+    {
+      "name": "main.(*App).baseCoord",
+      "declLine": 571
+    },
+    {
+      "name": "main.(*App).beginCheck",
+      "lowPC": 5409312,
+      "highPC": 5410437,
+      "declFile": 2,
+      "declLine": 2751
+    },
+    {
+      "name": "main.(*App).beginCheck.func1",
+      "declLine": 2779
+    },
+    {
+      "name": "main.(*App).beginCheck.gowrap1",
+      "lowPC": 5410560,
+      "highPC": 5410627
+    },
+    {
+      "name": "main.(*App).beginCheck.gowrap2",
+      "lowPC": 5410464,
+      "highPC": 5410531
+    },
+    {
+      "name": "main.(*App).closeModalDialog",
+      "lowPC": 5357184,
+      "highPC": 5357551,
+      "declFile": 2,
+      "declLine": 1047
+    },
+    {
+      "name": "main.(*App).collectMeasurementFileNames",
+      "lowPC": 5374304,
+      "highPC": 5375497,
+      "declFile": 2,
+      "declLine": 1508
+    },
+    {
+      "name": "main.(*App).copyCurrentGateDetails",
+      "lowPC": 5471392,
+      "highPC": 5472969,
+      "declFile": 2,
+      "declLine": 4115
+    },
+    {
+      "name": "main.(*App).copyCurrentGateDetails.func1",
+      "lowPC": 5473088,
+      "highPC": 5473404,
+      "declFile": 2,
+      "declLine": 4142
+    },
+    {
+      "name": "main.(*App).copyCurrentGateDetails.func2",
+      "declLine": 4150
+    },
+    {
+      "name": "main.(*App).copyCurrentGateDetails.gowrap1",
+      "lowPC": 5472992,
+      "highPC": 5473068
+    },
+    {
+      "name": "main.(*App).createWindow",
+      "lowPC": 5365312,
+      "highPC": 5367407,
+      "declFile": 2,
+      "declLine": 1236
+    },
+    {
+      "name": "main.(*App).currentSessionFiles",
+      "declLine": 1483
+    },
+    {
+      "name": "main.(*App).debugf",
+      "lowPC": 5336512,
+      "highPC": 5337076,
+      "declFile": 2,
+      "declLine": 581
+    },
+    {
+      "name": "main.(*App).debugf.deferwrap1",
+      "lowPC": 5337088,
+      "highPC": 5337165
+    },
+    {
+      "name": "main.(*App).drawActionButton",
+      "lowPC": 5505664,
+      "highPC": 5508691,
+      "declFile": 2,
+      "declLine": 4644
+    },
+    {
+      "name": "main.(*App).drawActionButton.func1",
+      "declLine": 4697
+    },
+    {
+      "name": "main.(*App).drawActionIcon",
+      "lowPC": 5508704,
+      "highPC": 5514228,
+      "declFile": 2,
+      "declLine": 4708
+    },
+    {
+      "name": "main.(*App).drawComponentIcon",
+      "lowPC": 5514240,
+      "highPC": 5514936,
+      "declFile": 2,
+      "declLine": 4756
+    },
+    {
+      "name": "main.(*App).drawDashboard",
+      "lowPC": 5449536,
+      "highPC": 5464944,
+      "declFile": 2,
+      "declLine": 3731
+    },
+    {
+      "name": "main.(*App).drawDashboard.func1",
+      "declLine": 3931
+    },
+    {
+      "name": "main.(*App).drawDashboard.func2",
+      "declLine": 3948
+    },
+    {
+      "name": "main.(*App).drawDashboard.func3",
+      "declLine": 3954
+    },
+    {
+      "name": "main.(*App).drawDashboard.func4",
+      "declLine": 3959
+    },
+    {
+      "name": "main.(*App).drawGateDetailPopover",
+      "lowPC": 5475040,
+      "highPC": 5485072,
+      "declFile": 2,
+      "declLine": 4220
+    },
+    {
+      "name": "main.(*App).drawGateDetailPopover.func1",
+      "declLine": 4240
+    },
+    {
+      "name": "main.(*App).drawGateDetailPopover.func2",
+      "lowPC": 5485088,
+      "highPC": 5485962,
+      "declFile": 2,
+      "declLine": 4353
+    },
+    {
+      "name": "main.(*App).drawInfoView",
+      "lowPC": 5496160,
+      "highPC": 5499764,
+      "declFile": 2,
+      "declLine": 4518
+    },
+    {
+      "name": "main.(*App).drawLogsView",
+      "lowPC": 5485984,
+      "highPC": 5496148,
+      "declFile": 2,
+      "declLine": 4377
+    },
+    {
+      "name": "main.(*App).drawLogsView.func1",
+      "declLine": 4472
+    },
+    {
+      "name": "main.(*App).drawLogsView.func2",
+      "declLine": 4504
+    },
+    {
+      "name": "main.(*App).drawSidebarItem",
+      "lowPC": 5499776,
+      "highPC": 5501659,
+      "declFile": 2,
+      "declLine": 4550
+    },
+    {
+      "name": "main.(*App).drawStatusPill",
+      "lowPC": 5501664,
+      "highPC": 5505650,
+      "declFile": 2,
+      "declLine": 4577
+    },
+    {
+      "name": "main.(*App).exportDiagnostics",
+      "lowPC": 5383680,
+      "highPC": 5384112,
+      "declFile": 2,
+      "declLine": 1747
+    },
+    {
+      "name": "main.(*App).exportDiagnostics.gowrap1",
+      "lowPC": 5384128,
+      "highPC": 5384195
+    },
+    {
+      "name": "main.(*App).exportDiagnosticsWorker",
+      "lowPC": 5384928,
+      "highPC": 5389093,
+      "declFile": 2,
+      "declLine": 1781
+    },
+    {
+      "name": "main.(*App).exportSelectedMeasurement",
+      "lowPC": 5389120,
+      "highPC": 5389967,
+      "declFile": 2,
+      "declLine": 1878
+    },
+    {
+      "name": "main.(*App).exportSelectedMeasurement.gowrap1",
+      "lowPC": 5389984,
+      "highPC": 5390108
+    },
+    {
+      "name": "main.(*App).exportSelectedMeasurementWorker",
+      "lowPC": 5390112,
+      "highPC": 5394418,
+      "declFile": 2,
+      "declLine": 1895
+    },
+    {
+      "name": "main.(*App).finishExport",
+      "lowPC": 5384224,
+      "highPC": 5384906,
+      "declFile": 2,
+      "declLine": 1763
+    },
+    {
+      "name": "main.(*App).gateDetailCheckHeight",
+      "lowPC": 5473408,
+      "highPC": 5473913,
+      "declFile": 2,
+      "declLine": 4158
+    },
+    {
+      "name": "main.(*App).gateDetailContentMetrics",
+      "lowPC": 5473920,
+      "highPC": 5475022,
+      "declFile": 2,
+      "declLine": 4177
+    },
+    {
+      "name": "main.(*App).gateFindingsHitInfo",
+      "lowPC": 5398432,
+      "highPC": 5399141,
+      "declFile": 2,
+      "declLine": 2231
+    },
+    {
+      "name": "main.(*App).gateRowAtPoint",
+      "lowPC": 5400160,
+      "highPC": 5400542,
+      "declFile": 2,
+      "declLine": 2294
+    },
+    {
+      "name": "main.(*App).handleClick",
+      "lowPC": 5405856,
+      "highPC": 5408287,
+      "declFile": 2,
+      "declLine": 2548
+    },
+    {
+      "name": "main.(*App).handleExportResult",
+      "lowPC": 5395392,
+      "highPC": 5395999,
+      "declFile": 2,
+      "declLine": 1998
+    },
+    {
+      "name": "main.(*App).handleLogsWheel",
+      "lowPC": 5408960,
+      "highPC": 5409294,
+      "declFile": 2,
+      "declLine": 2709
+    },
+    {
+      "name": "main.(*App).handleMouseDown",
+      "lowPC": 5404832,
+      "highPC": 5405324,
+      "declFile": 2,
+      "declLine": 2493
+    },
+    {
+      "name": "main.(*App).handleMouseLeave",
+      "lowPC": 5404448,
+      "highPC": 5404815,
+      "declFile": 2,
+      "declLine": 2467
+    },
+    {
+      "name": "main.(*App).handleMouseMove",
+      "lowPC": 5402944,
+      "highPC": 5404435,
+      "declFile": 2,
+      "declLine": 2392
+    },
+    {
+      "name": "main.(*App).handleMouseUp",
+      "lowPC": 5405344,
+      "highPC": 5405855,
+      "declFile": 2,
+      "declLine": 2523
+    },
+    {
+      "name": "main.(*App).handleMouseWheel",
+      "lowPC": 5408288,
+      "highPC": 5408933,
+      "declFile": 2,
+      "declLine": 2676
+    },
+    {
+      "name": "main.(*App).initFonts",
+      "lowPC": 5353632,
+      "highPC": 5354070,
+      "declFile": 2,
+      "declLine": 917
+    },
+    {
+      "name": "main.(*App).invalidateAction",
+      "lowPC": 5401952,
+      "highPC": 5402917,
+      "declFile": 2,
+      "declLine": 2371
+    },
+    {
+      "name": "main.(*App).invalidateSidebar",
+      "lowPC": 5400544,
+      "highPC": 5400948,
+      "declFile": 2,
+      "declLine": 2311
+    },
+    {
+      "name": "main.(*App).isClickablePoint",
+      "lowPC": 5400960,
+      "highPC": 5401445,
+      "declFile": 2,
+      "declLine": 2326
+    },
+    {
+      "name": "main.(*App).logRowAtPoint",
+      "lowPC": 5397792,
+      "highPC": 5398218,
+      "declFile": 2,
+      "declLine": 2161
+    },
+    {
+      "name": "main.(*App).logsScrollbarHitInfo",
+      "lowPC": 5396800,
+      "highPC": 5397209,
+      "declFile": 2,
+      "declLine": 2104
+    },
+    {
+      "name": "main.(*App).measurementFiles",
+      "declLine": 1504
+    },
+    {
+      "name": "main.(*App).measurementFilesWithPrefix",
+      "lowPC": 5373216,
+      "highPC": 5374300,
+      "declFile": 2,
+      "declLine": 1487
+    },
+    {
+      "name": "main.(*App).message",
+      "declLine": 2036
+    },
+    {
+      "name": "main.(*App).openExports",
+      "lowPC": 5394432,
+      "highPC": 5394661,
+      "declFile": 2,
+      "declLine": 1981
+    },
+    {
+      "name": "main.(*App).openExports.func1",
+      "lowPC": 5394688,
+      "highPC": 5395384,
+      "declFile": 2,
+      "declLine": 1984
+    },
+    {
+      "name": "main.(*App).paint",
+      "lowPC": 5448128,
+      "highPC": 5449231,
+      "declFile": 2,
+      "declLine": 3702
+    },
+    {
+      "name": "main.(*App).paint.deferwrap1",
+      "lowPC": 5449248,
+      "highPC": 5449379
+    },
+    {
+      "name": "main.(*App).paint.func1",
+      "lowPC": 5449408,
+      "highPC": 5449514,
+      "declFile": 2,
+      "declLine": 3706
+    },
+    {
+      "name": "main.(*App).prepareRuntime",
+      "lowPC": 5345760,
+      "highPC": 5353309,
+      "declFile": 2,
+      "declLine": 788
+    },
+    {
+      "name": "main.(*App).quit",
+      "lowPC": 5370144,
+      "highPC": 5370309,
+      "declFile": 2,
+      "declLine": 1375
+    },
+    {
+      "name": "main.(*App).refreshMeasurementsAsync",
+      "lowPC": 5382816,
+      "highPC": 5383126,
+      "declFile": 2,
+      "declLine": 1707
+    },
+    {
+      "name": "main.(*App).refreshMeasurementsAsync.func1",
+      "lowPC": 5383136,
+      "highPC": 5383675,
+      "declFile": 2,
+      "declLine": 1719
+    },
+    {
+      "name": "main.(*App).refreshUI",
+      "declLine": 3649
+    },
+    {
+      "name": "main.(*App).removeTray",
+      "lowPC": 5367424,
+      "highPC": 5367567,
+      "declFile": 2,
+      "declLine": 1289
+    },
+    {
+      "name": "main.(*App).restoreAfterAdminLaunchFailure",
+      "lowPC": 5415104,
+      "highPC": 5416453,
+      "declFile": 2,
+      "declLine": 2849
+    },
+    {
+      "name": "main.(*App).runHealthCheck",
+      "lowPC": 5416480,
+      "highPC": 5426309,
+      "declFile": 2,
+      "declLine": 2874
+    },
+    {
+      "name": "main.(*App).runHealthCheck.gowrap1",
+      "lowPC": 5426336,
+      "highPC": 5426414
+    },
+    {
+      "name": "main.(*App).s",
+      "declLine": 570
+    },
+    {
+      "name": "main.(*App).scanHistoricalMeasurements",
+      "lowPC": 5377376,
+      "highPC": 5382501,
+      "declFile": 2,
+      "declLine": 1579
+    },
+    {
+      "name": "main.(*App).scanHistoricalMeasurements.func1",
+      "lowPC": 5382528,
+      "highPC": 5382807,
+      "declFile": 2,
+      "declLine": 1698
+    },
+    {
+      "name": "main.(*App).sessionFilesFor",
+      "lowPC": 5371168,
+      "highPC": 5372858,
+      "declFile": 2,
+      "declLine": 1455
+    },
+    {
+      "name": "main.(*App).sessionFilesFor.func1",
+      "lowPC": 5372864,
+      "highPC": 5373214,
+      "declFile": 2,
+      "declLine": 1460
+    },
+    {
+      "name": "main.(*App).setCursorForPointer",
+      "lowPC": 5401472,
+      "highPC": 5401942,
+      "declFile": 2,
+      "declLine": 2349
+    },
+    {
+      "name": "main.(*App).setDetailScrollFromPoint",
+      "lowPC": 5399168,
+      "highPC": 5400150,
+      "declFile": 2,
+      "declLine": 2252
+    },
+    {
+      "name": "main.(*App).setLogScrollFromPoint",
+      "lowPC": 5397216,
+      "highPC": 5397778,
+      "declFile": 2,
+      "declLine": 2122
+    },
+    {
+      "name": "main.(*App).setTray",
+      "lowPC": 5367584,
+      "highPC": 5368166,
+      "declFile": 2,
+      "declLine": 1296
+    },
+    {
+      "name": "main.(*App).showLogsView",
+      "lowPC": 5369920,
+      "highPC": 5370143,
+      "declFile": 2,
+      "declLine": 1366
+    },
+    {
+      "name": "main.(*App).showModalMessage",
+      "lowPC": 5363488,
+      "highPC": 5365305,
+      "declFile": 2,
+      "declLine": 1184
+    },
+    {
+      "name": "main.(*App).showTrayMenu",
+      "lowPC": 5368480,
+      "highPC": 5369765,
+      "declFile": 2,
+      "declLine": 1323
+    },
+    {
+      "name": "main.(*App).showTrayMenu.deferwrap1",
+      "lowPC": 5369792,
+      "highPC": 5369904
+    },
+    {
+      "name": "main.(*App).showWindow",
+      "lowPC": 5368192,
+      "highPC": 5368466,
+      "declFile": 2,
+      "declLine": 1314
+    },
+    {
+      "name": "main.(*App).sidebarAtPoint",
+      "lowPC": 5398240,
+      "highPC": 5398328,
+      "declFile": 2,
+      "declLine": 2184
+    },
+    {
+      "name": "main.(*App).startCheck",
+      "declLine": 2736
+    },
+    {
+      "name": "main.(*App).startUITrace",
+      "lowPC": 5338912,
+      "highPC": 5339941,
+      "declFile": 2,
+      "declLine": 657
+    },
+    {
+      "name": "main.(*App).startUITrace.gowrap1",
+      "lowPC": 5339968,
+      "highPC": 5340035
+    },
+    {
+      "name": "main.(*App).stopUITrace",
+      "lowPC": 5340064,
+      "highPC": 5340271,
+      "declFile": 2,
+      "declLine": 669
+    },
+    {
+      "name": "main.(*App).uiTraceWatchdog",
+      "lowPC": 5340288,
+      "highPC": 5344919,
+      "declFile": 2,
+      "declLine": 681
+    },
+    {
+      "name": "main.(*App).uiTraceWatchdog.deferwrap1",
+      "lowPC": 5345024,
+      "highPC": 5345091
+    },
+    {
+      "name": "main.(*App).uiTraceWatchdog.deferwrap2",
+      "lowPC": 5344928,
+      "highPC": 5344997
+    },
+    {
+      "name": "main.(*App).watchProgress",
+      "lowPC": 5426944,
+      "highPC": 5427461,
+      "declFile": 2,
+      "declLine": 3052
+    },
+    {
+      "name": "main.(*App).watchProgress.deferwrap1",
+      "lowPC": 5427584,
+      "highPC": 5427651
+    },
+    {
+      "name": "main.(*App).watchProgress.deferwrap2",
+      "lowPC": 5427488,
+      "highPC": 5427557
+    },
+    {
+      "name": "main.(*App).writeUIHangStack",
+      "lowPC": 5338144,
+      "highPC": 5338897,
+      "declFile": 2,
+      "declLine": 647
+    },
+    {
+      "name": "main.acquireSingleInstance",
+      "lowPC": 5335520,
+      "highPC": 5335813,
+      "declFile": 2,
+      "declLine": 524
+    },
+    {
+      "name": "main.activateExistingInstance",
+      "lowPC": 5335840,
+      "highPC": 5336229,
+      "declFile": 2,
+      "declLine": 537
+    },
+    {
+      "name": "main.argValue",
+      "declLine": 762
+    },
+    {
+      "name": "main.checkAccent",
+      "lowPC": 5464960,
+      "highPC": 5465157,
+      "declFile": 2,
+      "declLine": 3983
+    },
+    {
+      "name": "main.checkRank",
+      "lowPC": 5436736,
+      "highPC": 5436948,
+      "declFile": 2,
+      "declLine": 3293
+    },
+    {
+      "name": "main.countTerminalStates",
+      "declLine": 2839
+    },
+    {
+      "name": "main.createFont",
+      "lowPC": 5353312,
+      "highPC": 5353608,
+      "declFile": 2,
+      "declLine": 911
+    },
+    {
+      "name": "main.currentThreadID",
+      "declLine": 519
+    },
+    {
+      "name": "main.displayStateLabel",
+      "lowPC": 5467744,
+      "highPC": 5467950,
+      "declFile": 2,
+      "declLine": 4063
+    },
+    {
+      "name": "main.fill",
+      "lowPC": 5445952,
+      "highPC": 5446263,
+      "declFile": 2,
+      "declLine": 3660
+    },
+    {
+      "name": "main.formatElapsed",
+      "lowPC": 5432608,
+      "highPC": 5433073,
+      "declFile": 2,
+      "declLine": 3186
+    },
+    {
+      "name": "main.gateAccent",
+      "declLine": 3968
+    },
+    {
+      "name": "main.gateCheckBelongs",
+      "lowPC": 5435264,
+      "highPC": 5436713,
+      "declFile": 2,
+      "declLine": 3259
+    },
+    {
+      "name": "main.gateDetailText",
+      "lowPC": 5467968,
+      "highPC": 5471390,
+      "declFile": 2,
+      "declLine": 4076
+    },
+    {
+      "name": "main.gateDisplayState",
+      "lowPC": 5436960,
+      "highPC": 5437797,
+      "declFile": 2,
+      "declLine": 3315
+    },
+    {
+      "name": "main.gateDisplayStates",
+      "declLine": 3358
+    },
+    {
+      "name": "main.gatePopoverCloseAtPoint",
+      "declLine": 2199
+    },
+    {
+      "name": "main.gatePopoverContainsPoint",
+      "declLine": 2204
+    },
+    {
+      "name": "main.gatePopoverFooterButtonAtPoint",
+      "lowPC": 5398336,
+      "highPC": 5398412,
+      "declFile": 2,
+      "declLine": 2219
+    },
+    {
+      "name": "main.gateRawDetailLines",
+      "lowPC": 5465472,
+      "highPC": 5466069,
+      "declFile": 2,
+      "declLine": 4015
+    },
+    {
+      "name": "main.gateSeverityCounts",
+      "declLine": 3366
+    },
+    {
+      "name": "main.hasArg",
+      "declLine": 770
+    },
+    {
+      "name": "main.hintPhrase",
+      "declLine": 3380
+    },
+    {
+      "name": "main.hiword",
+      "declLine": 555
+    },
+    {
+      "name": "main.init",
+      "lowPC": 5331616,
+      "highPC": 5335413,
+      "declFile": 1,
+      "declLine": 1
+    },
+    {
+      "name": "main.inside",
+      "declLine": 2734
+    },
+    {
+      "name": "main.isAdmin",
+      "declLine": 748
+    },
+    {
+      "name": "main.joinReason",
+      "declLine": 3199
+    },
+    {
+      "name": "main.launchElevatedHelper",
+      "lowPC": 5345120,
+      "highPC": 5345398,
+      "declFile": 2,
+      "declLine": 754
+    },
+    {
+      "name": "main.line",
+      "lowPC": 5447008,
+      "highPC": 5447525,
+      "declFile": 2,
+      "declLine": 3676
+    },
+    {
+      "name": "main.loadGateInspections",
+      "lowPC": 5437824,
+      "highPC": 5439197,
+      "declFile": 2,
+      "declLine": 3394
+    },
+    {
+      "name": "main.loadGateInspections.func1",
+      "lowPC": 5439200,
+      "highPC": 5439575,
+      "declFile": 2,
+      "declLine": 3423
+    },
+    {
+      "name": "main.loadIcon",
+      "lowPC": 5345568,
+      "highPC": 5345747,
+      "declFile": 2,
+      "declLine": 783
+    },
+    {
+      "name": "main.localCheckStatus",
+      "lowPC": 5465184,
+      "highPC": 5465449,
+      "declFile": 2,
+      "declLine": 3998
+    },
+    {
+      "name": "main.logsScrollbarGeometry",
+      "lowPC": 5396544,
+      "highPC": 5396774,
+      "declFile": 2,
+      "declLine": 2077
+    },
+    {
+      "name": "main.main",
+      "lowPC": 5514944,
+      "highPC": 5523269,
+      "declFile": 2,
+      "declLine": 4775
+    },
+    {
+      "name": "main.main.deferwrap1",
+      "lowPC": 5523392,
+      "highPC": 5523504
+    },
+    {
+      "name": "main.main.deferwrap2",
+      "lowPC": 5523296,
+      "highPC": 5523363
+    },
+    {
+      "name": "main.measurementStampFromText",
+      "lowPC": 5376736,
+      "highPC": 5377100,
+      "declFile": 2,
+      "declLine": 1547
+    },
+    {
+      "name": "main.modalFolderRect",
+      "declLine": 1039
+    },
+    {
+      "name": "main.modalOKRect",
+      "declLine": 1035
+    },
+    {
+      "name": "main.modalWndProc",
+      "lowPC": 5357568,
+      "highPC": 5363465,
+      "declFile": 2,
+      "declLine": 1063
+    },
+    {
+      "name": "main.parseGateFile",
+      "lowPC": 5433088,
+      "highPC": 5435237,
+      "declFile": 2,
+      "declLine": 3205
+    },
+    {
+      "name": "main.parseMeasurementStampFromFile",
+      "lowPC": 5375520,
+      "highPC": 5376535,
+      "declFile": 2,
+      "declLine": 1527
+    },
+    {
+      "name": "main.parseMeasurementTime",
+      "lowPC": 5376544,
+      "highPC": 5376725,
+      "declFile": 2,
+      "declLine": 1541
+    },
+    {
+      "name": "main.parseProgressFile",
+      "lowPC": 5429216,
+      "highPC": 5432581,
+      "declFile": 2,
+      "declLine": 3095
+    },
+    {
+      "name": "main.pointInRectPx",
+      "declLine": 1043
+    },
+    {
+      "name": "main.quoteWindowsArg",
+      "declLine": 750
+    },
+    {
+      "name": "main.rgb",
+      "declLine": 557
+    },
+    {
+      "name": "main.roundBox",
+      "lowPC": 5446272,
+      "highPC": 5446997,
+      "declFile": 2,
+      "declLine": 3665
+    },
+    {
+      "name": "main.runAdminHelperMain",
+      "lowPC": 5412480,
+      "highPC": 5415093,
+      "declFile": 2,
+      "declLine": 2813
+    },
+    {
+      "name": "main.runPowerShellEngine",
+      "lowPC": 5410656,
+      "highPC": 5412456,
+      "declFile": 2,
+      "declLine": 2790
+    },
+    {
+      "name": "main.setClipboardText",
+      "lowPC": 5466080,
+      "highPC": 5467621,
+      "declFile": 2,
+      "declLine": 4029
+    },
+    {
+      "name": "main.setClipboardText.deferwrap1",
+      "lowPC": 5467648,
+      "highPC": 5467717
+    },
+    {
+      "name": "main.setDarkTitlebar",
+      "lowPC": 5354080,
+      "highPC": 5354321,
+      "declFile": 2,
+      "declLine": 929
+    },
+    {
+      "name": "main.shaHex",
+      "lowPC": 5336256,
+      "highPC": 5336499,
+      "declFile": 2,
+      "declLine": 556
+    },
+    {
+      "name": "main.text",
+      "lowPC": 5447552,
+      "highPC": 5448101,
+      "declFile": 2,
+      "declLine": 3684
+    },
+    {
+      "name": "main.tokenAfter",
+      "lowPC": 5377120,
+      "highPC": 5377368,
+      "declFile": 2,
+      "declLine": 1561
+    },
+    {
+      "name": "main.truncateUI",
+      "lowPC": 5441152,
+      "highPC": 5441454,
+      "declFile": 2,
+      "declLine": 3499
+    },
+    {
+      "name": "main.uiMessageName",
+      "lowPC": 5337184,
+      "highPC": 5337623,
+      "declFile": 2,
+      "declLine": 602
+    },
+    {
+      "name": "main.unclearPhrase",
+      "declLine": 3387
+    },
+    {
+      "name": "main.updateAtomicMax",
+      "declLine": 593
+    },
+    {
+      "name": "main.userGateSummary",
+      "lowPC": 5439584,
+      "highPC": 5441130,
+      "declFile": 2,
+      "declLine": 3434
+    },
+    {
+      "name": "main.utf16",
+      "lowPC": 5335424,
+      "highPC": 5335507,
+      "declFile": 2,
+      "declLine": 517
+    },
+    {
+      "name": "main.wndProc",
+      "lowPC": 5354336,
+      "highPC": 5357047,
+      "declFile": 2,
+      "declLine": 937
+    },
+    {
+      "name": "main.wndProc.func1",
+      "lowPC": 5357056,
+      "highPC": 5357169,
+      "declFile": 2,
+      "declLine": 951
+    },
+    {
+      "name": "main.wrapUILines",
+      "lowPC": 5441472,
+      "highPC": 5442533,
+      "declFile": 2,
+      "declLine": 3508
+    },
+    {
+      "name": "main.wrapUIPixelLines",
+      "lowPC": 5442560,
+      "highPC": 5444475,
+      "declFile": 2,
+      "declLine": 3548
+    },
+    {
+      "name": "main.wrapUIPixelLines.deferwrap1",
+      "lowPC": 5445824,
+      "highPC": 5445936
+    },
+    {
+      "name": "main.wrapUIPixelLines.deferwrap2",
+      "lowPC": 5445664,
+      "highPC": 5445795
+    },
+    {
+      "name": "main.wrapUIPixelLines.func1",
+      "lowPC": 5445376,
+      "highPC": 5445654,
+      "declFile": 2,
+      "declLine": 3561
+    },
+    {
+      "name": "main.wrapUIPixelLines.func2",
+      "lowPC": 5444480,
+      "highPC": 5445349,
+      "declFile": 2,
+      "declLine": 3576
+    },
+    {
+      "name": "main.wrapUIPixelLines.func3",
+      "declLine": 3602
+    },
+    {
+      "name": "main.writeSnapshot",
+      "lowPC": 5345408,
+      "highPC": 5345556,
+      "declFile": 2,
+      "declLine": 778
+    },
+    {
+      "name": "main.zipFileAs",
+      "lowPC": 5370336,
+      "highPC": 5371060,
+      "declFile": 2,
+      "declLine": 1425
+    },
+    {
+      "name": "main.zipFileAs.deferwrap1",
+      "lowPC": 5371072,
+      "highPC": 5371148
+    }
+  ],
+  "vars": [
+    {
+      "name": "main.app",
+      "type": "*main.App"
+    },
+    {
+      "name": "main.colors",
+      "type": "struct struct { main.bg uintptr; main.sidebar uintptr; main.surface uintptr; main.surface2 uintptr; main.hover uintptr; main.border uintptr; main.borderStrong uintptr; main.green uintptr; main.greenDark uintptr; main.success uintptr; main.warning uintptr; main.unclear uintptr; main.failure uintptr; main.info uintptr; main.text uintptr; main.text2 uintptr; main.muted uintptr }"
+    },
+    {
+      "name": "main.componentIconNames",
+      "type": "struct []string"
+    },
+    {
+      "name": "main.dwmapi",
+      "type": "*syscall.LazyDLL"
+    },
+    {
+      "name": "main.embedded",
+      "type": "embed.FS"
+    },
+    {
+      "name": "main.gateDetails",
+      "type": "struct []string"
+    },
+    {
+      "name": "main.gateNames",
+      "type": "struct []string"
+    },
+    {
+      "name": "main.gdi32",
+      "type": "*syscall.LazyDLL"
+    },
+    {
+      "name": "main.kernel32",
+      "type": "*syscall.LazyDLL"
+    },
+    {
+      "name": "main.procAdjustWindowRectEx",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procAppendMenuW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procBeginPaint",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procBitBlt",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCloseClipboard",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCloseHandle",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateCompatibleBitmap",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateCompatibleDC",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateFontW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateMutexW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreatePen",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreatePopupMenu",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateSolidBrush",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procCreateWindowExW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDefWindowProcW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDeleteDC",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDeleteObject",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDestroyIcon",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDestroyMenu",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDestroyWindow",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDispatchMessageW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDrawIconEx",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDrawTextW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procDwmSetWindowAttribute",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procEllipse",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procEmptyClipboard",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procEnableWindow",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procEndPaint",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procFillRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procFindWindowW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetClientRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetCurrentProcess",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetCurrentThreadId",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetCursorPos",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetDpiForSystem",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetGuiResources",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetMessageW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetModuleHandleW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetStockObject",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetSystemMetrics",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetTextExtentPoint32W",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGetWindowRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGlobalAlloc",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGlobalFree",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGlobalLock",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procGlobalUnlock",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procIntersectClipRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procInvalidateRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procIsIconic",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procIsUserAnAdmin",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procLineTo",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procLoadCursorW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procLoadImageW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procMessageBoxW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procMoveToEx",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procOpenClipboard",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procPostMessageW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procPostQuitMessage",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procRectangle",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procRegisterClassExW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procReleaseCapture",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procRestoreDC",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procRoundRect",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procRtlMoveMemory",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSaveDC",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procScreenToClient",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSelectObject",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetBkMode",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetCapture",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetClipboardData",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetCursor",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetFocus",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetForegroundWindow",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetProcessDPIAware",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procSetTextColor",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procShellExecuteW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procShellNotifyIconW",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procShowWindow",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procTrackMouseEvent",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procTrackPopupMenu",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procTranslateMessage",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.procUpdateWindow",
+      "type": "*syscall.LazyProc"
+    },
+    {
+      "name": "main.shell32",
+      "type": "*syscall.LazyDLL"
+    },
+    {
+      "name": "main.sidebarIconNames",
+      "type": "struct []string"
+    },
+    {
+      "name": "main.uiIconVariants",
+      "type": "struct []string"
+    },
+    {
+      "name": "main.user32",
+      "type": "*syscall.LazyDLL"
+    }
+  ]
+}

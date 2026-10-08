@@ -1,0 +1,112 @@
+Razer Synapse + Chroma Health Monitor v2.2.5
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.2.5
+- Health Engine: 1.4.2 (unchanged)
+- Setup Scanner: 1.0.4
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 312 UI keys
+
+v2.2.5 guided connection learning
+---------------------------------
+The normal Setup scan remains generic and PID-free. Product identity continues
+to prefer root USB DEVPKEY_Device_BusReportedDeviceDesc and groups connections
+with the same normalized current bus identity into one product.
+
+Connection-role semantics are no longer learned from random HID topology or
+incidental one-path/two-path snapshots. Passive sources
+`topology-hid-collection-asymmetry` and `topology-transition-confirmed` are not
+present in the active Setup Scanner 1.0.4.
+
+The Setup UI adds a guided calibration assistant. For each inventoried product:
+1. the user creates a wired state and runs a product-scoped targeted scan;
+2. the user creates a wireless state and runs a second product-scoped scan;
+3. either step may be skipped without declaring the transport unsupported.
+
+The host snapshots the pre-step inventory and passes CalibrationMode,
+CalibrationProductKey and BaselinePath to Setup Scanner 1.0.4. Successful
+assignments are HIGH-confidence and use only these runtime evidence sources:
+- user-guided-wired-transition
+- user-guided-wired-reference
+- user-guided-wireless-transition
+- user-guided-wireless-reference
+
+Ambiguous observations, missing target/baseline or contradictory explicit
+current descriptor evidence fail closed. A failed guided run does not commit the
+candidate inventory and does not stage new connection history.
+
+Connection History schema 2
+---------------------------
+Persistent learning path:
+  Setup/RazerConnectionHistory-v2.json
+
+Schema 2 adds calibrated/calibratedAt metadata. Setup Scanner 1.0.4 can read the
+v2.2.4 schema-1 file as migration input. Schema-1 passive topology/transition
+roles are not trusted as calibrated ground truth. Historical semantic role reuse
+requires explicit descriptor evidence or guided calibration and remains guarded
+by matching productKey.
+
+PID / identity safety
+---------------------
+PASS: active Setup Scanner has no known endpoint PID/model constants
+PASS: Built EXE raw-byte string scan has no known endpoint PID/model constants
+PASS: observed PIDs remain runtime inventory/history data only
+PASS: ContainerId remains supporting evidence, not product merge key
+PASS: generic product identity still uses root BusReportedDeviceDesc
+
+Validation
+----------
+PASS: i18n catalog / placeholders (312 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / calibration confinement
+PASS: guided calibration architecture validator 23/23
+PASS: active embedded Setup directory contains exactly one scanner source (1.0.4)
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 92/92
+PASS: 81/81 icon assets byte-identical to v2.2.4
+PASS: PE resource payload byte-identical to v2.2.4
+PASS: Health Engine 1.4.2 byte-identical to v2.2.4
+PASS: Repair Engine 1.0.0 byte-identical to v2.2.4
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: final Source ZIP integrity
+PASS: fresh extraction of final Source ZIP builds a byte-identical internal EXE
+
+Native acceptance status
+------------------------
+PENDING by design: the new guided wired/wireless calibration workflow still
+requires native Windows acceptance testing with the user's actual Viper V3 Pro
+and BlackWidow V4 Low-profile HyperSpeed. No native field result is claimed by
+this build validation record.
+
+Hashes
+------
+Release internal EXE SHA-256:
+98b466b0ce0cd71cb19685395bedbbb512beb2976272996df34457a26205757b
+
+Health Engine 1.4.2 source SHA-256:
+627189dbddecc38397b24223cbf79f1e6b79f9b00f4c70ffdf9e52ec48a88a57
+Health Engine runtime UTF-8-BOM SHA-256:
+9cc46613e28a8e05361450ac9c9e4350918ca8e5d85dfcfc7b15ff84050eb507
+
+Setup Scanner 1.0.4 source SHA-256:
+d3bf3260457ffc1f384456760bdea94719bd77021d798dab5d6a0337eb344794
+Setup Scanner runtime UTF-8-BOM SHA-256:
+65af2b778f37247ac0275c82ac6cada7e370d5cdf264ce443f126554bdcfb110
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a

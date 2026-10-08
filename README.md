@@ -1,14 +1,20 @@
-# Razer Synapse + Chroma Health Center (RHC)
+# Razer Synapse + Chroma Health Center v3.0.8
 
-This repository is being initialized as the future **single source of truth** for Razer Health Center.
+v3.0.8 is a narrow health-semantics patch for the AppEngine user-mode diagnostic. A real native Windows measurement showed a fully functional steady-state background runtime with tray, mappings, device middleware and Chroma working while transient `win-synapse` / `win-chroma-app` dashboard renderers were no longer resident. v3.0.7 incorrectly treated those transient UI renderers as mandatory and reported Gate 1 UNKNOWN.
 
-> **Migration status — bootstrap in progress.** The canonical v3.0.8 source has been supplied and verified externally, but source import and GitHub-hosted CI/release qualification must be completed before this repository can be considered the complete project authority. Do not infer production release readiness from this documentation commit.
+The AppEngine diagnostic is now version 1.0.2. HEALTHY requires the validated Synapse+Chroma run contract, one unambiguous runtime main process using that contract, systray, background manager, lighting engine and generic device middleware. `win-synapse` / `win-chroma-app` remain captured as supporting evidence only. Missing systray still makes the runtime incomplete, preserving detection of the real broken state observed earlier.
 
-- Product baseline: **3.0.8**
-- GitHub Issue namespace: **RHC-<GitHub issue number>**.
-- New-chat entry point: [docs/INITIAL_PROMPT.md](docs/INITIAL_PROMPT.md) (added as part of initial setup).
-- Migration plan and verified input evidence: [docs/MIGRATION_STATUS.md](docs/MIGRATION_STATUS.md).
-- Reusable onboarding contract: [docs/templates/PROJECT_MIGRATION_TEMPLATE.md](docs/templates/PROJECT_MIGRATION_TEMPLATE.md).
-- No product behavior changes, automatic deployments, or v3.0.9 release are authorized by this initial bootstrap.
+## Versions
+- App: 3.0.8
+- Health Engine: 1.4.6
+- Setup Scanner: 1.0.6
+- Fast Setup Live Probe: 1.1.0
+- Diagnostic Orchestrator: 1.1.0
+- Problem Catalog: 1.1.0
+- Chroma Diagnostic: 1.0.0
+- AppEngine User-Mode Diagnostic: 1.0.2
+- Repair Engine/Catalog: 2.1.0
+- Chroma Repair: 1.1.0
+- AppEngine Recovery: 1.0.0
 
-Build and repair safety policies remain those of the v3.0.8 source. The release machinery must be adapted to Go/Windows rather than copying Lenovo Boot Selector's PowerShell packaging logic.
+All repair confirmation, elevation and read-only verification rules remain unchanged.

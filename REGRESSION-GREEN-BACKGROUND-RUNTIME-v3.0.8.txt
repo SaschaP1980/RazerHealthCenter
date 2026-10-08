@@ -1,0 +1,21 @@
+PASS | app version 3.0.8
+PASS | diagnostic module version 1.0.2
+PASS | diagnostic script name 1.0.2
+PASS | diagnostic asset exists
+PASS | script module version 1.0.2
+PASS | PS51 native arrays retained
+PASS | systray evidence
+PASS | background-manager evidence
+PASS | lighting-engine evidence
+PASS | generic device middleware evidence
+PASS | dashboard evidence retained as supporting
+PASS | healthy requires persistent background contract
+PASS | healthy does not require synapse dashboard renderer
+PASS | healthy does not require chroma dashboard renderer
+PASS | missing systray still prevents healthy
+PASS | no PID-specific runtime requirement
+PASS | Go exposes new evidence fields
+PASS | read-only contract retained
+PASS | validator build gated
+PASS | locale and manifest version 3.0.8
+20/20 PASS

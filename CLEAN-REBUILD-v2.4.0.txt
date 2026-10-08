@@ -1,0 +1,22 @@
+Razer Synapse + Chroma Health Monitor v2.4.0
+Clean Rebuild Proof
+Generated: 2026-09-11
+
+Procedure
+1. A full v2.4.0 Source ZIP candidate was created from the final source tree after removal of editor/build backup files.
+2. The candidate Source ZIP was extracted into a fresh directory.
+3. All build.sh validation stages were executed from the fresh extraction. The environment's single-command time limit interrupted the wrapper after the i18n guard; the remaining unchanged build.sh stages were then continued explicitly from the same fresh extraction.
+4. Windows amd64 CGO=0 GUI build, PE resource patch, PE validation and static UI/reference validation completed successfully.
+5. The rebuilt executable was compared byte-for-byte with the release executable.
+
+Release executable SHA-256
+743abeff1730212f37209a85f56e0413e9fb510d4850c247b649da42d62e7bd9
+
+Fresh-source rebuilt executable SHA-256
+743abeff1730212f37209a85f56e0413e9fb510d4850c247b649da42d62e7bd9
+
+Byte comparison
+PASS - byte-identical
+
+Result
+PASS - the delivered source snapshot is independently buildable and reproduces the release executable byte-for-byte. The final Source ZIP adds this proof document only; no source/build input changed after the successful clean rebuild.

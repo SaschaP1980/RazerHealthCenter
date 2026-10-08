@@ -1,0 +1,60 @@
+Razer Synapse + Chroma Health Center v3.0.2
+Build validation
+Date: 2026-09-12
+
+Target:
+  Windows amd64 native GUI
+  App 3.0.2
+  Health Engine 1.4.6 (unchanged from v3.0.1)
+
+New regression:
+  validate_v302_historical_session_archive.py: 19/19 PASS
+  validate_historical_details_v240.py (updated session-only contract): 21/21 PASS
+  RED baseline against exact v3.0.1 source: 4/19 PASS, exit 1 (expected)
+
+Existing regression/build gates:
+  PowerShell reserved-$PID guard: PASS
+  i18n: 375 keys, PASS
+  Repair safety/confinement/explicit-confirmation invariant: PASS
+  Setup inventory: PASS
+  Guided/live calibration: 44/44 PASS
+  Guided flow: 13/13 PASS
+  Guided UX: 20/20 PASS
+  Tray menu: 10/10 PASS
+  Diagnostic/repair platform: 24/24 PASS
+  Manifest authority: 20/20 PASS
+  Healthcheck/UI: 28/28 PASS
+  Connection presentation: 10/10 PASS
+  Structured failure details: 11/11 PASS
+  Gate applicability/finalization: 14/14 PASS
+  Live performance: 13/13 PASS
+  PowerShell encoding: 7/7 PASS
+  Version check: PASS
+  Log evidence architecture: 13/13 PASS
+  Go tests: PASS
+  i18n Go-literal guard: PASS
+  Windows amd64 CGO=0 GUI build: PASS
+  PE resource relocation/patch: PASS
+  PE validator: PASS (amd64 GUI, one .rsrc, 11 resource entries)
+  Static UI/recovery/reference validator: 103/103 PASS
+
+Final release EXE SHA-256 before packaging:
+  33ee2dc77e832445049aa7e89ac3df222f0389d53016c21a7656626a5ec92db5
+
+Component invariants:
+  Health Engine 1.4.6 SHA-256:
+    a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+  Setup Scanner 1.0.6 SHA-256:
+    8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+  Chroma Diagnostic Module 1.0.0 SHA-256:
+    6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+  Chroma Repair Recipe 1.1.0 SHA-256:
+    4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+  versioncheck.go SHA-256:
+    f122d5e1a736b0ea8a0eacb44aa460351aba6e6b1de90a33ea4399028bfd11f4
+
+Note:
+  The long build command exceeded the interactive container wrapper's wall-time
+  after the final PE resource patch. The two remaining deterministic validators
+  (validate_pe.py and validate_ui_recovery.py) were run immediately afterward
+  against that exact generated EXE and passed as recorded above.

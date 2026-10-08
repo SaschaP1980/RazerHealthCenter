@@ -1,0 +1,149 @@
+=== tools/validate_guided_calibration.py RC=0 ===
+PASS: new pid metadata is advisory only
+PASS: wizard skip supported
+PASS: guided UI localized
+PASS: passive topology roles disabled
+PASS: no endpoint PID/model semantics
+guided/live calibration checks: 44/44
+=== tools/validate_guided_flow_v236.py RC=0 ===
+PASS: confirmation UI explains optional hardware switch
+PASS: completion no longer launches full setup scan
+PASS: skip completion no longer launches full setup scan
+PASS: new PID metadata remains explicit advisory
+PASS: no known endpoint PID/model rule
+guided flow v2.3.6 regression checks: 13/13
+=== tools/validate_guided_ux_v2310.py RC=0 ===
+PASS: success copy is explicit
+PASS: continue button is localized
+PASS: mouse auto wireless flow retained
+PASS: non-mouse confirmation flow retained
+PASS: new validator is build-gated
+Guided UX v2.3.10 checks: 20/20
+=== tools/validate_tray_menu_v2312.py RC=0 ===
+PASS: tray menu still renders branded header
+PASS: tray menu still has direct show-window action
+PASS: tray menu keeps green hover accent strip
+PASS: tray menu closes on focus loss or escape
+PASS: new validator is build-gated
+v2.3.12 tray-menu rounding regression: 10/10
+=== tools/validate_historical_details_v240.py RC=0 ===
+PASS: historical package excludes current mutable setup snapshots
+PASS: historical view keeps package and folder actions
+PASS: current status wording changed
+PASS: historical status wording exists
+PASS: validator is build-gated
+v3.0.6 historical measurement regression checks: 21/21
+=== tools/validate_v302_historical_session_archive.py RC=0 ===
+PASS: historical status result keeps health result color
+PASS: historical heart remains normal status icon
+PASS: historical live progress bar removed
+PASS: historical uses static completion information
+PASS: v3.0.6 validator is build gated
+v3.0.6 historical session/archive regression: 17/17 PASS
+=== tools/validate_v303_archive_header_polish.py RC=0 ===
+PASS: historical uses DAUER not live runtime label
+PASS: completion label is neutral result text
+PASS: completion count says Prüfgruppen
+PASS: live-style progress remains absent
+PASS: v3.0.6 validator is build gated
+v3.0.6 archive header polish regression: 22/22 PASS
+=== tools/validate_v304_archive_surface_tint.py RC=0 ===
+PASS: old 6-percent archive surface is absent
+PASS: archive comment documents roughly 4 percent
+PASS: historical card still uses archive surface
+PASS: v3.0.6 validator is build gated
+PASS: v3.0.3 archive semantics validator remains build gated
+v3.0.6 archive surface tint regression: 9/9 PASS
+=== tools/validate_v300_diagnostic_repair_platform.py RC=0 ===
+PASS: repair audit records explicit confirmation
+PASS: post-repair diagnostic verification
+PASS: no automatic repair from orchestrator
+PASS: safety model forbids automatic repairs
+PASS: v3 validator build-gated
+v3.0.6 diagnostic/repair platform: 24/24 PASS
+=== tools/validate_v301_manifest_authority.py RC=0 ===
+PASS: prod hash is discovered not hardcoded
+PASS: update remains INFO color
+PASS: update label explicitly new version available
+PASS: manifest source text
+PASS: validator build-gated
+v3.0.6 manifest authority regression: 20/20 PASS
+=== tools/validate_v305_false_green_guard.py RC=0 ===
+PASS: incomplete measurement persists UNCLEAR
+PASS: incomplete tray state is explicit
+PASS: incomplete summary does not claim functional health
+PASS: registration strings localized
+PASS: validator build-gated
+v3.0.6 false-green guard: 21/21 PASS
+=== tools/validate_healthcheck_selection_v237.py RC=0 ===
+PASS: device skip and step skip remain distinct
+PASS: device skip localized
+PASS: lower setup action subtexts shortened
+PASS: v3.0.6 regression validator is part of build gate
+PASS: no product/PID-specific semantics added to Healthcheck selection
+v3.0.6 Healthcheck/UI regression checks: 28/28
+=== tools/validate_connection_presentation_v239.py RC=0 ===
+PASS: unknown or untyped connections sort last
+PASS: table uses sorted product connections
+PASS: text summary uses sorted product connections
+PASS: stable tie break by PID
+PASS: live present still colors entire typed entry green
+v2.3.9 connection presentation regression: 10/10
+=== tools/test_structured_failure_details_v238.py RC=0 ===
+PASS: failure/unknown renderer uses detail JSON value
+PASS: failure/unknown renderer uses section/source JSON value
+PASS: full expansion is limited to FAIL or UNKNOWN
+PASS: normal popover uses structured renderer
+PASS: generic no-structured fallback is guarded by zero checks
+v2.3.8 structured failure details regression: 11/11
+=== tools/validate_gate_finalization_v238.py RC=0 ===
+PASS: detail status reads live final display
+PASS: structured failure detail regression is in build gate
+PASS: finalization regression is in build gate
+PASS: new structured field labels are localized
+PASS: no endpoint PID/model-specific semantics added
+v3.0.6 Gate applicability/finalization checks: 14/14
+=== tools/validate_live_performance.py RC=0 ===
+PASS: quiet-window generation debounce
+PASS: only one active follow-up
+PASS: performance diagnostics
+PASS: native diagnostic JSON
+PASS: runtime advertises native
+live performance checks: 13/13
+=== tools/validate_powershell_encoding.py RC=0 ===
+PASS: runtime adds utf8 bom execution copy
+PASS: runtime writes normalized engine copy
+PASS: powershell console output forced utf8
+PASS: health invocation uses command prelude
+PASS: powershell paths single quote escaped
+PowerShell encoding checks: 7/7
+=== tools/validate_log_evidence.py RC=0 ===
+PASS: raw diagnostic excludes supporting evidence generically
+PASS: Go result model preserves evidence role
+PASS: Go gate display ignores supporting evidence generically
+PASS: Go gate inspection scopes are direct-source for gates 7/10/11
+PASS: module-log absence/parse/version state cannot create UNKNOWN/WARN/FAIL
+Log evidence architecture checks: 13/13
+=== tools/validate_ui_recovery.py RC=1 ===
+PASS: logs wheel hint removed
+PASS: info cyan
+PASS: info no pseudo expected
+PASS: powershell runtime bom shim
+PASS: powershell stdout utf8
+v3.0.6 static recovery/reference checks: 102/103
+=== tools/validate_repair_safety.py RC=0 ===
+repair safety: PASS
+repair helper confinement: PASS
+explicit confirmation invariant: PASS
+deep diagnostics read-only: PASS
+=== tools/validate_setup_inventory.py RC=0 ===
+setup inventory validation: PASS
+=== tools/validate_version_check.py RC=0 ===
+version check validation: PASS
+=== tools/validate_v306_appengine_recovery.py RC=0 ===
+PASS | repair verification switches by recipe
+PASS | dynamic repair ui
+PASS | appengine locale strings
+PASS | absolute confirmation retained
+PASS | orchestrator cannot auto repair
+25/25 PASS

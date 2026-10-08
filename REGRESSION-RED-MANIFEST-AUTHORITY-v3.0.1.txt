@@ -1,0 +1,21 @@
+FAIL: app/reference version 3.0.1
+FAIL: health engine 1.4.6 selected
+FAIL: health engine 1.4.6 exists
+PASS: no static Known-Good baseline object
+PASS: old Chroma baseline absent
+PASS: old local SHA256 baselines absent
+FAIL: Chroma registry versions informational/non-normative
+PASS: kernel version not baseline WARN
+PASS: LampArray hash mismatch not normative
+PASS: installer cache no local known-good hash verdict
+FAIL: official discovery endpoint
+FAIL: official manifest endpoint construction
+FAIL: no Razer Insider release-note authority
+FAIL: VersionStatus schema 4
+FAIL: manifest registry mapping used
+FAIL: prod hash is discovered not hardcoded
+PASS: update remains INFO color
+FAIL: update label explicitly new version available
+FAIL: manifest source text
+FAIL: validator build-gated
+v3.0.1 manifest authority regression: 7/20 PASS

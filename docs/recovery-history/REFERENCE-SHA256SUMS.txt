@@ -1,0 +1,4 @@
+398d1a448e8b81ca738a1d132cded4a358cabaee2b59c77ab9ea57c4402f49fd  Razer-Synapse-Chroma-Health-Monitor-Portable-v1.7.0.zip
+6b37409c31cfd7431032d1c5f44e1cf9c75188c6d987965b2a289e7d1148d8d2  RazerHealthMonitor-v1.7.0.exe
+11e441f05e8992eeea75c6e1d80282693bc6ccd29f0c21018b0e7698970928f1  recovered embedded health-engine-v1.3.5.ps1
+3b616f5c1b79d42b7ea96acf22421cc7ffa8a359b33e629dbc59c6f28df3c9bc  recovered original .rsrc raw section

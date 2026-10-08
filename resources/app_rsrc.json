@@ -1,0 +1,10 @@
+{
+  "vsize": 114172,
+  "vaddr": 7585792,
+  "rawsize": 114176,
+  "chars": 1073741888,
+  "resource_directory_rva": 7585792,
+  "resource_directory_size": 114172,
+  "sha256": "3b616f5c1b79d42b7ea96acf22421cc7ffa8a359b33e629dbc59c6f28df3c9bc",
+  "source_exe_sha256": "6b37409c31cfd7431032d1c5f44e1cf9c75188c6d987965b2a289e7d1148d8d2"
+}

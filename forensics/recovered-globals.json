@@ -1,0 +1,102 @@
+{
+  "main.gateNames": {
+    "ptr": "0x994d00",
+    "len": 13,
+    "cap": 13,
+    "values": [
+      "Razer AppEngine",
+      "Razer DriverStore",
+      "Kernel-Treiber RzDev / RzCommon",
+      "BlackWidow Live-PnP",
+      "RZVIRTUAL / RZCONTROL",
+      "Upper-/LowerFilters",
+      "Chroma Registry",
+      "Chroma Dienste",
+      "Synapse Dienste",
+      "Razer Game Manager",
+      "RzComDriver",
+      "Produkt-/Power-State",
+      "LampArray Runtime"
+    ]
+  },
+  "main.gateDetails": {
+    "ptr": "0x994de0",
+    "len": 13,
+    "cap": 13,
+    "values": [
+      "AppEngine-Prozess und Modulstatus",
+      "13 Core-/Filterpakete im DriverStore",
+      "RzDev.sys / RzCommon.sys und Services",
+      "Geräteerkennung und PnP-ProblemCodes",
+      "RZVIRTUAL / RZCONTROL Bindings",
+      "Gerätespezifische Upper-/LowerFilters",
+      "32-Bit Chroma-SDK Registry",
+      "SDK-, Server- und Stream-Dienste",
+      "Experience- und Elevation-Service",
+      "Service plus AppEngine-Modul",
+      "Treiber-, PnP- und Modulbeleg",
+      "Logischer Produktstatus 716",
+      "LampArray Runtime-Dateien und Hashes"
+    ]
+  },
+  "main.componentIconNames": {
+    "ptr": "0x994ec0",
+    "len": 13,
+    "cap": 13,
+    "values": [
+      "appengine",
+      "driverstore",
+      "kernel",
+      "keyboard",
+      "virtual",
+      "filters",
+      "registry",
+      "chroma-services",
+      "synapse-services",
+      "game-manager",
+      "rzcom",
+      "power",
+      "lamparray"
+    ]
+  },
+  "main.sidebarIconNames": {
+    "ptr": "0x994380",
+    "len": 3,
+    "cap": 3,
+    "values": [
+      "nav-status",
+      "nav-logs",
+      "nav-info"
+    ]
+  },
+  "main.uiIconVariants": {
+    "ptr": "0x994780",
+    "len": 4,
+    "cap": 4,
+    "values": [
+      "muted",
+      "green",
+      "warning",
+      "red"
+    ]
+  },
+  "main.colors": {
+    "bg": 14233299772859409973,
+    "sidebar": 13094177646853509602,
+    "surface": 3802287436515225647,
+    "surface2": 2152568990139869094,
+    "hover": 1099517356380017876,
+    "border": 5193173840359558465,
+    "borderStrong": 13797461396212544884,
+    "green": 10327638380990480093,
+    "greenDark": 12924784172172598085,
+    "success": 13362312392303264542,
+    "warning": 11187711907227038236,
+    "unclear": 13104382630258384837,
+    "failure": 14594707695442900936,
+    "info": 9157189263518744881,
+    "text": 2354592043551206392,
+    "text2": 6948557959235066385,
+    "muted": 7112027801100251850
+  }
+}

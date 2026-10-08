@@ -1,0 +1,105 @@
+Razer Synapse + Chroma Health Center v3.0.8 - Sicherheitsmodell
+===============================================================
+
+GRUNDREGELN
+------------
+- Standardbetrieb ohne Elevation.
+- Healthcheck, Setup, Live-Probe und Tiefendiagnose sind read-only gegenüber
+  Windows/Razer.
+- Keine Produktidentität, Verbindungsrolle oder Geräteklasse aus fest codierten
+  Endpoint-PIDs ableiten.
+- Bei Unsicherheit nicht raten: unbekannte Ursachen bleiben UNCLASSIFIED.
+- Eine Reparatur wird NIEMALS automatisch ausgeführt. Jeder Repair benötigt vor
+  der ersten Systemmutation eine ausdrückliche Benutzerbestätigung im Health
+  Center. UAC ist bei Bedarf zusätzlich erforderlich und ersetzt diese Bestätigung
+  nicht.
+
+SETUP-/INVENTARMODUS
+--------------------
+Der vollständige Setup-Scan 1.0.6 ist read-only. Er liest PnP-/Registry-/
+DriverStore-/Treiberdienst-/AppEngine-Evidenz und schreibt nur app-eigene Daten
+unter Setup, Diagnostics und Runtime. Der schnelle Live-Probe 1.1.0 verwendet
+native Windows-SetupAPI und ist ebenfalls read-only. WM_DEVICECHANGE ist nur
+Trigger, niemals Identitäts- oder Rollenbeweis.
+
+Produktidentität basiert bevorzugt auf aktueller Windows-Evidenz, insbesondere
+DEVPKEY_Device_BusReportedDeviceDesc. ContainerId ist unterstützende Evidenz und
+kein Produkt-Merge-Key. Persistente Healthcheck-Teilnahme und Connection History
+ändern keinen Windows-/Razer-Zustand.
+
+HEALTH-/DIAGNOSEMODUS
+---------------------
+Health Engine 1.4.6 bleibt strikt read-only. Die 13 Gates bilden die erste
+Bewertungsebene. Product-spezifische Anforderungen werden nur für required=true
+Produkte ausgewertet; capability-aware Regeln und Evidence-Rollen PRIMARY,
+RUNTIME und SUPPORTING bleiben erhalten. SUPPORTING-Evidenz darf allein keinen
+Gate-Fehler erzeugen.
+
+Diagnostic Orchestrator 1.1.0 darf für FAIL/UNKNOWN gezielte read-only Module
+aufrufen. In v3.0.8 sind RHC.DIAG.CHROMA.SERVICES 1.0.0 und RHC.DIAG.APPENGINE.USERMODE 1.0.2 integriert. Beide Module sind read-only. Das Chroma-Modul liest Dienstzustände; das AppEngine-Modul liest ausschließlich vorhandenen Run-Vertrag, Prozess-/Runtime-Struktur und Renderer-Evidenz. Es startet/stoppt keine Dienste und verändert weder Registry,
+Treiber, PnP noch Dateien. Ergebnisse und ProblemFindings werden app-eigen
+persistiert und in Diagnosepakete aufgenommen.
+
+PROBLEMKATALOG
+---------------
+Problem Catalog 1.1.0 enthält ausschließlich nachgewiesene Signaturen. Passt
+keine bekannte Signatur, wird ein strukturierter UNCLASSIFIED-Befund erzeugt.
+Es gibt keinen heuristischen Fallback zu einer Reparatur.
+
+Aktuell katalogisiert:
+- RHC.CHROMA.SDK_SERVICES.STOPPED_AUTO
+- RHC.APPENGINE.USERMODE.RUNTIME_INCOMPLETE
+
+REPARATURMODUS
+--------------
+Repair Engine / Repair Catalog 2.1.0 führt ausschließlich versionierte,
+allowlist-geprüfte Repair-Recipes aus. Jede produktive RepairDefinition besitzt
+ConfirmationRequired=true. Der Diagnostic Orchestrator besitzt keinen
+Repair-Ausführungspfad.
+
+Aktuell katalogisiert:
+- RHC.REPAIR.CHROMA.START_STOPPED_AUTO
+- Payload: repair-chroma-services-v1.1.0.ps1
+- RHC.REPAIR.APPENGINE.CONTROLLED_RUNTIME_RECOVERY
+- Payload: repair-appengine-runtime-v1.0.0.ps1
+
+Der Gate-8-Repair ist nur bei exakt passender Problem-Signatur zulässig. Die
+einzige Systemmutation ist Start-Service für den/die als Stopped/Auto
+identifizierten Razer Chroma SDK Service / Razer Chroma SDK Server. Starttypen,
+Registry, Treiber/DriverStore/PnP, Installationsdateien und sonstige Prozesse
+bleiben unverändert.
+
+Der Gate-1-AppEngine-Repair ist nur bei der katalogisierten fehlenden/unvollständigen
+User-Mode-Runtime zulässig. Er benötigt keine automatische Elevation. Bei vollständig
+beendeter AppEngine wird ausschließlich der validierte vorhandene Synapse+Chroma-
+Run-Vertrag gestartet. Bei eindeutig identifizierter aktiver versionierter Runtime
+darf nur dieser validierte AppEngine-Prozessstack kontrolliert beendet und über den
+vorhandenen Run-Vertrag neu gestartet werden. Dienste, Treiber, Registry, Installation
+und Razer-Dateien/-Konfigurationen bleiben unverändert.
+
+Vor Ausführung:
+1. Problem-ID und Recipe-ID müssen im Katalog zusammenpassen.
+2. Der Nutzer muss den Repair im In-App-Dialog ausdrücklich bestätigen.
+3. Payload-Pfad und SHA-256 werden gegen die eingebettete Version geprüft.
+4. UAC wird nur danach angefordert, falls das Recipe Elevation benötigt.
+
+Nach Ausführung:
+- der Helper schreibt einen Audit-Datensatz mit ConfirmedByUser=true,
+- das passende read-only Diagnosemodul wird erneut ausgeführt,
+- ein Exitcode 0 allein gilt nicht als Erfolg,
+- SUCCESS gilt nur bei erfolgreicher Post-Repair-Verifikation.
+
+Unbekannte oder nicht exakt passende Probleme erhalten niemals einen Repair.
+Sie werden diagnostiziert, als UNCLASSIFIED gespeichert und können über ein
+Diagnosepaket zur späteren Ursachenanalyse ausgewertet werden.
+
+VERSIONSMONITOR
+---------------
+Der Versionsmonitor verwendet Razer Discovery + das systembezogene offizielle prod-Manifest. Die vom Manifest gelieferten Registry-Zuordnungen werden explizit in Registry64 und Registry32 gelesen; ein Treffer in einer Ansicht genügt. Versionsabweichungen bleiben INFO. Ein fehlgeschlagener Online-Abruf beeinflusst die Produktregistrierungsbewertung nicht; die lokale AppEngine-User-Mode-Prüfung bleibt davon unabhängig aktiv.
+
+APP-EIGENE SCHREIBPFADE
+-----------------------
+Persistente oder diagnostische Ausgaben des Health Centers liegen ausschließlich
+in den eigenen Setup-, Diagnostics-, Logs-, Exports- und Runtime-Strukturen.
+Repair-Audits liegen unter Diagnostics\Repairs und werden in Diagnoseexporte
+aufgenommen.

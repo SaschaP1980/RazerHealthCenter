@@ -1,0 +1,12 @@
+PASS: fixture contains final failed Gate 3
+PASS: fixture contains structured Gate 3 failure
+PASS: Gate 3 ownership maps Kernel drivers checks
+FAIL: normal structured-finding renderer exists
+FAIL: failure/unknown renderer uses actual JSON value
+FAIL: failure/unknown renderer uses expected JSON value
+FAIL: failure/unknown renderer uses detail JSON value
+FAIL: failure/unknown renderer uses section/source JSON value
+FAIL: full expansion is limited to FAIL or UNKNOWN
+FAIL: normal popover uses structured renderer
+PASS: generic no-structured fallback is guarded by zero checks
+v2.3.8 structured failure details regression: 4/11

@@ -1,0 +1,103 @@
+Razer Synapse + Chroma Health Center v3.0.7 - Final Build Validation
+======================================================================
+
+Scope
+-----
+v3.0.7 is a narrow reliability patch for the read-only AppEngine user-mode
+Diagnostic introduced in v3.0.6. A real Windows PowerShell 5.1 run failed with
+System.ArgumentException: Argument types do not match, causing Gate 1 to become
+UNKNOWN even though the recovered Razer runtime was functioning correctly.
+
+PowerShell 5.1 compatibility correction
+---------------------------------------
+- RHC.DIAG.APPENGINE.USERMODE is versioned 1.0.0 -> 1.0.1.
+- Active payload: diagnostics/diagnose-appengine-usermode-v1.0.1.ps1.
+- Generic Collections.Generic.List containers were removed from the diagnostic.
+- Error/process collection now uses native PowerShell arrays end-to-end.
+- JSON output uses the native arrays directly, avoiding the observed PS 5.1
+  Generic.List materialization/type-binding failure.
+- The module remains read-only and keeps the same runtime/launch-contract evidence.
+- Registry64/Registry32 handling and all repair semantics remain unchanged.
+
+RED -> GREEN
+------------
+Canonical v3.0.6 against tools/validate_v307_ps51_appengine_diagnostic.py:
+  2/19 PASS, exit 1 (expected RED)
+
+v3.0.7:
+  19/19 PASS (GREEN)
+
+Retained regression gates
+-------------------------
+Guided/live calibration:                 44/44 PASS
+Guided Flow:                             13/13 PASS
+Guided UX:                               20/20 PASS
+Rounded tray menu:                       10/10 PASS
+Historical measurement details:          21/21 PASS
+Historical session/archive lifecycle:    17/17 PASS
+Archive header polish:                   22/22 PASS
+Archive surface tint:                     9/9 PASS
+Diagnostic/repair platform:              24/24 PASS
+Manifest authority:                      20/20 PASS
+v3.0.5 false-green guard:                21/21 PASS
+v3.0.6 AppEngine recovery:               25/25 PASS
+v3.0.7 PS5.1 AppEngine diagnostic:       19/19 PASS
+Healthcheck/UI:                           28/28 PASS
+Connection presentation:                 10/10 PASS
+Structured failure details:              11/11 PASS
+Gate applicability/finalization:         14/14 PASS
+Live Performance:                        13/13 PASS
+PowerShell Encoding:                      7/7 PASS
+Log Evidence:                            13/13 PASS
+Static UI/diagnostics/setup/repair/ref: 103/103 PASS
+Repair safety / confirmation invariant:       PASS
+Setup inventory:                              PASS
+Version check:                                PASS
+i18n catalog validation (413 keys):           PASS
+
+Additional build gates
+----------------------
+go test .:                                PASS
+i18n guard:                              PASS
+Windows amd64 go vet:                    PASS
+Windows amd64 CGO=0 GUI build:           PASS
+Resource patch:                          PASS
+PE validation:                           PASS
+Full validation/build elapsed:           19.01 s
+
+Release EXE SHA-256
+-------------------
+3608090c2faeea3992f61ea83236d055e9862062505566248bf7402adfdeec3c
+
+Core component SHA-256
+---------------------
+Health Engine 1.4.6:
+  a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+Setup Scanner 1.0.6:
+  8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Chroma Diagnostic Module 1.0.0:
+  6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+Chroma Repair Recipe 1.1.0:
+  4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+AppEngine User-Mode Diagnostic 1.0.1:
+  671511963d1a9726f2c6bcbf4d37468b8f0a79aebc7536491ffa96cf95fd55ba
+AppEngine Recovery Recipe 1.0.0:
+  ff53cdabcd7c046c25e15ca30419986ace3012532b05e83a9b681e28de6f738a
+versioncheck.go:
+  503bf87dc422d039ad3f3eab2ba92b0f46674d202b0634ff1768392823c03627
+health_application_guard.go:
+  40eeb9edbb14d00f6455d0df8d712d4df3b63ab131583f647538547797787eea
+appengine_diagnostic.go:
+  8775d96013cd778ae1edcf07c7c318b7865f909e5bb5e5ac683a6fcd8ef2dc4c
+problem.go:
+  b8c9a6975b91a4ff4a475048d29f6c695511d29d66cf342484b900d5953695fe
+repair.go:
+  35273ee87bb19b8788105ab97abb81d419f512a3314452584ec5cd4ad5101d6e
+
+Native acceptance status
+------------------------
+The real v3.0.6 Windows package established the PS 5.1 failure signature that
+v3.0.7 fixes. v3.0.7 itself still requires native acceptance: on the recovered
+healthy system the AppEngine diagnostic should complete successfully, Gate 1
+should remain PASS, and the exported Diagnostic-AppEngineUserMode JSON should
+be present. Existing recovery/repair safety semantics are unchanged.

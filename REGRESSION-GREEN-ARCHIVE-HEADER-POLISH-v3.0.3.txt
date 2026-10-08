@@ -1,0 +1,23 @@
+PASS: app/reference version 3.0.3
+PASS: catalog version 3.0.3
+PASS: redundant archive title removed from catalog
+PASS: redundant archive subtitle removed from catalog
+PASS: historical duration localized as DAUER
+PASS: historical gate count localized
+PASS: archive tagline remains cyan context
+PASS: historical tab remains cyan
+PASS: dedicated subtle archive surface exists
+PASS: historical draw function found
+PASS: archive card uses cyan-tinted surface
+PASS: no redundant archive title rendered
+PASS: no redundant archive subtitle rendered
+PASS: no cyan separator line over heart
+PASS: historical system label uses cyan
+PASS: historical heart remains normal result icon
+PASS: stored overall keeps health result color
+PASS: historical uses DAUER not live runtime label
+PASS: completion label is neutral result text
+PASS: completion count says Prüfgruppen
+PASS: live-style progress remains absent
+PASS: v3.0.3 validator is build gated
+v3.0.3 archive header polish regression: 22/22 PASS

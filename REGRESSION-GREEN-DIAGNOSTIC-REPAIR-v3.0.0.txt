@@ -1,0 +1,25 @@
+PASS: app version 3.0.0
+PASS: Health Center product rename
+PASS: Health Center executable packaging
+PASS: problem platform source exists
+PASS: structured ProblemFinding model
+PASS: problem catalog versioned
+PASS: unclassified findings supported
+PASS: diagnostic orchestrator versioned
+PASS: read-only Chroma diagnostic module
+PASS: diagnostic module has no mutation commands
+PASS: runtime embeds diagnostics
+PASS: health run invokes diagnostic orchestrator
+PASS: problem findings persisted per measurement
+PASS: measurement collection recognizes findings
+PASS: repair catalog exists
+PASS: all repair definitions require confirmation
+PASS: known Gate 8 problem id
+PASS: Gate 8 maps to repair recipe
+PASS: repair helper accepts recipe id
+PASS: repair audit records explicit confirmation
+PASS: post-repair diagnostic verification
+PASS: no automatic repair from orchestrator
+PASS: safety model forbids automatic repairs
+PASS: v3 validator build-gated
+v3.0.0 diagnostic/repair platform: 24/24 PASS

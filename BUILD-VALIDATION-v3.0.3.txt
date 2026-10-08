@@ -1,0 +1,44 @@
+Razer Synapse + Chroma Health Center v3.0.3 - Build Validation
+================================================================
+
+Scope: historical archive header polish on canonical v3.0.2 source.
+
+New RED -> GREEN contract:
+- canonical v3.0.2: 5/22 PASS, exit 1 (expected RED)
+- v3.0.3: 22/22 PASS (GREEN)
+
+Relevant retained regressions:
+- Historical measurement details: 21/21 PASS
+- Historical session/archive lifecycle: 17/17 PASS
+- Static UI/Diagnostics/Setup/Repair/Reference: 103/103 PASS
+
+Full build-gated regression suite passed through all Python validators, including:
+- guided/live calibration 44/44
+- guided flow 13/13
+- guided UX 20/20
+- rounded tray menu 10/10
+- historical details 21/21
+- historical session/archive lifecycle 17/17
+- archive header polish 22/22
+- diagnostic/repair platform 24/24
+- manifest authority 20/20
+- Healthcheck/UI 28/28
+- connection presentation 10/10
+- structured failure details 11/11
+- gate applicability/finalization 14/14
+- live performance 13/13
+- PowerShell encoding 7/7
+- log evidence 13/13
+
+Build completion was verified separately after the aggregate wrapper reached its
+execution window after validators:
+- go test .: PASS
+- i18n_guard: PASS
+- Windows amd64 go vet: PASS
+- Windows amd64 CGO=0 GUI build: PASS
+- resource patch: PASS
+- PE validation: PASS
+- static UI/reference validation: 103/103 PASS
+
+Release EXE SHA-256 before packaging:
+618119df2ddd45101d04af7cb0cb9f1967a922636baaaed61051f272bb92aee2

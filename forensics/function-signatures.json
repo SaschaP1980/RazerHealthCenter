@@ -1,0 +1,7010 @@
+[
+  {
+    "Name": "main.(*App).watchProgress.deferwrap1",
+    "Line": 0,
+    "Low": 5427584,
+    "High": 5427651,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).uiTraceWatchdog.deferwrap1",
+    "Line": 0,
+    "Low": 5345024,
+    "High": 5345091,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.main.deferwrap1",
+    "Line": 0,
+    "Low": 5523392,
+    "High": 5523504,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.main.deferwrap2",
+    "Line": 0,
+    "Low": 5523296,
+    "High": 5523363,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).animateCheckingPulse.deferwrap1",
+    "Line": 0,
+    "Low": 5426848,
+    "High": 5426917,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).debugf.deferwrap1",
+    "Line": 0,
+    "Low": 5337088,
+    "High": 5337165,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).startUITrace.gowrap1",
+    "Line": 0,
+    "Low": 5339968,
+    "High": 5340035,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.zipFileAs.deferwrap1",
+    "Line": 0,
+    "Low": 5371072,
+    "High": 5371148,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).exportDiagnostics.gowrap1",
+    "Line": 0,
+    "Low": 5384128,
+    "High": 5384195,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).showTrayMenu.deferwrap1",
+    "Line": 0,
+    "Low": 5369792,
+    "High": 5369904,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).exportSelectedMeasurement.gowrap1",
+    "Line": 0,
+    "Low": 5389984,
+    "High": 5390108,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "\u0026.autotmp_3",
+        "Type": "*main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).watchProgress.deferwrap2",
+    "Line": 0,
+    "Low": 5427488,
+    "High": 5427557,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).beginCheck.gowrap2",
+    "Line": 0,
+    "Low": 5410464,
+    "High": 5410531,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).uiTraceWatchdog.deferwrap2",
+    "Line": 0,
+    "Low": 5344928,
+    "High": 5344997,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).beginCheck.gowrap1",
+    "Line": 0,
+    "Low": 5410560,
+    "High": 5410627,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).copyCurrentGateDetails.gowrap1",
+    "Line": 0,
+    "Low": 5472992,
+    "High": 5473068,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.setClipboardText.deferwrap1",
+    "Line": 0,
+    "Low": 5467648,
+    "High": 5467717,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).paint.deferwrap1",
+    "Line": 0,
+    "Low": 5449248,
+    "High": 5449379,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.wrapUIPixelLines.deferwrap1",
+    "Line": 0,
+    "Low": 5445824,
+    "High": 5445936,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.wrapUIPixelLines.deferwrap2",
+    "Line": 0,
+    "Low": 5445664,
+    "High": 5445795,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).runHealthCheck.gowrap1",
+    "Line": 0,
+    "Low": 5426336,
+    "High": 5426414,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.init",
+    "Line": 1,
+    "Low": 5331616,
+    "High": 5335413,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.utf16",
+    "Line": 517,
+    "Low": 5335424,
+    "High": 5335507,
+    "Params": [
+      {
+        "Name": "s",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "*uint16",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "p",
+        "Type": "*uint16",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.currentThreadID",
+    "Line": 519,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.acquireSingleInstance",
+    "Line": 524,
+    "Low": 5335520,
+    "High": 5335813,
+    "Params": [
+      {
+        "Name": "~r0",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r1",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r2",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "name",
+        "Type": "*uint16",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "callErr",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.activateExistingInstance",
+    "Line": 537,
+    "Low": 5335840,
+    "High": 5336229,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "className",
+        "Type": "*uint16",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.hiword",
+    "Line": 555,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "v",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.shaHex",
+    "Line": 556,
+    "Low": 5336256,
+    "High": 5336499,
+    "Params": [
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "h",
+        "Type": "[32]uint8",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.rgb",
+    "Line": 557,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "r",
+        "Type": "uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "g",
+        "Type": "uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "uint8",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).s",
+    "Line": 570,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "v",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).baseCoord",
+    "Line": 571,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "v",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).R",
+    "Line": 577,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).debugf",
+    "Line": 581,
+    "Low": 5336512,
+    "High": 5337076,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "format",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "args",
+        "Type": "struct []interface {}",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "f",
+        "Type": "*os.File",
+        "VariableParameter": false
+      },
+      {
+        "Name": "line",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.updateAtomicMax",
+    "Line": 593,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "dst",
+        "Type": "*int64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "v",
+        "Type": "int64",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "old",
+        "Type": "int64",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.uiMessageName",
+    "Line": 602,
+    "Low": 5337184,
+    "High": 5337623,
+    "Params": [
+      {
+        "Name": "m",
+        "Type": "uint32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).appendUITrace",
+    "Line": 633,
+    "Low": 5337632,
+    "High": 5338117,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "format",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "args",
+        "Type": "struct []interface {}",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "f",
+        "Type": "*os.File",
+        "VariableParameter": false
+      },
+      {
+        "Name": "line",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).writeUIHangStack",
+    "Line": 647,
+    "Low": 5338144,
+    "High": 5338897,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "reason",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "n",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "buf",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "header",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).startUITrace",
+    "Line": 657,
+    "Low": 5338912,
+    "High": 5339941,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).stopUITrace",
+    "Line": 669,
+    "Low": 5340064,
+    "High": 5340271,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).uiTraceWatchdog",
+    "Line": 681,
+    "Low": 5340288,
+    "High": 5344919,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "ticker",
+        "Type": "*time.Ticker",
+        "VariableParameter": false
+      },
+      {
+        "Name": "seq",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "outstanding",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hangDumped",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastMM",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastSC",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastPaint",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastInv",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastHover",
+        "Type": "uint64",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sentAt",
+        "Type": "time.Time",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.isAdmin",
+    "Line": 748,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.quoteWindowsArg",
+    "Line": 750,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "v",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.launchElevatedHelper",
+    "Line": 754,
+    "Low": 5345120,
+    "High": 5345398,
+    "Params": [
+      {
+        "Name": "params",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exe",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.argValue",
+    "Line": 762,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "name",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "i",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.hasArg",
+    "Line": 770,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "name",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "v",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.writeSnapshot",
+    "Line": 778,
+    "Low": 5345408,
+    "High": 5345556,
+    "Params": [
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "v",
+        "Type": "interface {}",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.loadIcon",
+    "Line": 783,
+    "Low": 5345568,
+    "High": 5345747,
+    "Params": [
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).prepareRuntime",
+    "Line": 788,
+    "Low": 5345760,
+    "High": 5353309,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "expectedRuntime",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engine",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idle",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pass",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "fail",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "appIcon",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusReady",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusPass",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusFail",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "assetsDir",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idleP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "passP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "failP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "appP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusReadyP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusPassP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusFailP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trayCheckP",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "uiDir",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.createFont",
+    "Line": 911,
+    "Low": 5353312,
+    "High": 5353608,
+    "Params": [
+      {
+        "Name": "dpi",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pt",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "weight",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "face",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "height",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).initFonts",
+    "Line": 917,
+    "Low": 5353632,
+    "High": 5354070,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.setDarkTitlebar",
+    "Line": 929,
+    "Low": 5354080,
+    "High": 5354321,
+    "Params": [
+      {
+        "Name": "hwnd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026one",
+        "Type": "*int32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026corner",
+        "Type": "*int32",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wndProc",
+    "Line": 937,
+    "Low": 5354336,
+    "High": 5357047,
+    "Params": [
+      {
+        "Name": "hwnd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "m",
+        "Type": "uint32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "wParam",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lParam",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ret",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ret",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wndProc.func1",
+    "Line": 951,
+    "Low": 5357056,
+    "High": 5357169,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "d",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.modalOKRect",
+    "Line": 1035,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.modalFolderRect",
+    "Line": 1039,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.pointInRectPx",
+    "Line": 1043,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "r",
+        "Type": "main.rect",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).closeModalDialog",
+    "Line": 1047,
+    "Low": 5357184,
+    "High": 5357551,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.modalWndProc",
+    "Line": 1063,
+    "Low": 5357568,
+    "High": 5363465,
+    "Params": [
+      {
+        "Name": "hwnd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "m",
+        "Type": "uint32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "wParam",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lParam",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).showModalMessage",
+    "Line": 1184,
+    "Low": 5363488,
+    "High": 5365305,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "title",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "body",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hwnd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hInst",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026rr",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "outerW",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "outerH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026ownerRect",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "low",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).createWindow",
+    "Line": 1236,
+    "Low": 5365312,
+    "High": 5367407,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "hInst",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cur",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "className",
+        "Type": "*uint16",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026wc",
+        "Type": "*main.wndClassEx",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hwnd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "atom",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "modalClassName",
+        "Type": "*uint16",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026mwc",
+        "Type": "*main.wndClassEx",
+        "VariableParameter": false
+      },
+      {
+        "Name": "modalAtom",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026rr",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "outerW",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "outerH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sw",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sh",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "e",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "me",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).addTray",
+    "Line": 1286,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).removeTray",
+    "Line": 1289,
+    "Low": 5367424,
+    "High": 5367567,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026n",
+        "Type": "*main.notifyIconData",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).setTray",
+    "Line": 1296,
+    "Low": 5367584,
+    "High": 5368166,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "op",
+        "Type": "uint32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "icon",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tip",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026n",
+        "Type": "*main.notifyIconData",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ok",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "u",
+        "Type": "struct []uint16",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).showWindow",
+    "Line": 1314,
+    "Low": 5368192,
+    "High": 5368466,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).showTrayMenu",
+    "Line": 1323,
+    "Low": 5368480,
+    "High": 5369765,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "m",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026p",
+        "Type": "*main.point",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cmd",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).showLogsView",
+    "Line": 1366,
+    "Low": 5369920,
+    "High": 5370143,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).quit",
+    "Line": 1375,
+    "Low": 5370144,
+    "High": 5370309,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.zipFileAs",
+    "Line": 1425,
+    "Low": 5370336,
+    "High": 5371060,
+    "Params": [
+      {
+        "Name": "zw",
+        "Type": "*archive/zip.Writer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "src",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "archiveName",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "f",
+        "Type": "*os.File",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdr",
+        "Type": "*archive/zip.FileHeader",
+        "VariableParameter": false
+      },
+      {
+        "Name": "info",
+        "Type": "io/fs.FileInfo",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "io.Writer",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).sessionFilesFor",
+    "Line": 1455,
+    "Low": 5371168,
+    "High": 5372858,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sessionID",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "add",
+        "Type": "func(string, string)",
+        "VariableParameter": false
+      },
+      {
+        "Name": "debugPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "startup",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trace",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hangs",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "files",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).sessionFilesFor.func1",
+    "Line": 1460,
+    "Low": 5372864,
+    "High": 5373214,
+    "Params": [
+      {
+        "Name": "source",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "archive",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026files",
+        "Type": "*struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).currentSessionFiles",
+    "Line": 1483,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).measurementFilesWithPrefix",
+    "Line": 1487,
+    "Low": 5373216,
+    "High": 5374300,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "m",
+        "Type": "main.MeasurementExportState",
+        "VariableParameter": false
+      },
+      {
+        "Name": "prefix",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "files",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).measurementFiles",
+    "Line": 1504,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "m",
+        "Type": "main.MeasurementExportState",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).collectMeasurementFileNames",
+    "Line": 1508,
+    "Low": 5374304,
+    "High": 5375497,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "candidates",
+        "Type": "struct []struct { Root string; Name string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "out",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.parseMeasurementStampFromFile",
+    "Line": 1527,
+    "Low": 5375520,
+    "High": 5376535,
+    "Params": [
+      {
+        "Name": "name",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "pairs",
+        "Type": "struct []struct { Prefix string; Suffix string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.parseMeasurementTime",
+    "Line": 1541,
+    "Low": 5376544,
+    "High": 5376725,
+    "Params": [
+      {
+        "Name": "stamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "time.Time",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "base",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.measurementStampFromText",
+    "Line": 1547,
+    "Low": 5376736,
+    "High": 5377100,
+    "Params": [
+      {
+        "Name": "line",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tail",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.tokenAfter",
+    "Line": 1561,
+    "Low": 5377120,
+    "High": 5377368,
+    "Params": [
+      {
+        "Name": "line",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "marker",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tail",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).scanHistoricalMeasurements",
+    "Line": 1579,
+    "Low": 5377376,
+    "High": 5382501,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "stamps",
+        "Type": "map[string]bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sessionFor",
+        "Type": "map[string]main.historicalSessionMeta",
+        "VariableParameter": false
+      },
+      {
+        "Name": "durationFor",
+        "Type": "map[string]time.Duration",
+        "VariableParameter": false
+      },
+      {
+        "Name": "appLogs",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "out",
+        "Type": "struct []main.HistoricalMeasurement",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).scanHistoricalMeasurements.func1",
+    "Line": 1698,
+    "Low": 5382528,
+    "High": 5382807,
+    "Params": [
+      {
+        "Name": "i",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "j",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "out",
+        "Type": "struct []main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).refreshMeasurementsAsync",
+    "Line": 1707,
+    "Low": 5382816,
+    "High": 5383126,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "selectedStamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).refreshMeasurementsAsync.func1",
+    "Line": 1719,
+    "Low": 5383136,
+    "High": 5383675,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "selectedStamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "items",
+        "Type": "struct []main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).exportDiagnostics",
+    "Line": 1747,
+    "Low": 5383680,
+    "High": 5384112,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).finishExport",
+    "Line": 1763,
+    "Low": 5384224,
+    "High": 5384906,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "errText",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).exportDiagnosticsWorker",
+    "Line": 1781,
+    "Low": 5384928,
+    "High": 5389093,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "checking",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurementPtr",
+        "Type": "*main.MeasurementExportState",
+        "VariableParameter": false
+      },
+      {
+        "Name": "zw",
+        "Type": "*archive/zip.Writer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "f",
+        "Type": "*os.File",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sessionID",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sessionFiles",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurementFiles",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "out",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "manifestBytes",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "mw",
+        "Type": "io.Writer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurement",
+        "Type": "main.MeasurementExportState",
+        "VariableParameter": false
+      },
+      {
+        "Name": "manifest",
+        "Type": "main.DiagnosticsExportManifest",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).exportSelectedMeasurement",
+    "Line": 1878,
+    "Low": 5389120,
+    "High": 5389967,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026.autotmp_3",
+        "Type": "*main.HistoricalMeasurement",
+        "VariableParameter": false
+      },
+      {
+        "Name": "selected",
+        "Type": "main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).exportSelectedMeasurementWorker",
+    "Line": 1895,
+    "Low": 5390112,
+    "High": 5394418,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "selected",
+        "Type": "main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026mcopy",
+        "Type": "*main.MeasurementExportState",
+        "VariableParameter": false
+      },
+      {
+        "Name": "resolvedSession",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "zw",
+        "Type": "*archive/zip.Writer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "f",
+        "Type": "*os.File",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sessionFiles",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurementFiles",
+        "Type": "struct []struct { Source string; Archive string }",
+        "VariableParameter": false
+      },
+      {
+        "Name": "out",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "manifestBytes",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "mw",
+        "Type": "io.Writer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurement",
+        "Type": "main.MeasurementExportState",
+        "VariableParameter": false
+      },
+      {
+        "Name": "manifest",
+        "Type": "main.DiagnosticsExportManifest",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).openExports",
+    "Line": 1981,
+    "Low": 5394432,
+    "High": 5394661,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).openExports.func1",
+    "Line": 1984,
+    "Low": 5394688,
+    "High": 5395384,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "callErr",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleExportResult",
+    "Line": 1998,
+    "Low": 5395392,
+    "High": 5395999,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "out",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "errText",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "title",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).message",
+    "Line": 2036,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "title",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "text",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).actionAtPoint",
+    "Line": 2040,
+    "Low": 5396000,
+    "High": 5396522,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "exporting",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "view",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "selected",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.logsScrollbarGeometry",
+    "Line": 2077,
+    "Low": 5396544,
+    "High": 5396774,
+    "Params": [
+      {
+        "Name": "count",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trackX",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trackY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trackW",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "trackH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "visible",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).logsScrollbarHitInfo",
+    "Line": 2104,
+    "Low": 5396800,
+    "High": 5397209,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "onTrack",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "onThumb",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ty",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "th",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "visible",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).setLogScrollFromPoint",
+    "Line": 2122,
+    "Low": 5397216,
+    "High": 5397778,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "preserveOffset",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "offset",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ty",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "th",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "visible",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "newThumbY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "minY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxY",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "newScroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).logRowAtPoint",
+    "Line": 2161,
+    "Low": 5397792,
+    "High": 5398218,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).sidebarAtPoint",
+    "Line": 2184,
+    "Low": 5398240,
+    "High": 5398328,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.gatePopoverCloseAtPoint",
+    "Line": 2199,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "px",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "py",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pw",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.gatePopoverContainsPoint",
+    "Line": 2204,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "px",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "py",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ph",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.gatePopoverFooterButtonAtPoint",
+    "Line": 2219,
+    "Low": 5398336,
+    "High": 5398412,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).gateFindingsHitInfo",
+    "Line": 2231,
+    "Low": 5398432,
+    "High": 5399141,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "insideContent",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "onScrollbar",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rawExpanded",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vy",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vh",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).setDetailScrollFromPoint",
+    "Line": 2252,
+    "Low": 5399168,
+    "High": 5400150,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vy",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vh",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "contentH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "thumbH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pos",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "newScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).gateRowAtPoint",
+    "Line": 2294,
+    "Low": 5400160,
+    "High": 5400542,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).invalidateSidebar",
+    "Line": 2311,
+    "Low": 5400544,
+    "High": 5400948,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026r",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).isClickablePoint",
+    "Line": 2326,
+    "Low": 5400960,
+    "High": 5401445,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "onScrollbar",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).setCursorForPointer",
+    "Line": 2349,
+    "Low": 5401472,
+    "High": 5401942,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026p",
+        "Type": "*main.point",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "id",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cur",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).invalidateAction",
+    "Line": 2371,
+    "Low": 5401952,
+    "High": 5402917,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "kind",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026r",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleMouseMove",
+    "Line": 2392,
+    "Low": 5402944,
+    "High": 5404435,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "rawAction",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "action",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sidebar",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gate",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "closeHover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "footerHover",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldAction",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldSidebar",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldCopy",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rawHover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "copyHover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "footerChanged",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleMouseLeave",
+    "Line": 2467,
+    "Low": 5404448,
+    "High": 5404815,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "oldHover",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldSidebar",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldPressed",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleMouseDown",
+    "Line": 2493,
+    "Low": 5404832,
+    "High": 5405324,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "action",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleMouseUp",
+    "Line": 2523,
+    "Low": 5405344,
+    "High": 5405855,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "releasedOver",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleClick",
+    "Line": 2548,
+    "Low": 5405856,
+    "High": 5408287,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "view",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleMouseWheel",
+    "Line": 2676,
+    "Low": 5408288,
+    "High": 5408933,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "delta",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026p",
+        "Type": "*main.point",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).handleLogsWheel",
+    "Line": 2709,
+    "Low": 5408960,
+    "High": 5409294,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "delta",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.inside",
+    "Line": 2734,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ry",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rh",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).startCheck",
+    "Line": 2736,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).beginCheck",
+    "Line": 2751,
+    "Low": 5409312,
+    "High": 5410437,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "admin",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).beginCheck.func1",
+    "Line": 2779,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.runPowerShellEngine",
+    "Line": 2790,
+    "Low": 5410656,
+    "High": 5412456,
+    "Params": [
+      {
+        "Name": "enginePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "report",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "jsonPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gatePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "progressPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineOut",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r1",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r2",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "elapsed",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cmd",
+        "Type": "*os/exec.Cmd",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026stdout",
+        "Type": "*bytes.Buffer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026stderr",
+        "Type": "*bytes.Buffer",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exitCode",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "args",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "eo",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.runAdminHelperMain",
+    "Line": 2813,
+    "Low": 5412480,
+    "High": 5415093,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "donePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "enginePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "report",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "jsonPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gatePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "progressPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineOut",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hd",
+        "Type": "main.AdminHelperDone",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.countTerminalStates",
+    "Line": 2839,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "n",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "st",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).restoreAfterAdminLaunchFailure",
+    "Line": 2849,
+    "Low": 5415104,
+    "High": 5416453,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "reason",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "overall",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).runHealthCheck",
+    "Line": 2874,
+    "Low": 5416480,
+    "High": 5426309,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "admin",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "allPass",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "unclear",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "elapsed",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      },
+      {
+        "Name": "parsed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "failed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stopProgress",
+        "Type": "chan struct {}",
+        "VariableParameter": false
+      },
+      {
+        "Name": "progressDone",
+        "Type": "chan struct {}",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exitCode",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hints",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hasFailed",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hasAdmin",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "report",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "jsonPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gatePath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "progressPath",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineOut",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "runErr",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "parseReason",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "protocolErr",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "overall",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspectionErr",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurementFiles",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "progressSnapshot",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspections",
+        "Type": "[13]main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).animateCheckingPulse",
+    "Line": 3034,
+    "Low": 5426432,
+    "High": 5426841,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "ticker",
+        "Type": "*time.Ticker",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).watchProgress",
+    "Line": 3052,
+    "Low": 5426944,
+    "High": 5427461,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stop",
+        "Type": "\u003c-chan struct {}",
+        "VariableParameter": false
+      },
+      {
+        "Name": "done",
+        "Type": "chan\u003c- struct {}",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "ticker",
+        "Type": "*time.Ticker",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastSig",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).applyProgressFile",
+    "Line": 3068,
+    "Low": 5427680,
+    "High": 5429205,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastSig",
+        "Type": "*struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "completed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ok",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sig",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "current",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "liveDisplay",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "[32]uint8",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.parseProgressFile",
+    "Line": 3095,
+    "Low": 5429216,
+    "High": 5432581,
+    "Params": [
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r1",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r2",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r3",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r4",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "completed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "checkingCount",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "header",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "current",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "firstChecking",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "display",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.cap",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.cap",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.formatElapsed",
+    "Line": 3186,
+    "Low": 5432608,
+    "High": 5433073,
+    "Params": [
+      {
+        "Name": "d",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "total",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "m",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "s",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.joinReason",
+    "Line": 3199,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.parseGateFile",
+    "Line": 3205,
+    "Low": 5433088,
+    "High": 5435237,
+    "Params": [
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r1",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r2",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "byName",
+        "Type": "map[string]string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "parsed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "invalid",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "reason",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.cap",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.gateCheckBelongs",
+    "Line": 3259,
+    "Low": 5435264,
+    "High": 5436713,
+    "Params": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "c",
+        "Type": "main.EngineCheck",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "section",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "check",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.checkRank",
+    "Line": 3293,
+    "Low": 5436736,
+    "High": 5436948,
+    "Params": [
+      {
+        "Name": "st",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.gateDisplayState",
+    "Line": 3315,
+    "Low": 5436960,
+    "High": 5437797,
+    "Params": [
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "highest",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.gateDisplayStates",
+    "Line": 3358,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspections",
+        "Type": "[13]main.GateInspection",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "out",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "i",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.gateSeverityCounts",
+    "Line": 3366,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hints",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "unclear",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "failed",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "st",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.hintPhrase",
+    "Line": 3380,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "n",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.unclearPhrase",
+    "Line": 3387,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "n",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.loadGateInspections",
+    "Line": 3394,
+    "Low": 5437824,
+    "High": 5439197,
+    "Params": [
+      {
+        "Name": "path",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "[13]main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r1",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026result",
+        "Type": "*main.EngineResult",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "out",
+        "Type": "[13]main.GateInspection",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.loadGateInspections.func1",
+    "Line": 3423,
+    "Low": 5439200,
+    "High": 5439575,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026out",
+        "Type": "*[13]main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "i",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ra",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rb",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.userGateSummary",
+    "Line": 3434,
+    "Low": 5439584,
+    "High": 5441130,
+    "Params": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "displayState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.truncateUI",
+    "Line": 3499,
+    "Low": 5441152,
+    "High": 5441454,
+    "Params": [
+      {
+        "Name": "s",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "max",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "r",
+        "Type": "struct []int32",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wrapUILines",
+    "Line": 3508,
+    "Low": 5441472,
+    "High": 5442533,
+    "Params": [
+      {
+        "Name": "s",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxChars",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxLines",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "words",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cur",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wrapUIPixelLines",
+    "Line": 3548,
+    "Low": 5442560,
+    "High": 5444475,
+    "Params": [
+      {
+        "Name": "font",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "s",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxWidthPx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxLines",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "dc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measure",
+        "Type": "func(string) int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "splitLong",
+        "Type": "func(string) []string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cur",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wrapUIPixelLines.func1",
+    "Line": 3561,
+    "Low": 5445376,
+    "High": 5445654,
+    "Params": [
+      {
+        "Name": "v",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026sz",
+        "Type": "*main.size",
+        "VariableParameter": false
+      },
+      {
+        "Name": "dc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "u",
+        "Type": "struct []uint16",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wrapUIPixelLines.func2",
+    "Line": 3576,
+    "Low": 5444480,
+    "High": 5445349,
+    "Params": [
+      {
+        "Name": "word",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "measure",
+        "Type": "func(string) int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxWidthPx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "r",
+        "Type": "struct []int32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "parts",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.wrapUIPixelLines.func3",
+    "Line": 3602,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "line",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).refreshUI",
+    "Line": 3649,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.fill",
+    "Line": 3660,
+    "Low": 5445952,
+    "High": 5446263,
+    "Params": [
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "r",
+        "Type": "main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "color",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026r",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "b",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.roundBox",
+    "Line": 3665,
+    "Low": 5446272,
+    "High": 5446997,
+    "Params": [
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "r",
+        "Type": "main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "radius",
+        "Type": "int32",
+        "VariableParameter": false
+      },
+      {
+        "Name": "fillColor",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "borderColor",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "borderWidth",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "b",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "p",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ob",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "op",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.line",
+    "Line": 3676,
+    "Low": 5447008,
+    "High": 5447525,
+    "Params": [
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x1",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y1",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x2",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y2",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "width",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "color",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "p",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.text",
+    "Line": 3684,
+    "Low": 5447552,
+    "High": 5448101,
+    "Params": [
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "font",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "s",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "r",
+        "Type": "main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "color",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "flags",
+        "Type": "uint32",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026r",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).paint",
+    "Line": 3702,
+    "Low": 5448128,
+    "High": 5449231,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026ps",
+        "Type": "*main.paintStruct",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026cr",
+        "Type": "*main.rect",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "mem",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "bmp",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldBmp",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).paint.func1",
+    "Line": 3706,
+    "Low": 5449408,
+    "High": 5449514,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "d",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawDashboard",
+    "Line": 3731,
+    "Low": 5449536,
+    "High": 5464944,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "clientW",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "clientH",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "view",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "checking",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "completed",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lastDuration",
+        "Type": "time.Duration",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exporting",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hoverGate",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "detailGate",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "closeHover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "detailScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hintCount",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "unclearCount",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "failedCount",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusColor",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "largeIcon",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pct",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "current",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusLabel",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusSub",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "elapsed",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "info2",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "states",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "liveDisplay",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspections",
+        "Type": "[13]main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "displayStates",
+        "Type": "[13]struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawDashboard.func1",
+    "Line": 3931,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawDashboard.func2",
+    "Line": 3948,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawDashboard.func3",
+    "Line": 3954,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawDashboard.func4",
+    "Line": 3959,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.gateAccent",
+    "Line": 3968,
+    "Low": 0,
+    "High": 0,
+    "Params": [
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.checkAccent",
+    "Line": 3983,
+    "Low": 5464960,
+    "High": 5465157,
+    "Params": [
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.localCheckStatus",
+    "Line": 3998,
+    "Low": 5465184,
+    "High": 5465449,
+    "Params": [
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.gateRawDetailLines",
+    "Line": 4015,
+    "Low": 5465472,
+    "High": 5466069,
+    "Params": [
+      {
+        "Name": "c",
+        "Type": "main.EngineCheck",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "out",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.setClipboardText",
+    "Line": 4029,
+    "Low": 5466080,
+    "High": 5467621,
+    "Params": [
+      {
+        "Name": "owner",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "value",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "hmem",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ptr",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "u",
+        "Type": "struct []uint16",
+        "VariableParameter": false
+      },
+      {
+        "Name": "allocErr",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lockErr",
+        "Type": "error",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.displayStateLabel",
+    "Line": 4063,
+    "Low": 5467744,
+    "High": 5467950,
+    "Params": [
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.gateDetailText",
+    "Line": 4076,
+    "Low": 5467968,
+    "High": 5471390,
+    "Params": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "displayState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "measurementStamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "\u0026b",
+        "Type": "*strings.Builder",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).copyCurrentGateDetails",
+    "Line": 4115,
+    "Low": 5471392,
+    "High": 5472969,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "stamp",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "displayState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "content",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "err",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).copyCurrentGateDetails.func1",
+    "Line": 4142,
+    "Low": 5473088,
+    "High": 5473404,
+    "Params": [
+      {
+        "Name": "expected",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).copyCurrentGateDetails.func2",
+    "Line": 4150,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).gateDetailCheckHeight",
+    "Line": 4158,
+    "Low": 5473408,
+    "High": 5473913,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "c",
+        "Type": "main.EngineCheck",
+        "VariableParameter": false
+      },
+      {
+        "Name": "raw",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "textWidthBase",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "height",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "actual",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "lines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).gateDetailContentMetrics",
+    "Line": 4177,
+    "Low": 5473920,
+    "High": 5475022,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "displayState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "raw",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "contentHeight",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "findingText",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "summaryLines",
+        "Type": "struct []string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawGateDetailPopover",
+    "Line": 4220,
+    "Low": 5475040,
+    "High": 5485072,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engineState",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "inspection",
+        "Type": "main.GateInspection",
+        "VariableParameter": false
+      },
+      {
+        "Name": "closeHover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "accent",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rawExpanded",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hoverRaw",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hoverCopy",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "p",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vy",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "vh",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "contentH",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "maxScroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "saved",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cyText",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "drawMini",
+        "Type": "func(int, int, int, int, string, bool, bool)",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rh",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cx2",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "cw2",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ch2",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "copyFeedback",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "rawLabel",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "copyLabel",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawGateDetailPopover.func1",
+    "Line": 4240,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawGateDetailPopover.func2",
+    "Line": 4353,
+    "Low": 5485088,
+    "High": 5485962,
+    "Params": [
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "label",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hover",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "active",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "bg",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "border",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawLogsView",
+    "Line": 4377,
+    "Low": 5485984,
+    "High": 5496148,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "selected",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "scroll",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exporting",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "items",
+        "Type": "struct []main.HistoricalMeasurement",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawLogsView.func1",
+    "Line": 4472,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawLogsView.func2",
+    "Line": 4504,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawInfoView",
+    "Line": 4518,
+    "Low": 5496160,
+    "High": 5499764,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawSidebarItem",
+    "Line": 4550,
+    "Low": 5499776,
+    "High": 5501659,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "kind",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "label",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "active",
+        "Type": "bool",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "hovered",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "c",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "variant",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawStatusPill",
+    "Line": 4577,
+    "Low": 5501664,
+    "High": 5505650,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "c",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "bg",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "gy",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pw",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "p",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hb",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "oldb",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "label",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawActionButton",
+    "Line": 4644,
+    "Low": 5505664,
+    "High": 5508691,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "kind",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "w",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "h",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "primary",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "title",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "sub",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "exporting",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "selected",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "disabled",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "fc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "bc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "tc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "iconColor",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "subColor",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawActionButton.func1",
+    "Line": 4697,
+    "Low": 0,
+    "High": 0,
+    "Params": null,
+    "Locals": null
+  },
+  {
+    "Name": "main.(*App).drawActionIcon",
+    "Line": 4708,
+    "Low": 5508704,
+    "High": 5514228,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "kind",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "color",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "p",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "old",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hb",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ob",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.(*App).drawComponentIcon",
+    "Line": 4756,
+    "Low": 5514240,
+    "High": 5514936,
+    "Params": [
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "hdc",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idx",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "x",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "y",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "state",
+        "Type": "struct string",
+        "VariableParameter": false
+      }
+    ],
+    "Locals": [
+      {
+        "Name": "variant",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "ic",
+        "Type": "uintptr",
+        "VariableParameter": false
+      }
+    ]
+  },
+  {
+    "Name": "main.main",
+    "Line": 4775,
+    "Low": 5514944,
+    "High": 5523269,
+    "Params": null,
+    "Locals": [
+      {
+        "Name": "elevated",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "\u0026m",
+        "Type": "*main.msg",
+        "VariableParameter": false
+      },
+      {
+        "Name": "snap",
+        "Type": "map[string]interface {}",
+        "VariableParameter": false
+      },
+      {
+        "Name": "bootstrap",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "instanceHandle",
+        "Type": "uintptr",
+        "VariableParameter": false
+      },
+      {
+        "Name": "firstInstance",
+        "Type": "bool",
+        "VariableParameter": false
+      },
+      {
+        "Name": "dpi",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "a",
+        "Type": "*main.App",
+        "VariableParameter": false
+      },
+      {
+        "Name": "exe",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "dataDir",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "session",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "logsDir",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "instanceErr",
+        "Type": "error",
+        "VariableParameter": false
+      },
+      {
+        "Name": "engine",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "idle",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "pass",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "fail",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "appIcon",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusReady",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusPass",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "statusFail",
+        "Type": "struct []uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "suffix",
+        "Type": "struct string",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.ptr",
+        "Type": "*uint8",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      },
+      {
+        "Name": "~r0.len",
+        "Type": "int",
+        "VariableParameter": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,12 @@
+PASS: owner-draw tray menu constants exist
+PASS: owner-draw menu ids exist
+PASS: wndproc handles tray menu measure/draw
+PASS: header row is added to tray menu
+PASS: show-window row is added to tray menu
+PASS: all actionable rows are owner-drawn
+PASS: header renders Synapse brand text
+PASS: selected row uses green accent strip
+PASS: separator is custom-drawn
+PASS: track popup menu uses return-cmd path
+PASS: measure handler sizes header and action rows
+v2.3.11 tray-menu styling regression: 11/11

@@ -1,0 +1,122 @@
+Razer Synapse + Chroma Health Monitor v2.3.6
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.6
+- Health Engine: 1.4.3 (byte-identical to v2.3.5)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.5)
+- Fast Setup Live Probe: 1.1.0 native SetupAPI (probe architecture unchanged)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.5)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 333 UI keys
+
+v2.3.6 Guided Connection Learning correction
+--------------------------------------------
+- Wireless learning no longer treats cable removal as sufficient proof for every
+  device profile.
+- The interaction flow is derived from generic deviceClass evidence and contains
+  no product-name or endpoint-PID rules.
+- mouse profiles retain event-driven Wireless learning: disconnecting the cable
+  may itself be the intentional transition into wireless operation.
+- keyboard and conservatively unknown device profiles enter an explicit
+  confirmation state after the Wireless baseline. WM_DEVICECHANGE cannot
+  auto-complete this state.
+- The confirmation prompt supports hardware both with and without a separate
+  mode switch. The user establishes the final wireless operating state and then
+  explicitly selects "Wireless prüfen".
+- The confirmation probe remains native SetupAPI and fails closed unless exactly
+  one verified non-wired connection resolves for the selected productKey.
+- If a previously learned HIGH wired PID is still present, Wireless confirmation
+  is rejected.
+- Explicit confirmation persists source user-guided-wireless-confirmation;
+  event-driven mouse transitions retain user-guided-wireless-transition.
+- Guided completion and guided skip completion no longer launch the full Setup
+  PowerShell scan automatically. Existing inventory entries are updated directly;
+  a newly discovered but not-yet-materialized PID produces only an advisory for
+  a later manual Setup scan.
+
+Regression proof
+----------------
+RED on unchanged v2.3.5 baseline:
+- guided-flow v2.3.6 regression validator: 2/13 PASS, exit 1.
+- missing confirmation state/policy/action/evidence and automatic post-learning
+  full scan reproduced by the validator.
+
+GREEN on v2.3.6:
+- guided-flow v2.3.6 regression validator: 13/13 PASS.
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard (3 active PowerShell payloads)
+PASS: i18n catalog / placeholders (333 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 44/44
+PASS: v2.3.6 guided-flow regression validator 13/13
+PASS: live performance architecture validator 13/13
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 103/103
+PASS: production device_monitor.go contains no powershell.exe live subprocess
+PASS: built EXE contains no known Viper/BlackWidow endpoint PID/model constants
+PASS: 81/81 icon assets byte-identical to v2.3.5
+PASS: PE resource source payload byte-identical to v2.3.5
+PASS: Health Engine 1.4.3 byte-identical to v2.3.5
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.5
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.5
+PASS: Portable internal SHA256SUMS
+PASS: Portable ZIP integrity
+
+Source reproducibility
+----------------------
+The final delivered Source ZIP is freshly extracted and rebuilt after packaging.
+The result is recorded separately in CLEAN-REBUILD-FINAL-v2.3.6.txt.
+
+Native acceptance focus
+------------------------
+1. Skip both mouse learning steps and learn only the keyboard.
+2. Wired: connect the keyboard by cable and verify the wired role is learned.
+3. Wireless: start Wireless learning. The wizard must enter the explicit
+   confirmation state; unplugging the cable alone must NOT complete learning.
+4. Move the keyboard to its actual Wireless mode, then click "Wireless prüfen".
+   The learned Wireless source should be user-guided-wireless-confirmation.
+5. After completion, close the wizard. SETUP must remain interactive and must not
+   start a hidden/full Setup scan automatically.
+6. Separately re-test the mouse: after Wireless learning is armed, cable removal
+   may still auto-complete the mouse path without requesting a hardware switch.
+
+Hashes
+------
+Release internal EXE SHA-256:
+621d907f3e0b1f12a39ada0ac858d891115129816698e72b3c98dc2db4faf513
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Native Fast Live Probe / Guided Learning implementation source
+(device_monitor.go) SHA-256:
+7900b6b09610bc85bd047c2a47cc272df7828067b1aa652e789091b460822abf
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+d0a47a2af4c91b8d6618b5bc8a5901ddafa786d60a99936a5eafcea45ae092c8
