@@ -3,6 +3,8 @@ from pathlib import Path
 import json, re, subprocess, sys
 
 root=Path(__file__).resolve().parents[1]
+from rhc_release_contracts import version_from_model, SEMVER
+app_version=version_from_model(root)
 locale_path=root/'locales/de-DE.json'
 manifest_path=root/'i18n-manifest.json'
 errors=[]
@@ -17,14 +19,20 @@ except Exception as e:
 
 manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
 if doc.get('_meta',{}).get('locale')!='de-DE': fail('catalog locale must be de-DE')
-if doc.get('_meta',{}).get('version')!='3.0.8.0': fail('catalog version must be 3.0.8.0')
-if manifest.get('catalogVersion')!='3.0.8.0': fail('manifest catalogVersion must be 3.0.8.0')
+catalog_version=doc.get('_meta',{}).get('version')
+manifest_version=manifest.get('catalogVersion')
+if not isinstance(catalog_version,str) or not SEMVER.fullmatch(catalog_version):
+    fail('catalog version must be strict four-part semver')
+elif tuple(map(int,catalog_version.split('.')))>tuple(map(int,app_version.split('.'))):
+    fail('catalog version may not exceed app version')
+if manifest_version != catalog_version:
+    fail('manifest catalogVersion must match locale catalog version')
 if manifest.get('runtimeLocale')!='de-DE': fail('runtimeLocale must be de-DE')
-if manifest.get('availableLocales')!=['de-DE']: fail('only de-DE may be active in v3.0.8.0')
+if manifest.get('availableLocales')!=['de-DE']: fail('only de-DE may be active')
 if manifest.get('languageSwitchingImplemented') is not False: fail('language switch must remain disabled')
 if manifest.get('sourceOfTruth')!='locales/de-DE.json': fail('de-DE must be declared source of truth')
 if manifest.get('uiKeyCount')!=len(strings): fail('uiKeyCount mismatch')
-if (root/'locales/en-US.json').exists(): fail('en-US runtime catalog must not be present in v3.0.8.0')
+if (root/'locales/en-US.json').exists(): fail('en-US runtime catalog must not be present')
 
 ph=re.compile(r'\{([A-Za-z0-9_.-]+)\}')
 for k,v in strings.items():
@@ -52,7 +60,7 @@ for family in ('appengine','driverstore','kernel','devices','virtual','filters',
         k=f'gate.{family}.{suffix}'
         if k not in strings: fail(f'missing dynamic gate key: {k}')
 
-# Important v3.0.8.0 keys that may not be caught through literal call parsing.
+# Important catalog keys that may not be caught through literal call parsing.
 required={
  'app.title','app.window_title','app.brand.primary','app.brand.secondary','app.tagline','app.version',
  'measurement.result.healthy','measurement.result.hint','measurement.result.unclear','measurement.result.failed',

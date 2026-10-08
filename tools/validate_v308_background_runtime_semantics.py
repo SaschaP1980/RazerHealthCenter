@@ -1,5 +1,6 @@
 from pathlib import Path
-import re, sys
+import re, sys, json
+from rhc_release_contracts import version_from_model, SEMVER
 root=Path(sys.argv[1] if len(sys.argv)>1 else '.')
 checks=[]
 def ck(name, cond): checks.append((name,bool(cond)))
@@ -12,7 +13,11 @@ script=txt('diagnostics/diagnose-appengine-usermode-v1.0.2.ps1')
 build=txt('build.sh')
 loc=txt('locales/de-DE.json')
 manifest=txt('i18n-manifest.json')
-ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+try:
+    current_version=version_from_model(root)
+except (OSError, ValueError):
+    current_version=None
+ck('app/reference version valid and equal', current_version is not None)
 ck('diagnostic module version 1.0.2', 'appEngineDiagnosticModuleVersion = "1.0.2"' in appdiag)
 ck('diagnostic script name 1.0.2', 'diagnose-appengine-usermode-v1.0.2.ps1' in appdiag)
 ck('diagnostic asset exists', len(script) > 2000)
@@ -32,7 +37,16 @@ ck('no PID-specific runtime requirement', all(pid not in health_lines and pid no
 ck('Go exposes new evidence fields', all(x in appdiag for x in ['BackgroundManagerPresent','LightingEnginePresent','DeviceMiddlewarePresent']))
 ck('read-only contract retained', 'ReadOnly=$true' in script and all(x not in script for x in ['Set-ItemProperty','New-ItemProperty','Remove-ItemProperty','Start-Service','Stop-Service','Restart-Service','Set-Service','Stop-Process','Start-Process']))
 ck('validator build gated', 'validate_v308_background_runtime_semantics.py' in build)
-ck('locale and manifest version 3.0.8.0', '"version": "3.0.8.0"' in loc and '"catalogVersion": "3.0.8.0"' in manifest)
+try:
+    locale_version=json.loads(loc)['_meta']['version']
+    catalog_version=json.loads(manifest)['catalogVersion']
+    catalog_valid=(isinstance(locale_version,str) and
+        SEMVER.fullmatch(locale_version) is not None and
+        catalog_version==locale_version and current_version is not None and
+        tuple(map(int,locale_version.split('.'))) <= tuple(map(int,current_version.split('.'))))
+except (ValueError, KeyError, TypeError):
+    catalog_valid=False
+ck('locale and manifest catalog versions match and do not exceed app', catalog_valid)
 passed=sum(v for _,v in checks)
 for name,ok in checks: print(('PASS' if ok else 'FAIL')+' | '+name)
 print(f'{passed}/{len(checks)} PASS')

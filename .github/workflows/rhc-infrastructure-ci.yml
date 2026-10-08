@@ -1,11 +1,10 @@
 name: RHC Infrastructure Qualification (nonpublishing)
 
-# RHC-3 Work-Path evaluation; not Candidate Preflight or a production release.
+# All authorized RHC Work-Paths; not Candidate Preflight or a production release.
 on:
   push:
     branches:
-      - 'work/RHC-3'
-      - 'work/RHC-5'
+      - 'work/RHC-*'
   pull_request:
     branches:
       - main
@@ -21,6 +20,8 @@ on:
       - 'tools/rhc_release_dry_run.py'
       - 'tests/test_rhc_*_contracts.py'
       - 'docs/RHC_CICD_ARCHITECTURE.md'
+      - '.github/workflows/rhc-development-completion.yml'
+      - 'tools/rhc_candidate_from_work.py'
   workflow_dispatch:
 
 permissions:
@@ -32,7 +33,7 @@ concurrency:
 
 jobs:
   linux-golden-package:
-    name: Linux current RHC 4-part version and independent reproducible packages
+    name: rhc/infra/linux
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -51,9 +52,21 @@ jobs:
           # Historical 321-file source audit is separately pinned at immutable PR #2 HEAD.
           python3 -B tools/rhc_release_contracts.py --root .
           python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
-          python3 -B tools/rhc_release_contracts.py --root . --base-version 3.0.8.0 \
-            && { echo 'RHC_FAIL_CLOSED_VIOLATION: unchanged version was accepted'; exit 1; } \
-            || echo 'RHC_CANDIDATE_BASELINE_REJECTED=PASS'
+          # Deliberate negative test: unchanged current source is NOT a new Candidate.
+          # Distinguish the intended rejection from unrelated tool/build errors.
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, 'tools')
+          from rhc_release_contracts import assert_future_version, version_from_model
+          v = version_from_model('.')
+          try:
+              assert_future_version(v, v)
+          except ValueError as exc:
+              assert str(exc) == 'candidate must advance beyond main version', str(exc)
+          else:
+              raise AssertionError('UNSAFE: unchanged version accepted as Candidate')
+          print('RHC_UNCHANGED_CANDIDATE_REJECTED=PASS version=' + v)
+          PY
       - name: Compile and validate original Go Windows GUI
         shell: bash
         env:
@@ -66,7 +79,7 @@ jobs:
           bash build.sh "$RUNNER_TEMP/rhc-build1"
           actual="$(sha256sum "$RUNNER_TEMP/rhc-build1/RazerHealthCenter.exe" | cut -d' ' -f1)"
           test -n "$actual" && test "${#actual}" = 64
-          echo "RHC_INFRA_CURRENT_EXE=PASS $actual (version 3.0.8.0, not historical 3.0.8 Golden)"
+          echo "RHC_INFRA_CURRENT_EXE=PASS $actual (work SHA $GITHUB_SHA; historical v3.0.8 Golden separately pinned)"
           # Frozen 3.0.8 Golden EXE is verified only by pinned historical intake CI.
           # A second independent clean Windows GUI build must reproduce the
           # current four-component product EXE (not the historical frozen EXE).
@@ -86,7 +99,7 @@ jobs:
             --exe "$RUNNER_TEMP/rhc-build2/RazerHealthCenter.exe" --out "$RUNNER_TEMP/rhc-package2" \
             | sed -E 's/"files": \[[^]]*\]/"files": "(list omitted)"/g'
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
-          test "$VERSION" = "3.0.8.0"
+          test -n "$VERSION"  # exact four-part version already parsed by version_from_model
           for name in "RazerHealthCenter-Source-v${VERSION}.zip" "RazerHealthCenter-Portable-v${VERSION}.zip"; do
             cmp -s "$RUNNER_TEMP/rhc-package1/$name" "$RUNNER_TEMP/rhc-package2/$name" || {
               echo "RHC_PACKAGE_REPRODUCIBILITY_FAIL: $name"; exit 1;
@@ -109,7 +122,7 @@ jobs:
           echo 'RHC_INFRA_PACKAGES_REPRODUCIBLE=PASS'
 
   windows-native-safety:
-    name: Windows PowerShell 5.1 safety and Go runtime contracts
+    name: rhc/infra/windows
     runs-on: windows-2025
     timeout-minutes: 15
     steps:
