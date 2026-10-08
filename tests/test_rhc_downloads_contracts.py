@@ -130,7 +130,7 @@ class Downloads(unittest.TestCase):
         d.make_lean_zip(self.src, self.exe, archive)
         with self.assertRaisesRegex(ValueError, "source SHA"):
             d.make_record(archive, "3.0.9", "2026-10-08T11:00:00Z", "BAD")
-        with self.assertRaisesRegex(ValueError, "timestamp"):
+        with self.assertRaisesRegex(ValueError, "publishedUtc|timestamp"):
             d.make_record(archive, "3.0.9", "2026-10-08T11:00:00+02:00", "a" * 40)
 
     def test_readme_drift_detected(self):
