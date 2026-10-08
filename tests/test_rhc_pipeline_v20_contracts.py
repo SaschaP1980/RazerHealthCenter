@@ -80,6 +80,18 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn('for name in "RazerHealthCenter-Source-v', wf)
         self.assertIn("cmp -s", wf)
 
+    def test_current_rhc12_preactivation_workflow_is_strictly_readonly(self):
+        wf = read(".github/workflows/rhc-release-preactivation.yml")
+        self.assertIn("RHC12_REAL_PRODUCTION_POLICY=BLOCKED", wf)
+        self.assertIn("permissions:", wf)
+        self.assertIn("  contents: read", wf)
+        self.assertIn("persist-credentials: false", wf)
+        self.assertIn("tools/rhc_downloads.py --downloads downloads", wf)
+        self.assertIn("rhc12_release_plan import evaluate", wf)
+        self.assertNotIn("contents: write", wf)
+        self.assertNotIn("actions: write", wf)
+        self.assertNotIn("productionEnabled: true", wf)
+
 
 if __name__ == "__main__":
     unittest.main()
