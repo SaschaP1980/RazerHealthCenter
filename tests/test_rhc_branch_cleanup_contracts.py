@@ -53,42 +53,42 @@ class Cleanup(unittest.TestCase):
             return ""
         raise AssertionError("unexpected git request: " + repr(args))
 
-    def run(self, execute=True):
+    def do_cleanup(self, execute=True):
         return m.cleanup(9, REPO, execute=execute, get=self.get, run=self.git)
 
     def test_merged_head_deleted_under_atomic_lease(self):
-        self.assertEqual(self.run()["status"], "deleted")
+        self.assertEqual(self.do_cleanup()["status"], "deleted")
         self.assertNotIn(self.branch, self.refs)
 
     def test_dry_run_keeps_branch(self):
-        self.assertEqual(self.run(execute=False)["status"], "would-delete")
+        self.assertEqual(self.do_cleanup(execute=False)["status"], "would-delete")
         self.assertIn(self.branch, self.refs)
         self.assertFalse(any(x[1] == "push" for x in self.commands))
 
     def test_missing_branch_is_idempotent(self):
         self.refs.clear()
-        self.assertEqual(self.run()["status"], "already-absent")
+        self.assertEqual(self.do_cleanup()["status"], "already-absent")
 
     def test_open_or_unmerged_pr_blocks(self):
         self.pr["merged"] = False
         with self.assertRaises(m.Blocked):
-            self.run()
+            self.do_cleanup()
         self.assertFalse(self.commands)
 
     def test_wrong_repo_blocks(self):
         self.pr["head"]["repo"]["full_name"] = "someone/fork"
         with self.assertRaises(m.Blocked):
-            self.run()
+            self.do_cleanup()
 
     def test_wrong_base_blocks(self):
         self.pr["base"]["ref"] = "dev"
         with self.assertRaises(m.Blocked):
-            self.run()
+            self.do_cleanup()
 
     def test_branch_advanced_blocks(self):
         self.refs[self.branch] = "d" * 40
         with self.assertRaisesRegex(m.Blocked, "advanced"):
-            self.run()
+            self.do_cleanup()
         self.assertFalse(any(x[1] == "push" for x in self.commands))
 
     def test_nonancestor_head_blocks(self):
@@ -114,7 +114,7 @@ class Cleanup(unittest.TestCase):
     def test_pr_number_mismatch_blocks(self):
         self.pr["number"] = 2
         with self.assertRaisesRegex(m.Blocked, "wrong PR"):
-            self.run()
+            self.do_cleanup()
 
     def test_unsafe_branch_names_are_blocked(self):
         for unsafe in ["main", "release/v3.0.9", "candidate/v3.0.9",
