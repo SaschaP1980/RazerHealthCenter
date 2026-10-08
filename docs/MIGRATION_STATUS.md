@@ -65,6 +65,18 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - GitHub Actions workflow-list / label-list endpoints could not be queried through the connector due to endpoint validation. Workflow YAML exists on `main`, but **no hosted workflow was executed** and the custom RHC label taxonomy is not confirmed provisioned.
 - A public-source privacy/license review is **OPEN**; no v3.0.8 source upload or release was performed. The exact PR-based procedure is in [SOURCE_IMPORT_PLAYBOOK.md](SOURCE_IMPORT_PLAYBOOK.md).
 
+## Second-phase source-import preparation (GitHub Draft PR #2)
+
+- **Draft PR:** [RHC-1 source import](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), branch `import/RHC-1-v3.0.8`; source baseline still **NOT UPLOADED**.
+- Import-checkpoint commit `02c2c186ab75801be5a94e047faccc88e98a0777`; subsequent CI-action modernization commit `f9f5afd5988d451a42419f8ff2b5d2df10c540b1`.
+- RHC golden source inventory: **321** files; canonical fingerprint `adbfc9de536bd0ca8a1b69163ffdf080fe0b46b083b42ca498b8fafeb18703db`.
+- New `tools/verify_source_intake.py`: source/archive identity, path, byte-size and file SHA verification; isolated test results **4/4 expected** (unaltered PASS, tampered file FAIL, tampered manifest FAIL, missing source FAIL).
+- Updated `tools/import_source_archive.py` accepts an explicit pinned expected branch, still refuses unreviewed writes and unexpected file conflicts. Isolated branch-specific execution: dry-run PASS, unreviewed apply REFUSED, reviewed local apply **321/321 byte-identical**, generated manifest verification PASS.
+- GitHub [Actions run #37735881073](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37735881073) intentionally failed because the PR lacks source: Linux `SOURCE_INTAKE_BLOCKED: missing go.mod`; Windows `RHC_SOURCE_INTAKE_MANIFEST=FAIL` missing the manifest. These are **expected fail-closed signals**, not successful Go/Windows product tests.
+- GitHub log also showed a Node.js 20 deprecation warning for `actions/checkout@v4` and `actions/setup-go@v5`. The PR now uses SHA-pinned Node 24 versions, `checkout v7.0.1`/`setup-go v7.0.0`. Hosted [run #37736021306](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37736021306) reproduced the expected missing-source failures, with **no such Node 20 warning**.
+- The complete import cannot be pushed from the available container: `git ls-remote` failed DNS resolution of github.com; connector writes are suitable for ordinary text/Git objects but do not provide a verified 4.6 MB binary-archive transfer. A full locally verified GitHub import kit is available as a conversation artifact; an authenticated computer with Git network access must push the reviewed source to this Draft PR.
+- **All source/hosted-build PASS claims remain BLOCKED.** Do not merge Draft PR #2, tag, or publish until all 321 exact source files exist on the PR branch and both hosted OS gates PASS.
+
 ## Next action
 
-Import the **reviewed complete 321-file source tree** on top of this GitHub bootstrap without introducing runtime changes; verify a source-path and byte-hash manifest; then deliberately dispatch the **manual-only** `RHC Source Intake` workflow and validate hosted output. Only then consider wiring the LBS-style automatic Candidate/Release pipeline to RHC's own Go/PowerShell artifacts.
+Import the **reviewed complete 321-file source tree** into the existing Draft PR #2 using the verified branch-specific importer, review all publicly published content, and push the source manifest. The PR-triggered Linux and Windows intake workflow will run automatically. Only after both hosted tests PASS and a verified source-byte audit may PR #2 merge; then plan the RHC-specific production Candidate/Release pipeline separately.

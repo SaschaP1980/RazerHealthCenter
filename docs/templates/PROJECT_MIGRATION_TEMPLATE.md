@@ -72,6 +72,13 @@
 
 After every genuine problem, add **observed symptom → evidence → root cause or uncertainty → smallest correction → preventive rule/test → whether retrospective claims must be corrected**. Update this template with a generalized gate, not an RHC-specific hack. Do not assert a cause solely because a retry succeeded.
 
+### Reusable CI staging and transport guards
+
+- A new PR which does not yet contain the imported product source is **not** a qualified Candidate or migration; hosted smoke gates should fail closed. To avoid wasting Windows runners and red-but-expected checks, first stage complete reviewed bytes, then open the source-import PR when possible.
+- For GitHub Actions, check the live hosted runner's Node runtime warnings and the official action metadata. Prefer pinned full commit SHAs of supported versions, and record the versions/rationale; do not blindly retain another project's old action majors.
+- A ZIP/file kit under ChatGPT is not a commit, GitHub Action artifact, or GitHub source-of-truth. Require an actual repository head, complete source manifest, exact file-byte comparison, and hosted tests before migrating the authority claim.
+- When source is sensitive and the target GitHub repo is public, the authorization to build locally does **not** imply consent to expose historical logs or forensic data publicly.
+
 ### First-case lessons (RHC, 2026-10-08)
 
 1. **Unborn repository:** `main` can be designated as default while GET branch returns 404 and refs return 409. Bootstrap initial commit before any SHA-lease workflow.
