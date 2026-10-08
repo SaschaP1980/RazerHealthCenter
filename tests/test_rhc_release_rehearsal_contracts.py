@@ -91,6 +91,15 @@ class ReleaseRehearsal(unittest.TestCase):
             self.runit()
         self.assertFalse(self.stage.exists())
 
+    def test_workflow_cannot_publish_or_modify_repository(self):
+        workflow=(ROOT/".github/workflows/rhc-release-rehearsal.yml").read_text(
+            encoding="utf-8")
+        self.assertIn("permissions:", workflow)\n        self.assertIn("  contents: read", workflow)
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertIn('test ! -e downloads/latest.json', workflow)
+        self.assertNotIn("contents: write", workflow)
+        self.assertNotIn("gh release", workflow)
+
 
 if __name__=="__main__":
     unittest.main()
