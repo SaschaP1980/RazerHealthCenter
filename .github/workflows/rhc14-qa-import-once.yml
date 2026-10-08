@@ -84,7 +84,7 @@ jobs:
           test "$GITHUB_REF" = 'refs/heads/work/RHC-14'
           git fetch --no-tags origin work/RHC-14
           test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
-          test "$(git status --short)" = '?? downloads/'
+          test "$(git ls-files --others --exclude-standard)" = 'downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip
