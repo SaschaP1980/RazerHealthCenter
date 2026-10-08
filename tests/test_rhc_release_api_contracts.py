@@ -46,7 +46,8 @@ class FakeGitHub:
             return {}
         if method=="POST" and path=="/pulls":
             return {"number":47}
-        if method=="POST" and path=="/actions/workflows/rhc-release-preflight.yml/dispatches":
+        if method=="POST" and path in ("/actions/workflows/rhc-release-preflight.yml/dispatches",
+                                        "/actions/workflows/rhc-infrastructure-ci.yml/dispatches"):
             if self.fail_dispatch:
                 raise ValueError("uncertain workflow dispatch")
             return {}
@@ -60,6 +61,9 @@ class GitHubReleaseTransaction(unittest.TestCase):
         self.tmp=pathlib.Path(temp.name)
         self.root=self.tmp/"source"
         self.root.mkdir()
+        (self.root/"model.go").write_text(
+            'const (\nappVersion = "3.0.8.1"\nreferenceVersion = "3.0.8.1"\n)\n')
+        (self.root/"CHANGELOG.md").write_text("# 3.0.8.1\n")
         self.two=self.tmp/"a"
         self.two.write_bytes(b"MZ")
         self.args=type("Args",(),dict(root=self.root,candidate_sha=B,
@@ -91,14 +95,16 @@ class GitHubReleaseTransaction(unittest.TestCase):
         self.assertEqual(self.gh.branch,D)
         paths=[path for method,path,payload in self.gh.writes]
         self.assertEqual(paths,[
-            "/git/blobs","/git/blobs","/git/blobs","/git/blobs",
+            "/git/blobs","/git/blobs","/git/blobs",
+            "/git/blobs","/git/blobs","/git/blobs",
             "/git/trees","/git/commits","/git/refs","/pulls",
-            "/actions/workflows/rhc-release-preflight.yml/dispatches"])
+            "/actions/workflows/rhc-release-preflight.yml/dispatches",
+            "/actions/workflows/rhc-infrastructure-ci.yml/dispatches"])
         self.assertEqual(self.gh.commit["parents"],[A])
-        self.assertEqual(len(self.gh.tree["tree"]),4)
+        self.assertEqual(len(self.gh.tree["tree"]),6)
         with self.assertRaises(ValueError):
             self.stage()
-        self.assertEqual(len(self.gh.writes),9)
+        self.assertEqual(len(self.gh.writes),12)
 
     def test_release_pr_atomically_promotes_candidate_source_and_catalog(self):
         # Release main must contain the candidate version, not only a ZIP
