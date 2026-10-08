@@ -37,10 +37,18 @@ jobs:
           GOFLAGS: '-buildvcs=false'
         run: |
           set -euo pipefail
-          bash build.sh "$RUNNER_TEMP/build"
-          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages1" > "$RUNNER_TEMP/manifest1"
-          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages2" > "$RUNNER_TEMP/manifest2"
+          bash build.sh "$RUNNER_TEMP/build-one"
+          bash build.sh "$RUNNER_TEMP/build-two"
+          cmp -s "$RUNNER_TEMP/build-one/RazerHealthCenter.exe" "$RUNNER_TEMP/build-two/RazerHealthCenter.exe"
+          sha256sum "$RUNNER_TEMP/build-one/RazerHealthCenter.exe" "$RUNNER_TEMP/build-two/RazerHealthCenter.exe"
+          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build-one/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages1" > "$RUNNER_TEMP/manifest1"
+          python3 -B tools/rhc_release_contracts.py --root . --exe "$RUNNER_TEMP/build-two/RazerHealthCenter.exe" --out "$RUNNER_TEMP/packages2" > "$RUNNER_TEMP/manifest2"
           cmp "$RUNNER_TEMP/manifest1" "$RUNNER_TEMP/manifest2"
+          VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
+          for name in "RazerHealthCenter-Source-v${VERSION}.zip" "RazerHealthCenter-Portable-v${VERSION}.zip"; do
+            cmp -s "$RUNNER_TEMP/packages1/$name" "$RUNNER_TEMP/packages2/$name"
+          done
+          echo 'RHC_CANDIDATE_INDEPENDENT_PE_AND_PACKAGE_REPRODUCIBILITY=PASS'
           echo 'RHC_CANDIDATE_LINUX=PASS (no release promotion)'
       - name: Record successful Linux Candidate check at exact SHA
         shell: bash

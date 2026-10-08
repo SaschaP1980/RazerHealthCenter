@@ -72,6 +72,14 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn("Release-Profile: version-only", wf)
         self.assertIn("Development-Completion: requested", wf)
 
+    def test_candidate_builds_two_independent_exes_and_compares_package_bytes(self):
+        wf = read(".github/workflows/rhc-candidate-preflight.yml")
+        self.assertIn("build-one/RazerHealthCenter.exe", wf)
+        self.assertIn("build-two/RazerHealthCenter.exe", wf)
+        self.assertIn("RHC_CANDIDATE_INDEPENDENT_PE_AND_PACKAGE_REPRODUCIBILITY=PASS", wf)
+        self.assertIn('for name in "RazerHealthCenter-Source-v', wf)
+        self.assertIn("cmp -s", wf)
+
 
 if __name__ == "__main__":
     unittest.main()
