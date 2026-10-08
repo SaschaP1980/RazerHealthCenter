@@ -269,3 +269,65 @@ class DryRun(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Recovery(unittest.TestCase):
+    def test_before_merge_only_absent_is_safe(self):
+        s, p = fixture(), policy()
+        cp = dry.simulate(s, p, stop_after="merge-ready")["checkpoint"]
+        good = dry.assess_recovery(s, p, cp, {"mainSha": B, "releaseState": "absent"})
+        self.assertEqual(good["status"], "PREMERGE_REVALIDATION")
+        self.assertFalse(good["public"])
+        self.assertRaises(ValueError, dry.assess_recovery, s, p, cp,
+                          {"mainSha": B, "releaseState": "draft"})
+
+    def test_after_merge_does_not_claim_public_activation(self):
+        s, p = fixture(), policy()
+        cp = dry.simulate(s, p, stop_after="main-merged")["checkpoint"]
+        hold = dry.assess_recovery(s, p, cp, {"mainSha": C, "releaseState": "absent"})
+        self.assertEqual(hold["status"], "BLOCKED_UNPUBLISHED")
+        self.assertFalse(hold["public"])
+        for bad in [
+            {"mainSha": B, "releaseState": "absent"},
+            {"mainSha": C, "releaseState": "unknown"},
+            {"mainSha": C, "releaseState": "timeout"}
+        ]:
+            self.assertRaises(ValueError, dry.assess_recovery, s, p, cp, bad)
+
+    def test_partial_draft_remains_unpublished_and_retry_is_idempotent(self):
+        s, p = fixture(), policy()
+        cp = dry.simulate(s, p, stop_after="draft-ready")["checkpoint"]
+        state = {"mainSha": C, "releaseState": "draft", "draftId": "simulated-draft-1",
+                 "tagTargetSha": C, "assets": [asset("Source", H1)]}
+        one = dry.assess_recovery(s, p, cp, state)
+        two = dry.assess_recovery(s, p, cp, state)
+        self.assertEqual(one, two)
+        self.assertEqual(one["status"], "BLOCKED_UNPUBLISHED")
+        state["assets"] = [asset("Source", H1), asset("Portable", H2)]
+        self.assertEqual(dry.assess_recovery(s, p, cp, state)["status"],
+                         "UNPUBLISHED_DRAFT_VERIFIED")
+        state["tagTargetSha"] = A
+        self.assertRaises(ValueError, dry.assess_recovery, s, p, cp, state)
+
+    def test_immutable_postpublish_failure_never_rewrites_assets(self):
+        s, p = fixture(), policy()
+        cp = dry.simulate(s, p)["checkpoint"]
+        current = {"mainSha": C, "releaseState": "published",
+                   "draftId": "simulated-draft-1", "tagTargetSha": C,
+                   "immutable": True, "postVerify": False, "assets": s["draft"]["assets"],
+                   "previousReleaseAvailable": True, "latestVersion": VERSION}
+        blocked = dry.assess_recovery(s, p, cp, current)
+        self.assertEqual(blocked["status"], "CRITICAL_POSTPUBLISH_ATTENTION")
+        self.assertEqual(blocked["action"], "no-in-place-mutation")
+        current["postVerify"] = True
+        self.assertEqual(dry.assess_recovery(s, p, cp, current)["status"], "PUBLISHED_VERIFIED")
+        current["immutable"] = False
+        self.assertRaises(ValueError, dry.assess_recovery, s, p, cp, current)
+
+    def test_recovery_denies_modified_snapshot(self):
+        s, p = fixture(), policy()
+        cp = dry.simulate(s, p, stop_after="main-merged")["checkpoint"]
+        other = copy.deepcopy(s)
+        other["candidate"]["sha"] = "d" * 40
+        self.assertRaises(ValueError, dry.assess_recovery, other, p, cp,
+                          {"mainSha": C, "releaseState": "absent"})
