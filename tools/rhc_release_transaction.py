@@ -146,20 +146,30 @@ def validate_release_approval(snapshot):
             "archiveSha256": archive["sha256"]}
 
 
-def plan_release_transaction(snapshot):
-    """Only a stage plan; no GitHub or archive writes from this function."""
-    proof = validate_release_approval(snapshot)
+def _verified_release_pr_scope(snapshot, expected_state):
+    """Check the same exact four-file release diff before and after a real merge."""
     pr = snapshot.get("pr", {})
-    expected = sorted(("downloads/README.md", "downloads/releases.json",
+    version = snapshot["version"]
+    expected = sorted(("model.go", "CHANGELOG.md",
+                       "downloads/README.md", "downloads/releases.json",
                        "downloads/latest.json",
-                       "downloads/RazerHealthCenter-Portable-v" + proof["version"] + ".zip"))
-    require(pr.get("state") == "open"
+                       "downloads/RazerHealthCenter-Portable-v" + version + ".zip"))
+    require(pr.get("state") == expected_state
             and pr.get("baseSha") == snapshot["mainSha"]
             and pr.get("headSha") == snapshot["releaseSha"]
             and pr.get("approvedByGate") is True
             and isinstance(pr.get("changedFiles"), list)
-            and sorted(pr["changedFiles"]) == expected,
+            and sorted(pr["changedFiles"]) == expected
+            and (pr.get("merged") is True if expected_state == "closed"
+                 else pr.get("merged") is not True),
             "release PR parent/status/scope mismatch")
+    return expected
+
+
+def plan_release_transaction(snapshot):
+    """Only a stage plan; no GitHub or archive writes from this function."""
+    proof = validate_release_approval(snapshot)
+    expected = _verified_release_pr_scope(snapshot, "open")
     return {"state": "STAGED_UNPUBLISHED", "version": proof["version"],
             "releaseBranch": snapshot["releaseBranch"], "sourceSha": proof["sourceSha"],
             "releaseSha": proof["releaseSha"], "archiveSha256": proof["archiveSha256"],
@@ -167,19 +177,31 @@ def plan_release_transaction(snapshot):
 
 
 def verify_postpublish(snapshot):
-    """Only a read-back verdict; must be run after authorized live PR merge."""
-    plan = plan_release_transaction(snapshot)
+    """Pure read-back verdict for an actual two-parent GitHub PR merge.
+
+    A normal GitHub merge creates a NEW main commit whose parents are
+    [previous main, release head]. It is not a fast-forward to release head.
+    """
+    proof = validate_release_approval(snapshot)
+    _verified_release_pr_scope(snapshot, "closed")
+    main = snapshot.get("mergedMainSha")
+    parents = snapshot.get("mergeParentShas")
     require(snapshot.get("prMerged") is True
-            and snapshot.get("mergedMainSha") == plan["releaseSha"]
-            and snapshot.get("tagTargetSha") == plan["sourceSha"]
-            and snapshot.get("publicVersion") == plan["version"]
-            and snapshot.get("latestSha256") == plan["archiveSha256"]
-            and snapshot.get("publishedFileSha256") == plan["archiveSha256"]
+            and hash40(main)
+            and main not in (snapshot["mainSha"], snapshot["releaseSha"],
+                             snapshot["candidateSha"])
+            and isinstance(parents, list)
+            and parents == [snapshot["mainSha"], snapshot["releaseSha"]]
+            and snapshot.get("tagTargetSha") == proof["sourceSha"]
+            and snapshot.get("publicVersion") == proof["version"]
+            and snapshot.get("latestSha256") == proof["archiveSha256"]
+            and snapshot.get("publishedFileSha256") == proof["archiveSha256"]
             and snapshot.get("immutableHistoryVerified") is True
             and snapshot.get("releaseBranchState") == "deleted-after-verified-merge",
-            "postpublish SHA/tag/ZIP/history/branch verification incomplete")
-    return {"result": "VERIFIED", "version": plan["version"],
-            "releaseSha": plan["releaseSha"], "sha256": plan["archiveSha256"]}
+            "postpublish merge ancestry/SHA/tag/ZIP/history/branch verification incomplete")
+    return {"result": "VERIFIED", "version": proof["version"],
+            "releaseSha": proof["releaseSha"], "mergedMainSha": main,
+            "sha256": proof["archiveSha256"]}
 
 
 def validate_main_rules(rules, required):

@@ -48,6 +48,7 @@ def release_case():
                      "approvalId": "OWNER-RELEASE-2026-10-08-VERSION-BOUND"},
         "pr": {"state": "open", "baseSha": A, "headSha": C,
                "approvedByGate": True, "changedFiles": [
+                   "model.go", "CHANGELOG.md",
                    "downloads/RazerHealthCenter-Portable-v3.0.8.1.zip",
                    "downloads/releases.json", "downloads/latest.json",
                    "downloads/README.md"]},
@@ -104,7 +105,10 @@ class ReleaseTransaction(unittest.TestCase):
         self.assertEqual(plan["releaseBranch"], "release/v3.0.8.1")
         self.assertEqual(plan["changedFiles"], sorted(c["pr"]["changedFiles"]))
         self.assertEqual(plan["state"], "STAGED_UNPUBLISHED")
-        after = dict(c, mergedMainSha=C, tagTargetSha=B, publicVersion=VERSION,
+        # A GitHub merge commit has a distinct SHA and two ordered parents.
+        after = dict(c, pr=dict(c["pr"], state="closed", merged=True),
+                     mergedMainSha="f" * 40, mergeParentShas=[A, C],
+                     tagTargetSha=B, publicVersion=VERSION,
                      latestSha256=D, publishedFileSha256=D, immutableHistoryVerified=True,
                      releaseBranchState="deleted-after-verified-merge", prMerged=True)
         self.assertEqual(verify_postpublish(after)["result"], "VERIFIED")

@@ -11,13 +11,14 @@ import base64
 import hashlib
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
 import rhc_downloads as downloads
 from rhc_release_contracts import require
 from rhc_release_transaction import RELEASE, hash40, trusted_contexts
-from rhc_release_live import gh, branch, required_main_rules
+from rhc_release_live import REPO, gh, branch, required_main_rules
 from rhc_release_verify import inspect
 
 
@@ -67,14 +68,28 @@ def verify_merged_release(*, main_before, release_sha, candidate_sha,
     before = tree_map(main_before)
     after = tree_map(main)
     changed = {k for k in (set(before) | set(after)) if before.get(k) != after.get(k)}
-    allowed = {"downloads/" + downloads.filename(version),
+    allowed = {"model.go", "CHANGELOG.md",
+               "downloads/" + downloads.filename(version),
                "downloads/releases.json", "downloads/latest.json", "downloads/README.md"}
     require(changed == allowed, "postmerge changed previous binary/history/source paths")
+    candidate_source = tree_map(candidate_sha)
+    require(all(after.get(rel) == candidate_source.get(rel)
+                and after.get(rel) != before.get(rel)
+                for rel in ("model.go", "CHANGELOG.md")),
+            "published main source differs from qualified Candidate")
     archive = blob_bytes(after["downloads/" + downloads.filename(version)])
     require(hashlib.sha256(archive).hexdigest() == zip_sha,
             "public ZIP bytes do not match approved ZIP hash")
     latest = json.loads(blob_bytes(after["downloads/latest.json"]))
     catalog = json.loads(blob_bytes(after["downloads/releases.json"]))
+    previous_index = before.get("downloads/releases.json")
+    require(hash40(previous_index), "previous release history index missing")
+    previous = json.loads(blob_bytes(previous_index))
+    require(isinstance(previous.get("releases"), list)
+            and isinstance(catalog.get("releases"), list)
+            and len(catalog["releases"]) == len(previous["releases"]) + 1
+            and catalog["releases"][1:] == previous["releases"],
+            "postmerge immutable previous release history changed")
     require(latest == catalog["releases"][0]
             and latest["version"] == version
             and latest["sourceSha"] == candidate_sha
@@ -85,6 +100,47 @@ def verify_merged_release(*, main_before, release_sha, candidate_sha,
             "main advanced during postmerge readback")
     return {"result": "MERGE_AND_BYTES_VERIFIED", "version": version,
             "mainSha": main, "sha256": zip_sha, "sourceSha": candidate_sha}
+
+
+def ready_release_pr(pr_number, branch_name, release_sha, expected_main):
+    """Qualify the Draft->Ready transition BEFORE any immutable source tag write.
+
+    GitHub refuses merging Draft PRs. The transition requires the same
+    explicit owner-gated Finalize action, then a remote readback; uncertain
+    or partial results are ATTENTION and must not be replayed blindly.
+    """
+    require(os.getenv("RHC_REAL_PUBLICATION_APPROVED") == "EXPLICIT_OWNER_RHC22"
+            and os.getenv("GH_TOKEN"), "owner release action not authorized")
+    require(isinstance(pr_number, int) and pr_number > 0
+            and hash40(release_sha) and hash40(expected_main),
+            "invalid exact PR readiness identity")
+
+    def current():
+        pr = gh("GET", "/pulls/" + str(pr_number))
+        require(pr.get("state") == "open" and pr.get("merged") is False
+                and pr.get("head", {}).get("sha") == release_sha
+                and pr.get("head", {}).get("ref") == branch_name
+                and pr.get("base", {}).get("sha") == expected_main,
+                "release PR moved or merged during ready transition")
+        require(gh("GET", "/branches/main")["commit"]["sha"] == expected_main
+                and branch(branch_name)["object"]["sha"] == release_sha,
+                "main/release moved during ready transition")
+        return pr
+
+    before = current()
+    require(before.get("draft") in (True, False),
+            "release PR Draft flag unreadable")
+    if before["draft"]:
+        result = subprocess.run(
+            ["gh", "pr", "ready", str(pr_number), "--repo", REPO],
+            capture_output=True, text=True, check=False)
+        require(result.returncode == 0,
+                "Draft PR readiness unverified; read GitHub before retry: "
+                + result.stderr[-200:])
+    after = current()
+    require(after.get("draft") is False,
+            "Draft PR readiness unverified after GitHub readback")
+    return {"pr": pr_number, "ready": True}
 
 
 def finish(root, branch_name, release_sha):
@@ -99,6 +155,12 @@ def finish(root, branch_name, release_sha):
     require(gh("GET", "/branches/main")["commit"]["sha"] == old_main
             and branch(branch_name)["object"]["sha"] == release_sha,
             "concurrent GitHub change before publication")
+    # Stage creates a Draft by design. Bring it to Ready only after all
+    # external approvals and exact-SHA hosted gates passed; never tag first.
+    ready_release_pr(evidence["pr"], branch_name, release_sha, old_main)
+    require(gh("GET", "/branches/main")["commit"]["sha"] == old_main
+            and branch(branch_name)["object"]["sha"] == release_sha,
+            "main/release moved after Draft readiness")
     gh("POST", "/git/refs", {"ref": "refs/tags/v" + v, "sha": source})
     require(gh("GET", "/git/ref/tags/v" + v)["object"]["sha"] == source,
             "tag create uncertain; do not retry")

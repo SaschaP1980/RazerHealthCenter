@@ -126,6 +126,17 @@ def validate_prewrite(root, candidate_sha, expected_main, version,
     commit = gh("GET", "/git/commits/" + candidate_sha)
     require([x["sha"] for x in commit.get("parents", [])] == [expected_main],
             "candidate no longer a single current-main child")
+    # The Release PR must promote EXACTLY the Candidate's two application
+    # source changes alongside its ZIP/catalog. Otherwise main/model.go
+    # remains an older version than the published package, and future
+    # Candidate ancestry/version checks become inconsistent.
+    diff = gh("GET", "/compare/" + expected_main + "..." + candidate_sha)
+    require(diff.get("ahead_by") == 1 and diff.get("behind_by") == 0
+            and {x.get("filename") for x in diff.get("files", [])}
+                == {"model.go", "CHANGELOG.md"}
+            and {x.get("status") for x in diff["files"]}
+                <= {"added", "modified"},
+            "Candidate source differs from exact two-file version-only contract")
     trusted_contexts(gh("GET", "/commits/" + candidate_sha + "/statuses"), CANDIDATE)
     policy = content_json("config/rhc-release-policy.json", expected_main)
     require(policy.get("productionEnabled") is True
@@ -210,12 +221,22 @@ def stage(args):
                 and branch("release/v" + args.version) is None,
                 "race on main or release ref before write")
         prior = gh("GET", "/git/commits/" + args.main_sha)
-        files = [staged / record["file"], staged / "releases.json",
-                 staged / "latest.json", staged / "README.md"]
+        # A single Release PR/merge atomically advances the app source
+        # and publishes the matching immutable ZIP plus three index files.
+        # Only the exact Candidate source files are copied into the main
+        # parent tree; never copy unrelated Work or build artifacts.
+        files = [("model.go", Path(args.root) / "model.go"),
+                 ("CHANGELOG.md", Path(args.root) / "CHANGELOG.md")]
+        files += [("downloads/" + file.name, file)
+                  for file in (staged / record["file"],
+                               staged / "releases.json",
+                               staged / "latest.json",
+                               staged / "README.md")]
         objects = []
-        for file in files:
-            objects.append({"path": "downloads/" + file.name,
-                            "mode": "100644", "type": "blob",
+        for relative, file in files:
+            require(file.is_file() and not file.is_symlink(),
+                    "missing or unsafe release source: " + relative)
+            objects.append({"path": relative, "mode": "100644", "type": "blob",
                             "sha": git_blob(file.read_bytes(), file.suffix == ".zip")})
         tree = gh("POST", "/git/trees", {"base_tree": prior["tree"]["sha"],
                                        "tree": objects})["sha"]
@@ -245,6 +266,11 @@ def stage(args):
         # GITHUB_TOKEN-created branch/PR events do not reliably trigger CI.
         # An explicit workflow_dispatch is essential for exact release SHA gates.
         gh("POST", "/actions/workflows/rhc-release-preflight.yml/dispatches",
+           {"ref": "release/v" + args.version})
+        # GITHUB_TOKEN-created PRs do not reliably fire pull_request CI.
+        # The main Ruleset requires the common Linux+Windows jobs even for
+        # a Release PR; explicitly dispatch them on this exact release ref.
+        gh("POST", "/actions/workflows/rhc-infrastructure-ci.yml/dispatches",
            {"ref": "release/v" + args.version})
         return {"result": "STAGED_PUBLIC_BRANCH_NOT_YET_MERGED",
                 "pr": pr["number"], "releaseSha": commit, "version": args.version,

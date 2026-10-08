@@ -84,7 +84,11 @@ class Approval(unittest.TestCase):
                 self.assertNotIn("schedule:",text)
         stage=(ROOT/".github/workflows/rhc-release-stage.yml").read_text()
         self.assertIn("tools/rhc_release_live.py stage",stage)
-        self.assertIn("rhc-release-preflight.yml", (ROOT/"tools/rhc_release_live.py").read_text())
+        live_source=(ROOT/"tools/rhc_release_live.py").read_text()
+        self.assertIn('("model.go", Path(args.root) / "model.go")',live_source)
+        self.assertIn('("CHANGELOG.md", Path(args.root) / "CHANGELOG.md")',live_source)
+        for workflow_name in ("rhc-release-preflight.yml","rhc-infrastructure-ci.yml"):
+            self.assertIn("/actions/workflows/"+workflow_name+"/dispatches",live_source)
         final=(ROOT/".github/workflows/rhc-release-finalize.yml").read_text()
         self.assertIn("tools/rhc_release_finish.py",final)
         self.assertIn("release_sha",final)
@@ -125,6 +129,53 @@ class Shadow(unittest.TestCase):
         self.a.write_bytes(b"MZ"+b"x"*80)
         self.b.write_bytes(self.a.read_bytes())
         self.stage=self.tmp/"stage"
+
+    def test_live_prewrite_requires_exact_two_file_candidate_and_bot_statuses(self):
+        base="b"*40
+        policy={"productionEnabled":True, "rollbackVerified":True,
+                "distribution":"repo-downloads","signingDecision":"unsigned-approved"}
+        diff={"ahead_by":1,"behind_by":0,
+              "files":[{"filename":"model.go","status":"modified"},
+                       {"filename":"CHANGELOG.md","status":"added"}]}
+        status=[{"context":k,"state":"success",
+                 "creator":{"login":"github-actions[bot]"}}
+                for k in ("rhc/preflight/linux","rhc/preflight/windows",
+                          "rhc/preflight/candidate")]
+        reads=[]
+        def gh(method,path,payload=None,allow404=False):
+            self.assertEqual(method,"GET")
+            reads.append(path)
+            if path=="/branches/main": return {"commit":{"sha":base}}
+            if path=="/git/commits/"+SHA:
+                return {"parents":[{"sha":base}]}
+            if path=="/compare/"+base+"..."+SHA: return diff
+            if path=="/commits/"+SHA+"/statuses": return status
+            if path=="/git/ref/tags/v3.0.8.1": return None
+            raise AssertionError("unexpected remote read: "+path)
+        def branch(name):
+            if name=="candidate/v3.0.8.1": return {"object":{"sha":SHA}}
+            if name=="release/v3.0.8.1": return None
+            raise AssertionError("unexpected branch "+name)
+        env={"GH_TOKEN":"MOCK-NO-NETWORK",
+             "GITHUB_REPOSITORY":"SaschaP1980/RazerHealthCenter"}
+        with patch.dict(os.environ,env),\
+             patch.object(live,"gh",side_effect=gh),\
+             patch.object(live,"branch",side_effect=branch),\
+             patch.object(live,"content_json",return_value=policy),\
+             patch.object(live,"required_main_rules",
+                          return_value={"result":"EFFECTIVE"}):
+            self.assertEqual(live.validate_prewrite(
+                self.root,SHA,base,"3.0.8.1",self.a,self.b,123),policy)
+            self.assertIn("/compare/"+base+"..."+SHA,reads)
+            diff["files"].append({"filename":"repair.ps1","status":"modified"})
+            with self.assertRaisesRegex(ValueError,"two-file"):
+                live.validate_prewrite(self.root,SHA,base,"3.0.8.1",
+                                       self.a,self.b,123)
+            diff["files"].pop()
+            status[0]["creator"]["login"]="untrusted"
+            with self.assertRaises(ValueError):
+                live.validate_prewrite(self.root,SHA,base,"3.0.8.1",
+                                       self.a,self.b,123)
 
     def test_staged_zip_catalog_is_unpublished_and_replay_fails(self):
         initial={p.name:p.read_bytes() for p in self.catalog.iterdir()}

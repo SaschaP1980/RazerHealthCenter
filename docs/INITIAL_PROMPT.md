@@ -27,7 +27,7 @@ Bei Konflikten beide Quellen und deren zeitliche Geltung nennen, die **heute imp
 
 Inventarisiere `docs/` bei **jedem** Neueinstieg zunächst vollständig und **rekursiv** direkt aus dem aktuellen `main`-Git-Tree, einschließlich neuer Dateien und Unterordner. Lies und verstehe **jede** dort vorhandene `.md`-Datei, bevor du Entwicklungs- oder Release-Entscheidungen triffst. Die folgende konkrete Aufstellung ist die überprüfte Struktur vom 8. Oktober 2026, **keine statische Erlaubnis, später hinzugekommene Dateien zu übergehen**.
 
-### Neun operative Hauptdokumente direkt unter `docs/` (alle verpflichtend)
+### Zehn operative Hauptdokumente direkt unter `docs/` (alle verpflichtend)
 
 | Dokument | Wozu es gelesen werden muss |
 | --- | --- |
@@ -36,7 +36,7 @@ Inventarisiere `docs/` bei **jedem** Neueinstieg zunächst vollständig und **re
 | [`GITHUB_HOWTO.md`](GITHUB_HOWTO.md) | Issue-Identität, GitHub-Eigenheiten, Branchschutz, Actions, Berechtigungen und Reporting |
 | [`MIGRATION_STATUS.md`](MIGRATION_STATUS.md) | M0–M6-Gates, Quellenmigration, SHA-/CI-Nachweise, Entscheidungen und überholte Phasen |
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | **Aktuelle** Distribution `repo-downloads`, Release-Gates, atomare Aktivierung, Nachprüfung |
-| [`RHC_CICD_ARCHITECTURE.md`](RHC_CICD_ARCHITECTURE.md) | Candidate-/Work-Path-Architektur, genaue Hosted-Gates, implementierte vs. fehlende Stufen |
+| [`RHC20_IMPLEMENTATION_STATUS.md`](RHC20_IMPLEMENTATION_STATUS.md) | RHC-20 Implementierungsgrenzen, technische Candidate-/Release-Evidenz und aktuelle nichtpublizierende Gates; immer mit Live-Code/Ihrem Issue-Stand abgleichen |\n| [`RHC_CICD_ARCHITECTURE.md`](RHC_CICD_ARCHITECTURE.md) | Candidate-/Work-Path-Architektur, genaue Hosted-Gates, implementierte vs. fehlende Stufen |
 | [`RHC_RELEASE_DRY_RUN_PLAN.md`](RHC_RELEASE_DRY_RUN_PLAN.md) | Fail-closed-/Recovery-Simulation und **historische**, durch RHC-12 überholte GitHub-Releases-Architektur |
 | [`MIGRATION_LESSONS.md`](MIGRATION_LESSONS.md) | Beobachtete Fehler mit Ursachen, Korrekturen und Präventionsregeln; auch bei neuem Fehler fortschreiben |
 | [`SOURCE_IMPORT_PLAYBOOK.md`](SOURCE_IMPORT_PLAYBOOK.md) | Nachvollziehbare **abgeschlossene** Migration der originalen 321 Quelldateien; nicht erneut ausführen |
@@ -48,7 +48,7 @@ Inventarisiere `docs/` bei **jedem** Neueinstieg zunächst vollständig und **re
 
 ### Weitere Markdown-Dateien in Unterordnern
 
-Der geprüfte Tree enthält außerdem **zehn** Dateien in [`docs/recovery-history/`](recovery-history/). Sie sind **historische** Dokumentation der v1.7.0-Source-/UI-Recovery, nicht die aktuelle Release- oder Versionsautorität. Trotzdem beim rekursiven Lesen erfassen; historische technische Erkenntnisse von heutigen Vorgaben trennen. Für künftig hinzugefügte `docs/**`-Markdown-Dateien gilt dieselbe Lesepflicht. Beim Bericht getrennt ausweisen: **9 Hauptdokumente + 2 Templates + 10 Recovery-Historien = 21 rekursiv** (Stand der vorgenannten Inventur).
+Der geprüfte Tree enthält außerdem **zehn** Dateien in [`docs/recovery-history/`](recovery-history/). Sie sind **historische** Dokumentation der v1.7.0-Source-/UI-Recovery, nicht die aktuelle Release- oder Versionsautorität. Trotzdem beim rekursiven Lesen erfassen; historische technische Erkenntnisse von heutigen Vorgaben trennen. Für künftig hinzugefügte `docs/**`-Markdown-Dateien gilt dieselbe Lesepflicht. Beim Bericht getrennt ausweisen: **10 Hauptdokumente + 2 Templates + 10 Recovery-Historien = 22 rekursiv** (Stand der vorgenannten Inventur).
 
 ## 3. Technischen Projektstand und Quellcode verstehen
 
@@ -153,3 +153,9 @@ Lies mindestens die Live-Issues [RHC-1](https://github.com/SaschaP1980/RazerHeal
 ## RHC-20 / RHC-22 release boundary, 2026-10-08
 
 Real v3.0.8.1 Candidate is SHA-qualified but intentionally NOT promoted. New technical code includes strict Candidate checkpoint recovery, Owner-bound Release PR staging, native Linux/Windows exact-SHA status workflow and independent merge/ZIP/tag/postverify. Never derive hardware/rollback/signing consent from CI fixtures. Actual first release and any production policy changes remain separately gated under Issue #22. GitHub main currently lacks required PR/status rules; use the owner-admin main ruleset audit/activation rather than declaring effective enforcement.
+
+## Technischer RHC-20 Release-Quellabgleich (Work-Path-Abnahme vorbehalten)
+
+Ein zukünftiger autorisierter Release-PR muss **in einer einzigen atomaren Merge-Transaktion** die exakt zwei vom Candidate geprüften App-Quelldateien `model.go` und `CHANGELOG.md` **sowie** das sieben Dateien enthaltende `downloads/RazerHealthCenter-Portable-vX.Y.Z.H.zip`, `downloads/releases.json`, `downloads/latest.json` und `downloads/README.md` übernehmen (**sechs geänderte Repository-Pfade**, nicht sechs Portable-ZIP-Dateien). Andernfalls verbleibt `main` auf der alten Anwendungsversion, obwohl der veröffentlichte Download eine neue Version trägt. Nur das qualifizierte Candidate-Commit darf als Source-Tag-Ziel verwendet werden. Der Release-PR enthält keine sonstigen Runtime-/Repair-Änderungen. Der technische RHC-20-Fix und sämtliche Tests gelten erst nach exakt qualifizierter Linux-/Windows-CI und geprüftem PR-Merge als abgeschlossen.
+
+Auch wenn `GITHUB_TOKEN` den Release-PR eröffnet, müssen sowohl die gemeinsamen `rhc/infra/linux`-/`rhc/infra/windows`-Checks als auch die drei Release-spezifischen Kontexte durch gesonderte vertrauenswürdige Dispatches auf dem tatsächlichen Release-SHA qualifiziert werden. Diese technische Konfiguration ist weder Freigabe noch Ersatz für RHC-22-Hardware-/Trust-/Rollback-/Ownerbelege; `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false` bleiben wirksam.
