@@ -17,7 +17,7 @@ The original plan specified dedicated Work branch implementation; this pure simu
 
 | State | Evidence required before advancing | Dry-run action |
 | --- | --- | --- |
-| `candidate-qualified` | New three-component version, exact current-main parent, Issue and release-profile trailers, Linux + Windows GREEN at same candidate SHA, no tag/version collision | Inspect fixture/read-only snapshots; reject stale/ambiguous evidence |
+| `candidate-qualified` | **Historical three-component fixture** only (not a valid current RHC Candidate); hypothetical exact-main parent, Issue/profile trailers, Linux + Windows GREEN on the same SHA and no version/tag conflict | Inspect fixture/read-only snapshots; reject stale/ambiguous evidence. **Current real Candidates require four parts** |
 | `release-built` | Independent Go 1.23.2 Windows GUI build, mandatory Python/Go/PS5.1 safety tests | Execute original build without runtime repair mutations |
 | `artifacts-verified` | Bit-identical Source and Portable ZIP pairs, exact filenames/sizes/SHA-256; no nested source ZIP/logs/forensics; Portable SHA256SUMS and empty directories validated | Save test manifest only as ordinary ephemeral job output, not a public Release |
 | `merge-ready` | One reviewed source PR, protected diff, latest main ancestry and correct target version | Simulate preactivation and a single accepted PR merge; no real merge |
@@ -86,7 +86,7 @@ Draft PR #7 for GPL remains independent and unmodified.
 
 - tools/rhc_release_dry_run.py validates eight pure hypothetical lifecycle
   states. No GitHub client, filesystem writes, subprocess or release API.
-- tests/test_rhc_release_dry_run_contracts.py uses imaginary version 3.0.9,
+- tests/test_rhc_release_dry_run_contracts.py uses imaginary **historical three-part fixture** version 3.0.9,
   artificial SHAs and simulated consent. No product version is changed and
   the simulated owner consent is explicitly not a real publication approval.
 - Candidate status evidence must match the exact simulated SHA. Subsequent

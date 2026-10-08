@@ -62,7 +62,7 @@ GitHub Actions workflow `.github/workflows/rhc-branch-cleanup.yml` runs after a 
 
 `tools/rhc_branch_cleanup.py` checks the PR's closed/merged status, matching source/target repository, limited branch naming, exact recorded PR head SHA, actual merge commit presence and head ancestry in fresh `main`, and remote branch equality. It deletes only with a Git atomic `--force-with-lease` for the exact reviewed SHA; post-deletion absence is required. A changed, foreign, still-open, squashed-without-ancestry or ambiguous branch fails closed. An already removed branch is an idempotent PASS.
 
-RHC-10 implementation PR #11 performs exactly one historical catch-up of merged PR #2 (`import/RHC-1-v3.0.8`) and PR #9 (`work/RHC-5`) after its own successful merge, subject to the same checks. Active `work/RHC-3` and unmerged `license/RHC-6-gpl3` must remain. Evidence is the actual Actions job log and fresh GitHub branch listing, not a plan or a presumed UI setting.
+RHC-10 [PR #11](https://github.com/SaschaP1980/RazerHealthCenter/pull/11) **was merged**; its one-time historical catch-up scope covered merged PR #2 (`import/RHC-1-v3.0.8`) and PR #9 (`work/RHC-5`). Any claim that those exact refs were deleted must come from the actual cleanup Actions run **and** a fresh branch-list readback, never just from PR merge or this description. Active `work/RHC-3` and unmerged `license/RHC-6-gpl3` remain protected from that catch-up; any later state change must be checked live.
 
 Manual `workflow_dispatch` with a merged PR number is reserved for fault recovery by the assistant; do not ask the owner to click GitHub for normal development. Do not apply cleanup to candidate/release refs until their separate, verified release orchestration lifecycle is implemented.
 
