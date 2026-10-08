@@ -14,5 +14,5 @@
     "rhc/release/portable",
     "rhc/release/verification"
   ],
-  "notes": "Owner chose GitHub Releases as sole canonical published artifact store; optional LBS-style catalog is read-only/derived from Releases, not a second source of truth. Production stays disabled pending signing/trust decision, immutable release configuration verification, rollback proof, verified CI/CD and independent release authorization."
+  "notes": "Owner has no Windows code-signing certificate. GitHub Releases are the canonical public artifact store. An unsigned Windows release is ONLY a proposed per-version path, never blanket-approved: require a later explicit owner authorization scoped to exact source SHA, version/tag, asset hashes and published unsigned disclosure. Reproducibility/checksums/attestation do not substitute for Authenticode. No actual Draft/tag/Release may be created in the read-only rehearsal. productionEnabled=false, signingDecision=unknown, rollbackVerified=false until separate signed-off gates."
 }

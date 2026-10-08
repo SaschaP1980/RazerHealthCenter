@@ -32,6 +32,10 @@ A GREEN Candidate promotion must check exact status provenance, tree/branch iden
 - **Rollback and retention:** define independently verified rollback/recovery when Draft, PR, merge, asset upload, publication or latest-release verification fails. Prior published releases must remain obtainable. Specify partial-failure decision ownership and idempotent recovery prior to production enablement.
 - **No auto-updater initially:** the GitHub `/releases/latest` UI can serve manual download navigation. An automatic updater with signed manifest, installation consent and additional trust gates is a separate future design.
 
+## RHC-5 — Unsigned release rehearsal, no certificate
+
+The owner confirmed that RHC currently has **no Windows code-signing certificate**. This is not permission to ship an unsigned binary. The intended implementation is described in [RHC Release Dry-Run Plan](RHC_RELEASE_DRY_RUN_PLAN.md) and [RHC-5](https://github.com/SaschaP1980/RazerHealthCenter/issues/5). The **first** release simulation will remain fully read-only, with **no actual Draft, tag, merge or public upload**, no version bump, and `productionEnabled=false`. A real unsigned release requires a later explicit, exact-version and exact-artifact-SHA approval including disclosure of absent Authenticode signing. Signing and rollback are still unapproved. Never interpret Source/Portable SHA256SUMS or GitHub provenance as a Windows publisher signature.
+
 ## Nonpublishing RHC-3 orchestration staging
 
 - `rhc-infrastructure-ci.yml` runs hosted Linux full v3.0.8 Go/PE golden, deterministic ZIPs and native Windows PowerShell 5.1 plus Go/safety tests.

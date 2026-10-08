@@ -23,6 +23,10 @@ The staged [RHC Candidate Preflight](../.github/workflows/rhc-candidate-prefligh
 
 `tools/rhc_orchestration_contracts.py` implements adversarial *pure* state-validation contracts for Candidate scope, stale Work-SHA/main completion, missing/non-success statuses, release policy and preactivation mismatch. [RHC Release Contract Rehearsal](../.github/workflows/rhc-release-rehearsal.yml) explicitly confirms `config/rhc-release-policy.json.productionEnabled=false` and has no publishing rights. The production Release Orchestrator must **still be built** after policy decisions: exact Candidate statuses and PR head; independent reproducible ZIP rebuild; trusted Windows distribution; verified GitHub Release Draft assets/checksums and immutable-release policy; prepublication gate; one reviewed source PR; Draft publication as public activation; postrelease verification and cleanup. A successful read-only rehearsal is never a production release.
 
+## Next scope — certificate-free dry-run plan (RHC-5)
+
+The owner currently has no Windows code-signing certificate; this **does not** authorize an unsigned public release. [RHC-5's dry-run plan](RHC_RELEASE_DRY_RUN_PLAN.md) requires fixture/read-only API simulation of Draft/Publish state transitions and adversarial failures with zero GitHub Release or tag creation. `signingDecision=unknown` and `productionEnabled=false` stay unchanged. An eventual unsigned release needs independent per-version approval for the final source SHA and artifact hashes with explicit Windows publisher/SmartScreen-risk disclosure.
+
 ## Evidence and acceptance
 
 - Local test-first contract: original baseline lacks `rhc_release_contracts` → RED; code added → 6/6 GREEN; golden 3.0.8 standalone local Source+Portable ZIPs twice are byteidentical; original source untouched.

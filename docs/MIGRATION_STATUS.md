@@ -133,6 +133,13 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - Immutability for **published** GitHub Releases is preferred but not assumed active: verify repository setting/capability and test handling of publication failures and non-rewritable releases before enabling production.
 - Next engineering scope: design/fail-test exact-SHA Draft publication state machine, RHC release artifact names/sha manifests, source tag/merge consistency and idempotent recovery; then obtain explicit Windows signing/trust and rollback choices and configure minimum CI permissions. Do not release v3.0.9 merely to test setup.
 
+## Unsigned Windows release planning — owner input (2026-10-08)
+
+- Owner reports **no current code-signing certificate**. This is a fact about certificate availability, **not** approval for distributing an unsigned executable.
+- Future unsigned path is explicitly **per-version and per-artifact approval required**, with approved source SHA, archive SHA-256/size, documented lack of Authenticode identity, and rollback/privacy/security conditions. `signingDecision=unknown`; `productionEnabled=false`; `rollbackVerified=false` are unchanged.
+- [RHC-5](https://github.com/SaschaP1980/RazerHealthCenter/issues/5) tracks the nonpublishing exact-SHA release simulation and negative tests. The [detailed implementation plan](RHC_RELEASE_DRY_RUN_PLAN.md) specifies pure Draft/Publish fixtures, no GitHub write scopes, no actual Draft/tag/Release, all-or-nothing readiness and idempotent interrupted-run recovery.
+- M4 remains PARTIAL, M5 remains PARTIAL, M6 remains OPEN. **No GitHub Release resources, tags, product version increments or released EXEs** are permitted by this plan.
+
 ## Next action
 
 GitHub Releases distribution has been selected. Next design and nonpublishing-qualify Candidate promotion, Draft Release staging, prepublication checks, source PR merge, immutable Release activation, postrelease verification and failure recovery; separately settle signing/trust, immutable setting and rollback before any real deployment. Keep RHC-3 and parent RHC-1 open; no v3.0.9 and no native repair changes.
