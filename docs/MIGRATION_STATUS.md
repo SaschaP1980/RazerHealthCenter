@@ -41,7 +41,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | M2 | 321-file source tree imported to `main` with exact original content-byte identity | **PASS — PR #2 merged, original source SHA inventory verified on both hosted OSes** |
 | M3 | GitHub-hosted source intake reproduces golden EXE; Linux and native Windows PS5.1 checks | **PASS — run #37737410046, Linux and Windows jobs both success on exact head** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **PARTIAL PASS — reproducible Go/Windows build/Source+Portable and exact-SHA Development Completion merged in PR #4; Candidate gates staged nonpublishing; production Release Orchestrator still BLOCKED** |
-| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — active no-deletion/no-force-push ruleset verified; PR/status, secrets, distribution and rollback still OPEN** |
+| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — GitHub Releases distribution selected and main no-delete/no-force-push ruleset active; PR/status, signing/trust, secrets, immutability validation and rollback remain OPEN** |
 | M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
 
 **Release permission:** none. No synthetic production tag, no `downloads/latest.json` activation and no attempt to mark M2–M6 GREEN because M0 or M1 passed.
@@ -125,6 +125,14 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - PR #4 merged **2026-10-08T07:03:30Z**, merge SHA `3a36e3cb3ba3f46a278a35150d0998ef004b1cdc`; RHC 3.0.8 source authority maintained. `config/rhc-release-policy.json.productionEnabled` remains `false`. Work-branch cleanup and release-branch lifecycle are **not** yet automated.
 - RHC now has a *nonpublishing Candidate Preflight*, determinism checks, Work-Path Development Completion and read-only Release Contract Rehearsal. This is an **infrastructure milestone**, not a production release. Actual release promotion, signed/unsigned trust selection, distribution/pointer, preactivation/merge, postrelease verification/rollback remain M4/M5 blockers.
 
+## Approved GitHub Release distribution architecture (2026-10-08)
+
+- Owner selected GitHub Releases as the **sole canonical public artifact/version store**, with a read-only LBS-inspired downloads overview sourced from published GitHub Releases; **no separate `latest.json` or automatic updater** at first.
+- The safe RHC-specific sequencing differs from the historical LBS repository-pointer approach: candidate verification → independently rebuilt and verified Source/Portable ZIPs → fully populated Draft GitHub Release → prepublication checks → single reviewed PR merge to `main` → final Draft/merged-source checks → **publish Draft as sole public activation** → postrelease hash, tag, provenance, listing and cleanup verification.
+- `config/rhc-release-policy.json.distribution` is now `github-release`, but **`productionEnabled=false`**, `signingDecision=unknown`, and `rollbackVerified=false`. This is a policy decision, not a production-ready gate.
+- Immutability for **published** GitHub Releases is preferred but not assumed active: verify repository setting/capability and test handling of publication failures and non-rewritable releases before enabling production.
+- Next engineering scope: design/fail-test exact-SHA Draft publication state machine, RHC release artifact names/sha manifests, source tag/merge consistency and idempotent recovery; then obtain explicit Windows signing/trust and rollback choices and configure minimum CI permissions. Do not release v3.0.9 merely to test setup.
+
 ## Next action
 
-Next authorize an explicit production-distribution and Windows trust/signing contract, then implement and end-to-end qualify Candidate promotion, independent Release Orchestrator, preactivation, single PR merge activation, postrelease verification, rollback and cleanup on a future authorized version. Keep RHC-3 and parent RHC-1 open; no v3.0.9 and no native repair changes.
+GitHub Releases distribution has been selected. Next design and nonpublishing-qualify Candidate promotion, Draft Release staging, prepublication checks, source PR merge, immutable Release activation, postrelease verification and failure recovery; separately settle signing/trust, immutable setting and rollback before any real deployment. Keep RHC-3 and parent RHC-1 open; no v3.0.9 and no native repair changes.

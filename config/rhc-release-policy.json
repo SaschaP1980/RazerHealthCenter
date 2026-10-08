@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "productionEnabled": false,
-  "distribution": "unknown",
+  "distribution": "github-release",
   "signingDecision": "unknown",
   "rollbackVerified": false,
   "requiredCandidateContexts": [
@@ -14,5 +14,5 @@
     "rhc/release/portable",
     "rhc/release/verification"
   ],
-  "notes": "Nonpublishing migration. Enabling production requires owner signoff, native E2E, secret/branch policy, working independent release pipeline and rollback proof."
+  "notes": "Owner chose GitHub Releases as sole canonical published artifact store; optional LBS-style catalog is read-only/derived from Releases, not a second source of truth. Production stays disabled pending signing/trust decision, immutable release configuration verification, rollback proof, verified CI/CD and independent release authorization."
 }
