@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import json, sys, re
 root=Path(__file__).resolve().parents[1]
@@ -15,7 +16,7 @@ build=read('build.sh')
 checks=[]
 def ck(name, ok): checks.append((name,bool(ok)))
 
-ck('app/reference version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+ck('current application/reference version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('historical persistence fields removed', 'json:"historicalLogStamp' not in state and 'json:"historicalActive' not in state and 'persistedUIState' not in state)
 ck('startup explicitly resets historical session state', all(x in state for x in ['a.logHistoricalStamp = ""','a.logHistoricalOpen = false','a.logHistoricalActive = false']))
 ck('historical state is not written to persistent UI state', 'os.WriteFile' not in state and 'json.Marshal' not in state)

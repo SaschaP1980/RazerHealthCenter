@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import re, sys
 root=Path(__file__).resolve().parents[1]
@@ -18,7 +19,7 @@ locale=(root/'locales/de-DE.json').read_text(encoding='utf-8')
 errors=[]
 def req(c,m):
     if not c: errors.append(m)
-req('appVersion                   = "3.0.8.0"' in model,'app version 3.0.8.0 missing')
+req(f'appVersion                   = "{version_from_model(root)}"' in model,'current application version missing')
 req('engineVersion                = "1.4.6"' in model,'engine version 1.4.5 missing')
 req(setup_path.is_file(),'Setup Scanner 1.0.6 source missing')
 req(len(list((root/'setup').glob('setup-razer-inventory-*.ps1')))==1,'active embed setup dir must contain exactly one scanner source')
