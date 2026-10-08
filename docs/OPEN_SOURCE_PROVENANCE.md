@@ -4,7 +4,7 @@
 
 ## Design and branding
 
-The maintainer directed ChatGPT to use a **Razer-inspired color palette**. Inspiration from a color palette alone is not evidence that an image or application is copied from Razer. However, there has not yet been a comprehensive comparison against Razer logos, icon silhouettes, product branding or trade dress. Do not treat AI generation as an automatic trademark clearance.
+The maintainer directed ChatGPT to use a **Razer-inspired color palette**. Inspiration from a color palette alone is not evidence that an image or application is copied from Razer. An initial technical/visual review of the actual application heart icon, **all ten matching embedded Windows-resource icon frames**, two status icons and 16 representative UI icon families is documented in [RHC Brand and Icon Review](BRAND_AND_ICON_REVIEW.md): the reviewed shapes are generic health/device symbols, **not the triple-headed snake logo**. This is **not** independent legal or trade-dress clearance. The product title and prominent `RAZER SYNAPSE + CHROMA` primary-brand text pose the more material naming/affiliation question.
 
 RHC is an **independent, unofficial community project**, not produced by, affiliated with, sponsored by or endorsed by Razer Inc. References to Razer, Synapse and Chroma describe the external products/services being diagnosed. **RAZER is a trademark or registered trademark of Razer Inc.** Third-party marks and branding are not licensed under RHC's GPL statement.
 
@@ -20,7 +20,8 @@ Because the existing repository name `RazerHealthCenter` and product title conta
 
 ## Before public distribution / SignPath application
 
-- Inspect real ICO artwork and PE resources for copied Razer logos or confusingly similar trade dress, and review the repository/product naming with an independent viewpoint.
+- [x] Initial visual review of primary ICO, 10/10 embedded resource frames and 16 UI icon-family representatives, with exact blob references: [BRAND_AND_ICON_REVIEW.md](BRAND_AND_ICON_REVIEW.md). Heart icon and Razer-inspired palette provisionally retained.
+- [ ] Resolve independent product name and full brand/trade-dress clearance (including unreviewed variants) before first public signed/unsigned release. Do not mistake the completed initial icon inspection for legal trademark approval.
 - Confirm original AI prompting did not include copying/distributing third-party code, fonts, logos, UI screenshots or other restricted source material.
 - Review third-party notices and dependencies, Razer-facing diagnostics/privacy permissions, security and project copyright attribution.
 - Keep production release **disabled** until separate release, signing/trust, rollback and owner authorization gates pass.
