@@ -8,7 +8,7 @@ The maintainer directed ChatGPT to use a **Razer-inspired color palette**. Inspi
 
 RHC is an **independent, unofficial community project**, not produced by, affiliated with, sponsored by or endorsed by Razer Inc. References to Razer, Synapse and Chroma describe the external products/services being diagnosed. **RAZER is a trademark or registered trademark of Razer Inc.** Third-party marks and branding are not licensed under RHC's GPL statement.
 
-Because the existing repository name `RazerHealthCenter` and product title contain the word `Razer`, they require a separate review against [Razer's trademark-use guidelines](https://www.razer.com/sg-en/legal/trademark-use-guidelines) before production publication or a SignPath application. An unofficial notice may reduce confusion but **does not by itself cure an inappropriate brand or product name**. If necessary, the project may need a neutral name before its first public release.
+The owner has **chosen** the independent primary name `Peripheral Health Center` with descriptive full heading `Peripheral Health Center – for Razer Synapse & Chroma`, the subtitle `Inoffizielles Diagnosewerkzeug für Razer Synapse und Razer Chroma` and exact independence note in [PRODUCT_BRANDING.md](PRODUCT_BRANDING.md). This is a **future product presentation**, not yet the current RHC v3.0.8 runtime identity. The legacy repository slug `RazerHealthCenter` and in-app name require a controlled future migration under [RHC-8](https://github.com/SaschaP1980/RazerHealthCenter/issues/8), and separate review against [Razer's trademark-use guidelines](https://www.razer.com/sg-en/legal/trademark-use-guidelines) before public distribution or SignPath application. An independence notice **does not** by itself cure conflicting brand use.
 
 ## Source and rights record
 
@@ -21,7 +21,8 @@ Because the existing repository name `RazerHealthCenter` and product title conta
 ## Before public distribution / SignPath application
 
 - [x] Initial visual review of primary ICO, 10/10 embedded resource frames and 16 UI icon-family representatives, with exact blob references: [BRAND_AND_ICON_REVIEW.md](BRAND_AND_ICON_REVIEW.md). Heart icon and Razer-inspired palette provisionally retained.
-- [ ] Resolve independent product name and full brand/trade-dress clearance (including unreviewed variants) before first public signed/unsigned release. Do not mistake the completed initial icon inspection for legal trademark approval.
+- [x] Select the independent primary product name, full compatibility heading, descriptive subtitle and independence notice; see [PRODUCT_BRANDING.md](PRODUCT_BRANDING.md).
+- [ ] Verify selected name, visual trade dress and third-party trademark/rights clearance (including unreviewed color variants) before any signed/unsigned public release. Selection and visual inspection are **not** legal clearance.
 - Confirm original AI prompting did not include copying/distributing third-party code, fonts, logos, UI screenshots or other restricted source material.
 - Review third-party notices and dependencies, Razer-facing diagnostics/privacy permissions, security and project copyright attribution.
 - Keep production release **disabled** until separate release, signing/trust, rollback and owner authorization gates pass.

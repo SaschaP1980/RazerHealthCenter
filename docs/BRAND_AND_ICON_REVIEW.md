@@ -2,6 +2,8 @@
 
 **Review status (2026-10-08):** Evidence-based technical/visual first-pass **COMPLETE**. Trademark/legal clearance **NOT CLAIMED**. Scope is the frozen source baseline RHC **v3.0.8**, GitHub draft [PR #7](https://github.com/SaschaP1980/RazerHealthCenter/pull/7), head `d8a3275c0c70783553ef155fff3627e83211e9f5` at review entry. No installed Windows application was used in this review.
 
+**Subsequent owner decision:** approved exact name/subtitle/independence notice in [PRODUCT_BRANDING.md](PRODUCT_BRANDING.md); the above technical inspection SHA is the **historical review input**, not the current versioned app target.
+
 ## Executive result
 
 | Element | Observed evidence | Risk judgement (not legal conclusion) | Proposed action |
@@ -42,20 +44,17 @@ Razer describes its corporate symbol as the **triple-headed snake**; its [offici
 
 This first-pass icon review found **a heart, not Razer's triple-headed-snake logo**. The stronger issue is **prominent use of the Razer word mark as the app's own brand**. This is a risk-based recommendation rather than a judicial determination of infringement or assurance of noninfringement. The existing Razer-inspired color palette is not automatically forbidden, but the entire presentation may require a more specific trade-dress review.
 
-## Recommended naming decision before any product version changes
+## Approved product name — owner decision 2026-10-08
 
-Select a genuinely independent primary name **without** `Razer`, `Synapse` or `Chroma` as the product-brand token. **Working candidate, not trademark-cleared:** `Peripheral Health Center`. A generic alternative is `Peripheral Runtime Health Center`. Neither candidate has been independently searched for conflicts/availability; **owner selection and name search are still required**.
+**The previous undecided naming recommendation is superseded by the owner's exact approved presentation.** See [PRODUCT_BRANDING.md](PRODUCT_BRANDING.md).
 
-Describe compatibility **separately**, e.g. `Unoffizielles Diagnosewerkzeug für Razer Synapse und Razer Chroma`, alongside an always-accessible non-affiliation/trademark notice.
-
-Only in an **explicitly approved future product-brand migration issue**:
-1. Confirm independent primary project/product name and repository slug after name conflict review.
-2. Change `app.title`, `app.brand.primary/secondary`, tray tooltips, about text, README, ZIP/EXE names and relevant build/release checks **together**.
-3. Evaluate Win32 class names/mutex and local persisted user data for backward compatibility; no blind global replacement and no hidden data loss.
-4. Build/test hosted Linux and real Windows PowerShell 5.1 and native UI/single-instance/upgrade paths; update asset/manifest contracts and product version only by a separately authorized version change.
-5. Review project branding again as a **whole visual presentation**; preserve green/black colors and heart icon unless new evidence requires revisiting them.
-
-**Current outcome:** naming decision remains **BLOCKED waiting for owner**, icon and palette **provisionally retained**, GPL Draft PR **remains DRAFT**, and `config/rhc-release-policy.json.productionEnabled=false`. No public release or SignPath application was created.
+- **Full heading:** `Peripheral Health Center – for Razer Synapse & Chroma`
+- **Independent primary brand:** `Peripheral Health Center`
+- **German description:** `Inoffizielles Diagnosewerkzeug für Razer Synapse und Razer Chroma`
+- **Non-affiliation wording:** `Unabhängiges Open-Source-Projekt. Nicht mit Razer Inc. verbunden, von Razer autorisiert oder unterstützt.`
+- **Keep the green/black palette and green heart app icon.** The descriptive `for Razer Synapse & Chroma` suffix remains subordinate to the independent brand.
+- **Not trademark cleared:** independent name/register/confusion review, Razer descriptive use and full presentation still require acceptance before any published signed/unsigned release.
+- **Implementation:** [RHC-8](https://github.com/SaschaP1980/RazerHealthCenter/issues/8) tracks a coordinated future versioned rename. The existing 3.0.8 product, `RazerHealthCenter.exe`, internal class/mutex names, GitHub repository name and original files stay unchanged.
 
 ## Review limitations
 
