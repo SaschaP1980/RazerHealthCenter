@@ -45,6 +45,127 @@ An initial comment added *after* code commits does not retrospectively establish
 - **Protect the default branch as an explicit setup gate:** the owner should configure an ACTIVE GitHub branch ruleset targeting `~DEFAULT_BRANCH` (or the exact intended branch); block deletions and non-fast-forward/force pushes, with no bypass actors by default. Re-query the full ruleset detail and `branches/<default>` to confirm effective enforcement. A UI screenshot of selected unsaved checkboxes or a missing warning is **not** proof of activation. If an integration cannot read the legacy branch-protection endpoint (403), use the readable ruleset and effective `protected` branch flag instead; record residual visibility limitations.
 - **Split baseline protection from merge-gate enforcement:** do not turn on mandatory PRs/required status contexts until the target project's release workflow and required checks are implemented and tested. Stage 1 protects history/deletion only; ordinary direct fast-forward pushes remain possible and must not be described as blocked.
 
+
+### Provision missing Issue labels automatically (idempotent)
+
+Before assigning Issue priority or a development path, **reconcile the target repository's Issue-label catalog**. Use the live canonical definitions in [LenovoBootSelector](https://github.com/SaschaP1980/LenovoBootSelector) (its [Issue-label taxonomy](https://github.com/SaschaP1980/LenovoBootSelector/blob/main/docs/GITHUB_HOWTO.md)). Copy each missing canonical label's **name, description and hexadecimal color**, not just its name. For target-specific text, replace only the source's \`work/LBS-<issue>\` reference with \`work/<PROJECT_CODE>-<issue>\`.
+
+The following nine labels were confirmed in LenovoBootSelector's actual labeled Issues and are the default migration set. The final provisioner fetches their live metadata again from the source repository; this table is an auditable reference, not a claim that the donor has no additional labels.
+
+| Name | Color (hex) | Source description |
+| --- | --- | --- |
+| \`bug\` | \`d73a4a\` | Something isn't working |
+| \`enhancement\` | \`a2eeef\` | New feature or request |
+| \`priority: critical\` | \`b60205\` | Requires immediate attention / blocks important functionality |
+| \`priority: high\` | \`FFA500\` | High priority; should be addressed soon |
+| \`priority: medium\` | \`fbca04\` | Normal priority |
+| \`priority: low\` | \`c5def5\` | Low priority; can be addressed later |
+| \`dev-path: fast\` | \`2DA44E\` | Branchless atomic path for small, well-bounded Patch/Hotfix work. |
+| \`dev-path: work-branch\` | \`8250DF\` | Uses work/LBS-<issue> for Major/Minor or complex Patch/Hotfix work. |
+| \`wontfix\` | \`ffffff\` | This will not be worked on |
+
+**Executable bootstrap:** Authenticate GitHub CLI \`gh\` with read access to the donor and label-management write access to the target. Set \`TARGET_REPO\` and \`PROJECT_CODE\` for the **new project**, then run this block. It reads both catalogs completely before any write, creates **only missing** labels, and verifies the saved state. No issue labels are assigned automatically, no existing definitions are edited/deleted, and foreign labels are retained. Re-running it is a no-op when complete.
+
+~~~bash
+TARGET_REPO=OWNER/NEW_REPOSITORY PROJECT_CODE=NEW python3 - <<'PY'
+import json
+import os
+import re
+import subprocess
+import sys
+
+source = "SaschaP1980/LenovoBootSelector"
+target = os.environ["TARGET_REPO"]
+code = os.environ["PROJECT_CODE"]
+required = (
+    "bug", "enhancement", "priority: critical", "priority: high",
+    "priority: medium", "priority: low", "dev-path: fast",
+    "dev-path: work-branch", "wontfix",
+)
+
+if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target):
+    raise SystemExit("BLOCKED: invalid TARGET_REPO")
+if not re.fullmatch(r"[A-Z][A-Z0-9]{1,15}", code):
+    raise SystemExit("BLOCKED: invalid PROJECT_CODE")
+if source.casefold() == target.casefold():
+    raise SystemExit("BLOCKED: source and target must differ")
+
+def gh(*args):
+    return subprocess.check_output(["gh", "api", *args], text=True)
+
+def read_catalog(repository):
+    labels = []
+    for page in range(1, 101):
+        payload = json.loads(gh(
+            f"repos/{repository}/labels?per_page=100&page={page}"
+        ))
+        if not isinstance(payload, list):
+            raise ValueError("GitHub labels response was not a list")
+        labels.extend(payload)
+        if len(payload) < 100:
+            break
+    else:
+        raise ValueError("Label pagination limit reached; no writes")
+    by_name = {}
+    for row in labels:
+        if not isinstance(row, dict) or not isinstance(row.get("name"), str):
+            raise ValueError("Invalid label record")
+        key = row["name"].casefold()
+        if key in by_name:
+            raise ValueError("Ambiguous case-insensitive label duplicate")
+        by_name[key] = row
+    return by_name
+
+donor = read_catalog(source)
+existing = read_catalog(target)
+if any(name.casefold() not in donor for name in required):
+    raise SystemExit("BLOCKED: incomplete canonical source label catalog")
+
+wanted = {}
+for name in required:
+    row = donor[name.casefold()]
+    if row["name"] != name:
+        raise SystemExit("BLOCKED: donor label name changed")
+    color = row.get("color")
+    description = row.get("description")
+    if not isinstance(color, str) or not re.fullmatch(r"[0-9A-Fa-f]{6}", color):
+        raise SystemExit("BLOCKED: missing or invalid donor label color")
+    if not isinstance(description, str):
+        raise SystemExit("BLOCKED: missing donor label description")
+    description = description.replace(
+        "work/LBS-<issue>", f"work/{code}-<issue>"
+    )
+    wanted[name.casefold()] = dict(
+        name=name, color=color, description=description
+    )
+
+missing = [wanted[n.casefold()] for n in required if n.casefold() not in existing]
+print(json.dumps({"target": target, "missing": missing}, ensure_ascii=False, indent=2))
+for row in missing:
+    gh("repos/" + target + "/labels", "--method", "POST",
+       "-f", "name=" + row["name"],
+       "-f", "color=" + row["color"],
+       "-f", "description=" + row["description"])
+
+after = read_catalog(target)
+bad = [
+    name for key, row in wanted.items()
+    if (item := after.get(key)) is None or
+    item.get("color", "").casefold() != row["color"].casefold() or
+    item.get("description") != row["description"]
+    for name in [row["name"]]
+]
+print(json.dumps({
+    "created": len(missing), "present": len(wanted),
+    "mismatchedExistingOrPostwrite": bad
+}, ensure_ascii=False))
+if bad:
+    raise SystemExit("BLOCKED: existing label drift or post-write mismatch; do not overwrite automatically")
+PY
+~~~
+
+**Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine canonical names exist, colors and descriptions match (with the one documented project-code substitution), and a second execution reports \`created=0\`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic \`gh issue edit --add-label\` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
+
 ## Stage 2 — Validate the original product before import
 
 - Extract into a clean directory with ZipSlip/path guard. Check file count and duplicates, encoding, execute bits, BOM and line endings.
