@@ -25,9 +25,10 @@ class ContractTests(unittest.TestCase):
             p = self.root / name
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(b'asset ' + name.encode())
-        self.paths = ['go.mod', 'build.sh', 'model.go', 'tools/rhc_release_contracts.py']
+        (self.root / 'LICENSE').write_text('GNU GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007\n')
+        self.paths = ['LICENSE', 'go.mod', 'build.sh', 'model.go', 'tools/rhc_release_contracts.py']
         self.paths += [f'tools/fixture_{n}.py' for n in range(18)]
-        for path in self.paths[4:]:
+        for path in self.paths[5:]:
             (self.root / path).write_text('pass\n')
         self.exe = Path(self.tmp.name) / 'RazerHealthCenter.exe'
         self.exe.write_bytes(b'MZ' + b'\0'*30)
@@ -57,6 +58,7 @@ class ContractTests(unittest.TestCase):
         with zipfile.ZipFile(a) as z:
             self.assertEqual(set(z.namelist()), set(self.paths))
             self.assertEqual(z.read('go.mod'), b'canonical source\n')
+            self.assertTrue(z.read('LICENSE').startswith(b'GNU GENERAL PUBLIC LICENSE'))
 
     def test_source_rejects_missing_and_duplicate(self):
         with self.assertRaises(ValueError):
@@ -71,10 +73,11 @@ class ContractTests(unittest.TestCase):
         x = r.portable_zip(self.root, self.exe, a)
         y = r.portable_zip(self.root, self.exe, b)
         self.assertEqual(x['sha256'], y['sha256'])
-        self.assertEqual(x['fileCount'], 7)
+        self.assertEqual(x['fileCount'], 8)
         self.assertEqual(x['directoryCount'], 12)
         with zipfile.ZipFile(a) as z:
             self.assertIsNone(z.testzip())
+            self.assertTrue(z.read('LICENSE').startswith(b'GNU GENERAL PUBLIC LICENSE'))
             for line in z.read('SHA256SUMS.txt').decode().splitlines():
                 h, name = line.split('  ', 1)
                 self.assertEqual(h, r.sha(z.read(name)))
@@ -87,6 +90,14 @@ class ContractTests(unittest.TestCase):
         self.exe.write_bytes(b'not a PE')
         with self.assertRaises(ValueError):
             r.portable_zip(self.root, self.exe, self.out/'bad.zip')
+
+    def test_missing_license_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, 'mandatory build source missing'):
+            r.source_zip(self.root, self.out/'without-license.zip',
+                         source_paths=[p for p in self.paths if p != 'LICENSE'])
+        (self.root/'LICENSE').unlink()
+        with self.assertRaisesRegex(ValueError, 'missing portable asset: LICENSE'):
+            r.portable_zip(self.root, self.exe, self.out/'without-license-portable.zip')
 
     def test_sensitive_paths_denied(self):
         for path in ['forensics/patient.json', 'BUILD-FULL.log', 'OriginalSource.zip',
