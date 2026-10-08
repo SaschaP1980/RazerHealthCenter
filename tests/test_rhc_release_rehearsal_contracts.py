@@ -33,7 +33,7 @@ class ReleaseRehearsal(unittest.TestCase):
         self.downloads.mkdir()
         (self.downloads/"releases.json").write_text(
             json.dumps({"schemaVersion":1,"releases":[]})+"\n")
-        (self.downloads/"README.md").write_text(d.render_readme([]))
+        (self.downloads/"README.md").write_text(d.render_readme([]), encoding="utf-8")
         for name in ("one","two"):
             (self.tmp/name).mkdir()
             (self.tmp/name/"RazerHealthCenter.exe").write_bytes(b"MZ"+b"x"*300)
