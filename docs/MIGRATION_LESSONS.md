@@ -12,3 +12,8 @@ This document captures observed problems from [RHC-1](https://github.com/SaschaP
 | RHC-M06 | LBS builds PowerShell runtime; RHC builds Go Windows EXE and retains PS5.1 diagnostics | Source contract review | Reuse workflow *gates*, adapt binaries/versioning/repair policies; no blind workflow copy |
 
 **Rule:** An item remains open if its corrective gate has not been independently verified; don't erase failure logs after later green results.
+
+| RHC-M07 | Original source contains `README.md`, colliding with initialized GitHub bootstrap README | Compared original ZIP paths to initialized repository | Fail-closed importer requires explicit replacement acknowledgement; preserve full original source README bytes and keep governance under `docs/` |
+| RHC-M08 | No GitHub branch rulesets reported; branch-protection access returned HTTP 403 | Actual GitHub API responses | Treat branch protection as OPEN/unknown; owner must configure/reverify rules before production release promotion |
+| RHC-M09 | Source transfer required a byte-preserving method beyond text-only repository connector writes | Direct connector capabilities + local git DNS failure | Tested `tools/import_source_archive.py`: dry-run then explicit reviewed source import on clean main, staging through separate PR; no commit/push by script |
+| RHC-M10 | Workflow listing/label listing endpoints blocked by connector URL validation | Connector response (INVALID_ARGUMENT 400) | Do not assume workflows registered or custom labels created; test UI/API with allowed access and record evidence |

@@ -37,7 +37,7 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | ID | Gate | Current state |
 | --- | --- | --- |
 | M0 | Intake hashes, ZIP integrity, safe extraction and independent local EXE reproduction | **PASS (local)** |
-| M1 | Empty GitHub repository initialized with migration docs, Issue and reusable template | **IN PROGRESS until commit/diff verified** |
+| M1 | Empty GitHub repository initialized with migration docs, Issue and reusable template | **PASS — GitHub commits and exact trees verified** |
 | M2 | Complete reviewed source tree imported to GitHub with original content byte equality | **BLOCKED / not imported** |
 | M3 | GitHub-hosted source intake reproduces the golden EXE; Linux and Windows checks | **NOT RUN** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **NOT IMPLEMENTED** |
@@ -53,6 +53,17 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 3. **Cold Go compilation overran the first interactive build command:** validation scripts and `go test` progressed, and `go run ./tools/i18n_guard .` was reached, but that command timed out. The i18n guard and Windows cross-build passed separately; a warmed complete `build.sh` rerun passed. **Do not record the timed-out attempt as a completed gate.** Template distinguishes cold toolchain setup time from true validator failure.
 4. **Source/package structure:** Source ZIP contains **321 files**, while Portable ZIP contains 7 regular files and empty directories. Use a file manifest and preservation rules, not an assumption that both ZIPs have similar structures.
 5. **Source safety audit:** A preliminary *heuristic* scan of readable source files found no private-key, credential-token, personal Windows-user-path or email patterns. This is not a comprehensive secret audit or proof of safe public publication; inspect historical logs/forensics and public-repository policy before full source import.
+
+## Bootstrap state verified on GitHub
+
+- First initializing README commit: `7246bec962a63ea097d7ff4b6fa35be60afab954`.
+- Reviewed 9-file governance and manual-only intake workflow commit: `411fd17d3427c3d571e159ca8d8e5a7ffea251c9`. Exactly nine intended added paths in the corresponding GitHub commit comparison.
+- RHC-specific rolling-comment template added; reusable migration playbook and tested fail-closed ZIP intake helper were committed separately. Import helper blob SHA `3d7497f94c6fa18d75930cf906970a7fddfff0f2` matches the locally tested helper byte-for-byte.
+- Helper simulation: missing README replacement flag blocked, dry run PASS without mutation, missing public-publication review blocked, explicit staged import wrote **321/321 source file bytes** with hash match. **Simulation was in an isolated local Git checkout, NOT source import into this GitHub repository.**
+- Portable ZIP internal SHA256SUMS: **6/6 checks independently PASS**. Product source ZIP remains external intake material until PR migration.
+- GitHub repository rulesets query returned **zero rulesets**. Branch-protection query returned **403 Resource not accessible by integration**; required protection is **unverified**, not inferred from connector write ability.
+- GitHub Actions workflow-list / label-list endpoints could not be queried through the connector due to endpoint validation. Workflow YAML exists on `main`, but **no hosted workflow was executed** and the custom RHC label taxonomy is not confirmed provisioned.
+- A public-source privacy/license review is **OPEN**; no v3.0.8 source upload or release was performed. The exact PR-based procedure is in [SOURCE_IMPORT_PLAYBOOK.md](SOURCE_IMPORT_PLAYBOOK.md).
 
 ## Next action
 

@@ -75,11 +75,14 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 ### First-case lessons (RHC, 2026-10-08)
 
 1. **Unborn repository:** `main` can be designated as default while GET branch returns 404 and refs return 409. Bootstrap initial commit before any SHA-lease workflow.
-2. **Migration channel mismatch:** a text-only GitHub mutation connector is not proof of ability to import binary assets, source ZIPs or large nested trees. Separate repository bootstrap from verified source transfer.
+2. **Migration channel mismatch:** a text-only GitHub mutation connector is not proof of ability to import binary assets, source ZIPs or large nested trees. Separate repository bootstrap from verified source transfer; use a manifest-verified importer and a reviewed PR for source intake.
 3. **Cold Go toolchain:** first `build.sh` timed out after reaching i18n guard; subsequent guard and full warm rerun passed with exact 3.0.8 reference hash. Budget toolchain setup and log timeout truthfully.
 4. **Archive topology matters:** RHC Source ZIP = 321 files; Portable ZIP = 7 files and 12 empty runtime directories; validate both file and directory contracts.
 5. **Public repository:** regex secret scan returning no matches is only an initial signal, not legal/privacy clearance for historical logs/forensic data.
 6. **Version-authority mismatch:** RHC's `model.go` app/reference version and Go Windows build cannot be replaced by LBS `bin/version.json` or PowerShell release logic.
 7. **Unproven deployment:** initial local deterministic build is strong source evidence but still **not** hosted Windows or real hardware verification. Never promote local-only PASS to release-green status.
+8. **README conflict:** migration source can include a canonical root README while GitHub bootstrap already has a different README. Require exact collision detection, explicit disposition and original file byte preservation.
+9. **GitHub policy visibility:** a repository may expose zero rulesets yet branch-protection reads may return 403 through integration credentials. Mark required branch protection **unverified** until owner-visible review, rather than assuming permissions from successful writes.
+10. **Public history is hard to undo:** enforce a real operator review of historical logs/forensics and license/privacy scope before source import; false-positive-free regex scans are not proof of safe publication.
 
 **Maintenance rule:** this template is expected to evolve in small reviewable documentation commits after each migration and each confirmed issue.
