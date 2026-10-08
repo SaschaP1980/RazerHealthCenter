@@ -2,12 +2,8 @@ name: RHC-29 Phase A QA Evidence (TEST ONLY; no Phase B)
 on:
   push:
     branches:
+      - main
       - 'work/RHC-29'
-    paths:
-      - '.github/workflows/rhc-phase-a-qa.yml'
-      - 'tools/rhc_phase_a_qa.py'
-      - 'tests/test_rhc_phase_a_qa_contracts.py'
-      - 'docs/RHC22_PHASE_A.md'
   pull_request:
     branches: [main]
     paths:
