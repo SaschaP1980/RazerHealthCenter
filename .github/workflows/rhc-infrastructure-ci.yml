@@ -14,6 +14,7 @@ on:
       - 'tests/test_rhc_*_contracts.py'
       - 'docs/RHC_CICD_ARCHITECTURE.md'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read

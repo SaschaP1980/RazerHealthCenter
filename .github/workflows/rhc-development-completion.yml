@@ -1,0 +1,64 @@
+name: RHC Development Completion (exact Work SHA)
+on:
+  push:
+    branches:
+      - 'work/RHC-*'
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  full-hosted-matrix:
+    name: Reuse validated Linux and Windows gates
+    if: ${{ contains(github.event.head_commit.message, 'Development-Completion: requested') }}
+    uses: ./.github/workflows/rhc-infrastructure-ci.yml
+    permissions:
+      contents: read
+
+  gate:
+    name: Work SHA and main ancestry completion gate
+    needs: [full-hosted-matrix]
+    if: ${{ always() && contains(github.event.head_commit.message, 'Development-Completion: requested') }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify immutable Work SHA, exact main and hosted job results
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MATRIX_RESULT: ${{ needs.full-hosted-matrix.result }}
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$GITHUB_SHA"
+          status() {
+            gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+              -f state="$1" -f context='development-completion/gate' \
+              -f description="$2" >/dev/null
+          }
+          trap "status failure 'BLOCKED: Development Completion gate failed'" ERR
+          test "$MATRIX_RESULT" = 'success' || { echo 'Hosted completion matrix not GREEN'; exit 1; }
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          CURRENT_MAIN="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          test "$(git rev-parse origin/main)" = "$CURRENT_MAIN" || {
+            echo 'main changed since checkout'; exit 1;
+          }
+          test "$(git merge-base origin/main HEAD)" = "$CURRENT_MAIN" || {
+            echo 'Work SHA is not based on the current main'; exit 1;
+          }
+          REMOTE_WORK="$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)"
+          test "$REMOTE_WORK" = "$HEAD_SHA" || {
+            echo 'Work branch moved after qualification'; exit 1;
+          }
+          git log -1 --format=%B | grep -Fx 'Development-Completion: requested'
+          test -z "$(git status --porcelain)"
+          status success "PASS main=$CURRENT_MAIN"
+          trap - ERR
+          echo "RHC_DEVELOPMENT_COMPLETION_SUMMARY=PASS workSha=$HEAD_SHA mainSha=$CURRENT_MAIN linux=success windows=success"
