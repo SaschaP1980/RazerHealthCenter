@@ -1,3 +1,4 @@
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import sys
 root=Path(sys.argv[1] if len(sys.argv)>1 else '.')
@@ -12,7 +13,7 @@ v=txt('versioncheck.go'); h=txt('health_application_guard.go'); p=txt('problem.g
 repair=txt('repair/repair-appengine-runtime-v1.0.0.ps1')
 diag=txt('diagnostics/diagnose-appengine-usermode-v1.0.2.ps1')
 
-ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in txt('model.go'))
+ck('current application version', f'appVersion                   = "{version_from_model(root)}"' in txt('model.go'))
 ck('registry view fields', 'SynapseRegistryView' in v and 'ChromaRegistryView' in v)
 ck('explicit registry64', 'RegistryView]::Registry64' in v)
 ck('explicit registry32', 'RegistryView]::Registry32' in v)

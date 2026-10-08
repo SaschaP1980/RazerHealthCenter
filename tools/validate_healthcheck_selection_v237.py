@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import json, sys
 
@@ -11,7 +12,7 @@ model=read('model.go'); sg=read('setupscan.go'); ui=read('ui.go'); engine=read('
 health=read('health-engine-v1.4.6.ps1') if (root/'health-engine-v1.4.6.ps1').exists() else ''
 locale=json.loads(read('locales/de-DE.json'))['strings']; build=read('build.sh')
 
-add('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model)
+add('current application version', f'appVersion                   = "{version_from_model(root)}"' in model)
 add('health engine version 1.4.6', 'engineVersion                = "1.4.6"' in model)
 add('active-product helpers', 'func activeHealthcheckProductCount(inv DeviceInventory) int' in sg and 'func hasActiveHealthcheckProduct(inv DeviceInventory) bool' in sg)
 valid_block=sg[sg.find('func (d DeviceInventory) valid() bool'):sg.find('func activeHealthcheckProductCount')]

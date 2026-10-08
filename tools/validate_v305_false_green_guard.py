@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import sys
 
@@ -18,7 +19,7 @@ ui=txt('ui.go')
 loc=txt('locales/de-DE.json')
 build=txt('build.sh')
 
-ck('app/reference version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+ck('current application/reference version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('overall incomplete state exists', 'overallIncomplete = "UNCLEAR"' in model)
 ck('official manifest registration states are explicit', all(x in version for x in ['SynapseRegistrationState','ChromaRegistrationState','registrationStatePresent','registrationStateUnreadable']))
 ck('registry errors retained per product', 'SynapseRegistrationError' in version and 'ChromaRegistrationError' in version)

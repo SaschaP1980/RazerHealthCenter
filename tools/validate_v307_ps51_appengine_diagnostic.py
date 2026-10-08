@@ -1,3 +1,4 @@
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import sys
 root=Path(sys.argv[1] if len(sys.argv)>1 else '.')
@@ -12,7 +13,7 @@ script=txt('diagnostics/diagnose-appengine-usermode-v1.0.2.ps1')
 build=txt('build.sh')
 loc=txt('locales/de-DE.json')
 manifest=txt('i18n-manifest.json')
-ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+ck('current application version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('diagnostic module version 1.0.2', 'appEngineDiagnosticModuleVersion = "1.0.2"' in appdiag)
 ck('diagnostic script name 1.0.2', 'diagnose-appengine-usermode-v1.0.2.ps1' in appdiag)
 ck('new diagnostic asset exists', len(script) > 1500)
