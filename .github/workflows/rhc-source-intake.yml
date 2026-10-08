@@ -4,6 +4,13 @@ name: RHC v3.0.8 Source Intake (PR validation; no release)
 # Pull requests run against the exact proposed merge tree; absent source fails closed.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - import/RHC-1-v3.0.8
+    paths:
+      - '.gitattributes'
+      - '.github/workflows/rhc-source-intake.yml'
+      - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
   pull_request:
     branches:
       - main
@@ -57,6 +64,7 @@ jobs:
           GOPROXY: 'off'
           GOSUMDB: 'off'
           GOTOOLCHAIN: 'local'
+          GOFLAGS: '-buildvcs=false' # archive reference was produced without Git revision metadata
         run: |
           set -euo pipefail
           bash build.sh "$RUNNER_TEMP/rhc-intake-dist"

@@ -79,6 +79,13 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 - A ZIP/file kit under ChatGPT is not a commit, GitHub Action artifact, or GitHub source-of-truth. Require an actual repository head, complete source manifest, exact file-byte comparison, and hosted tests before migrating the authority claim.
 - When source is sensitive and the target GitHub repo is public, the authorization to build locally does **not** imply consent to expose historical logs or forensic data publicly.
 
+### Source-byte and reproducible-build controls (new migration lessons)
+
+- A Git blob may exactly match its imported ZIP bytes while a Windows Git checkout rewrites line endings. For byte-frozen imports, choose a committed `.gitattributes` policy **before** cross-OS hash validation, and compare the exact source manifest on all required OSes. In RHC, `* -text` prevents conversions; a normal software development project may need a more selective policy.
+- Go builds inside Git worktrees can embed VCS revision/time/dirty metadata by default. An archive-origin golden executable generally has none. Explicitly evaluate `GOFLAGS=-buildvcs=false` or an equivalent `-buildvcs=false` option and confirm the exact binary hash; do not compensate with weaker semantic hash comparisons.
+- A temporary automation that pushes back to its own branch must guard against **the trigger's exact SHA**, not a pre-workflow historical head. Respect GitHub's `GITHUB_TOKEN` event recursion rules and dispatch qualification explicitly when needed.
+- Remove temporary write-enabled import workflows from the final reviewed tree. Permanent source-intake workflows should remain read-only, and final SHA qualification must occur **after** any such cleanup.
+
 ### First-case lessons (RHC, 2026-10-08)
 
 1. **Unborn repository:** `main` can be designated as default while GET branch returns 404 and refs return 409. Bootstrap initial commit before any SHA-lease workflow.
