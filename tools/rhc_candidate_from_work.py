@@ -28,6 +28,22 @@ def model_version(content):
     return v
 
 
+def enforce_version_only_model_edit(original, updated):
+    """Prove the entire Go model diff changes *only* both version literals."""
+    old_version = model_version(original)
+    new_version = model_version(updated)
+    replacements = [0]
+    def replace(match):
+        require(match.group(2) == old_version, "unexpected model version before change")
+        replacements[0] += 1
+        return match.group(1) + new_version + match.group(3)
+    pattern = re.compile(r'(^[ \\t]*(?:appVersion|referenceVersion)[ \\t]*=[ \\t]*")([^"]+)(")', re.M)
+    predicted = pattern.sub(replace, original)
+    require(replacements[0] == 2 and predicted == updated,
+            "model.go has changes beyond its two version literals")
+    return True
+
+
 def validate_plan(s):
     branch = s.get("workBranch", "")
     match = WORK.fullmatch(branch)
@@ -88,10 +104,14 @@ def gh(method, path, payload=None, optional404=False):
     return json.loads(p.stdout) if p.stdout.strip() else {}
 
 
-def remote_version(ref):
+def remote_model(ref):
     obj = gh("GET", "/contents/model.go?ref=" + ref)
     require(obj.get("encoding") == "base64", "model content unavailable")
-    return model_version(base64.b64decode(obj["content"]).decode("utf-8"))
+    return base64.b64decode(obj["content"]).decode("utf-8")
+
+
+def remote_version(ref):
+    return model_version(remote_model(ref))
 
 
 def main():
@@ -106,7 +126,10 @@ def main():
     commit = gh("GET", "/git/commits/" + work_sha)
     comparison = gh("GET", "/compare/" + main_sha + "..." + work_sha)
     statuses = gh("GET", "/commits/" + work_sha + "/status")
-    version = remote_version(work_sha)
+    work_model = remote_model(work_sha)
+    main_model = remote_model(main_sha)
+    enforce_version_only_model_edit(main_model, work_model)
+    version = model_version(work_model)
     candidate_ref = "candidate/v" + version
     existing = gh("GET", "/git/ref/heads/" + candidate_ref, optional404=True)
     policy_obj = gh("GET", "/contents/config/rhc-release-policy.json?ref=" + main_sha)
@@ -116,7 +139,7 @@ def main():
         treeSha=commit["tree"]["sha"], message=commit["message"],
         compareStatus=comparison["status"], behindBy=comparison["behind_by"],
         aheadBy=comparison["ahead_by"], files=comparison["files"],
-        mainVersion=remote_version(main_sha), workVersion=version,
+        mainVersion=model_version(main_model), workVersion=version,
         statuses=statuses["statuses"], policy=policy,
         candidateExists=existing is not None))
     # Exclusive mutation boundary; verify live refs again before any write.

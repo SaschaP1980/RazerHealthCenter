@@ -3,7 +3,7 @@ import pathlib
 import sys
 import unittest
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/"tools"))
-from rhc_candidate_from_work import validate_plan, model_version
+from rhc_candidate_from_work import validate_plan, model_version, enforce_version_only_model_edit
 
 A="a"*40
 B="b"*40
@@ -57,6 +57,18 @@ class CandidatePromotion(unittest.TestCase):
                       dict(rollbackVerified=True),dict(distribution="github-release")]:
             p=dict(fixture()["policy"],**delta)
             with self.assertRaises(ValueError):validate_plan(dict(fixture(),policy=p))
+
+    def test_version_only_source_must_preserve_all_other_model_bytes(self):
+        original='const (\\n appVersion = "3.0.8.0"\\n referenceVersion = "3.0.8.0"\\n diagnosticMode = true\\n)\\n'
+        updated=original.replace('version = "3.0.8.0"', 'version = "3.0.8.1"')
+        # use both exact field assignments, retain all other source text
+        updated=original.replace('appVersion = "3.0.8.0"', 'appVersion = "3.0.8.1"').replace(
+            'referenceVersion = "3.0.8.0"', 'referenceVersion = "3.0.8.1"')
+        self.assertTrue(enforce_version_only_model_edit(original, updated))
+        for malicious in (updated+'\\n', updated.replace("diagnosticMode = true", "diagnosticMode = false"),
+                          updated.replace('referenceVersion = "3.0.8.1"', 'referenceVersion = "3.0.8.0"')):
+            with self.subTest(malicious=malicious),self.assertRaises(ValueError):
+                enforce_version_only_model_edit(original, malicious)
 
 if __name__=="__main__":
     unittest.main()
