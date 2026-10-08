@@ -241,6 +241,10 @@ def stage(args):
                     "\nManual/automated merge must independently qualify "
                     "release/status/physical and hash gates; no issue-closing directives."})
         require(isinstance(pr.get("number"), int), "PR creation uncertain: inspect")
+        # GITHUB_TOKEN-created branch/PR events do not reliably trigger CI.
+        # An explicit workflow_dispatch is essential for exact release SHA gates.
+        gh("POST", "/actions/workflows/rhc-release-preflight.yml/dispatches",
+           {"ref": "release/v" + args.version})
         return {"result": "STAGED_PUBLIC_BRANCH_NOT_YET_MERGED",
                 "pr": pr["number"], "releaseSha": commit, "version": args.version,
                 "candidateSha": args.candidate_sha, "archiveSha256": record["sha256"],
