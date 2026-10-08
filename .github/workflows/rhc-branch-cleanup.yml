@@ -1,0 +1,57 @@
+name: RHC Verified Merged-Branch Cleanup
+
+# No globally enabled GitHub branch auto-delete is required.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      merged_pr:
+        description: Number of an already merged PR to reconcile
+        required: true
+        type: number
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: rhc-merged-branch-cleanup-${{ github.event.pull_request.number || inputs.merged_pr || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup-merged:
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      || (github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Delete only the verified and unchanged merged PR head
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_PR: ${{ github.event.pull_request.number || inputs.merged_pr }}
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_branch_cleanup.py --pr "$MERGED_PR" --execute
+
+      # One-time historical cleanup ONLY for this implementation PR.
+      - name: Reconcile import and RHC-5 branches after RHC-10 merges
+        if: >-
+          github.event_name == 'pull_request'
+          && github.event.pull_request.merged == true
+          && github.event.pull_request.number == 11
+          && github.event.pull_request.head.ref == 'work/RHC-10'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_branch_cleanup.py --pr 2 --execute
+          python3 -B tools/rhc_branch_cleanup.py --pr 9 --execute

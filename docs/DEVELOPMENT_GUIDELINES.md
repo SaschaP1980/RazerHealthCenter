@@ -34,6 +34,18 @@ This gate does **not** apply to routine one-commit documentation Fast-Paths. See
 
 Exactly one cumulative issue comment, updated *in place*, records RHC Issue, base SHA, Work SHA, last checkpoint, target version, allowed diff, risk, validator totals, timings, failures, recovery, Candidate, Release, cleanup and final verification. Singleton headings must not be duplicated. User-visible Work-Chat-ID `RHC<N>CHAT<12 uppercase random hexadecimal digits>` is emitted once per execution chat and recorded; on transfer append a new ID without overwriting origin. Search indexing is not guaranteed. A missing ID is `not issued`, never fabricated. A Work-Path rolling record is not the normal Fast-Path report.
 
+## Autonomous verified cleanup after merge
+
+The owner grants routine development/merge/cleanup authority within the approved work scope, once mandatory CI/quality gates are GREEN. Routine merges do **not** require repeated chat confirmation. Explicit new product/release/signing approvals remain separate. GitHub's global Automatically delete head branches option can remain OFF.
+
+GitHub Actions workflow `.github/workflows/rhc-branch-cleanup.yml` runs after a merged PR to `main`. It uses the dedicated `contents: write` permission strictly for branch ref deletion. The app/source build, CI rehearsal and release-policy workflows remain read-only.
+
+`tools/rhc_branch_cleanup.py` checks the PR's closed/merged status, matching source/target repository, limited branch naming, exact recorded PR head SHA, actual merge commit presence and head ancestry in fresh `main`, and remote branch equality. It deletes only with a Git atomic `--force-with-lease` for the exact reviewed SHA; post-deletion absence is required. A changed, foreign, still-open, squashed-without-ancestry or ambiguous branch fails closed. An already removed branch is an idempotent PASS.
+
+RHC-10 implementation PR #11 performs exactly one historical catch-up of merged PR #2 (`import/RHC-1-v3.0.8`) and PR #9 (`work/RHC-5`) after its own successful merge, subject to the same checks. Active `work/RHC-3` and unmerged `license/RHC-6-gpl3` must remain. Evidence is the actual Actions job log and fresh GitHub branch listing, not a plan or a presumed UI setting.
+
+Manual `workflow_dispatch` with a merged PR number is reserved for fault recovery by the assistant; do not ask the owner to click GitHub for normal development. Do not apply cleanup to candidate/release refs until their separate, verified release orchestration lifecycle is implemented.
+
 ## Validation sequence
 
 1. Read exact current base; identify allowed code/file changes and protected repair/firmware boundaries.
