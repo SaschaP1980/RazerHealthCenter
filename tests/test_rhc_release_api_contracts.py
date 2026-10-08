@@ -89,7 +89,7 @@ class GitHubReleaseTransaction(unittest.TestCase):
              patch.object(live,"gh",side_effect=self.gh):
             return live.stage(self.args)
 
-    def test_single_release_branch_pr_dispatch_after_four_blobs(self):
+    def test_single_release_branch_pr_dispatch_after_six_blobs_and_both_status_workflows(self):
         result=self.stage()
         self.assertEqual(result["result"],"STAGED_PUBLIC_BRANCH_NOT_YET_MERGED")
         self.assertEqual(self.gh.branch,D)
