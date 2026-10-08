@@ -35,6 +35,8 @@ class Remote:
         self.calls=[]
         self.badTag=False
         self.badBytes=False
+        self.badSource=False
+        self.badHistory=False
 
     def gh(self,method,path,payload=None,allow404=False):
         self.calls.append((method,path))
@@ -61,14 +63,16 @@ class Remote:
         if method=="GET" and path=="/git/commits/"+C:
             return {"parents":[{"sha":A}],"tree":{"sha":"7"*40}}
         if method=="GET" and path=="/git/trees/"+E+"?recursive=1":
-            return {"truncated":False,"tree":[]}
+            return {"truncated":False,"tree":[
+                {"path":IDX,"sha":"9"*40,"type":"blob"},
+                {"path":README,"sha":"8"*40,"type":"blob"}]}
         if method=="GET" and path=="/git/trees/"+"7"*40+"?recursive=1":
             return {"truncated":False,"tree":[
                 {"path":"model.go","sha":"5"*40,"type":"blob"},
                 {"path":"CHANGELOG.md","sha":"6"*40,"type":"blob"}]}
         if method=="GET" and path=="/git/trees/"+F+"?recursive=1":
             return {"truncated":False,"tree":[
-                {"path":"model.go","sha":"5"*40,"type":"blob"},
+                {"path":"model.go","sha":("0"*40 if self.badSource else "5"*40),"type":"blob"},
                 {"path":"CHANGELOG.md","sha":"6"*40,"type":"blob"},
                 {"path":PKG,"sha":"1"*40,"type":"blob"},
                 {"path":IDX,"sha":"2"*40,"type":"blob"},
@@ -77,10 +81,14 @@ class Remote:
         if method=="GET" and path.startswith("/git/blobs/"):
             record={"version":VERSION,"sourceSha":C,"sha256":H,
                     "size":len(ZIP)}
+            newer=[record]
+            if self.badHistory:
+                newer.append(dict(record,version="3.0.8.0"))
             values={"1":b"wrong" if self.badBytes else ZIP,
-                    "2":json.dumps({"releases":[record]}).encode(),
+                    "2":json.dumps({"schemaVersion":1,"releases":newer}).encode(),
                     "3":json.dumps(record).encode(),
-                    "4":b"Readme"}
+                    "4":b"Readme",
+                    "9":json.dumps({"schemaVersion":1,"releases":[]}).encode()}
             return {"encoding":"base64","content":base64.b64encode(
                 values[path[-40]]).decode()}
         raise AssertionError("unknown GH remote operation: "+method+" "+path)
@@ -95,7 +103,7 @@ class GitHubPostverify(unittest.TestCase):
                 main_before=A,release_sha=B,candidate_sha=C,
                 version=VERSION,zip_sha=H)
         self.assertEqual(result["result"],"MERGE_AND_BYTES_VERIFIED")
-        for change in ("badTag","badBytes"):
+        for change in ("badTag","badBytes","badSource","badHistory"):
             api=Remote();api.tag=True;api.merged=True
             setattr(api,change,True)
             with self.subTest(change=change),patch.object(release,"gh",
