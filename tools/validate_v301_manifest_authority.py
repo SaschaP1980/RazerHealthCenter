@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import sys
 
@@ -17,7 +18,7 @@ loc=txt('locales/de-DE.json')
 build=txt('build.sh')
 eng=txt('health-engine-v1.4.6.ps1')
 
-ck('app/reference version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+ck('current application/reference version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('health engine 1.4.6 selected', 'engineVersion                = "1.4.6"' in model and 'health-engine-v1.4.6.ps1' in runtime)
 ck('health engine 1.4.6 exists', bool(eng))
 ck('no static Known-Good baseline object', '$Baseline = ' not in eng and '$Baseline=' not in eng)

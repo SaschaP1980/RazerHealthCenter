@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from rhc_release_contracts import version_from_model
 from pathlib import Path
 import argparse,re,sys,json
 p=argparse.ArgumentParser(); p.add_argument('root', nargs='?', default=str(Path(__file__).resolve().parents[1])); a=p.parse_args(); root=Path(a.root)
@@ -8,7 +9,7 @@ def text(rel):
     p=root/rel
     return p.read_text(encoding='utf-8') if p.exists() else ''
 model=text('model.go'); runtime=text('runtime.go'); engine=text('engine.go'); repair=text('repair.go'); prob=text('problem.go'); build=text('build.sh'); pack=text('tools/package_portable.py'); loc=text('locales/de-DE.json'); safety=text('SAFETY-MODEL.txt')
-ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
+ck('current application version', f'appVersion                   = "{version_from_model(root)}"' in model and f'referenceVersion             = "{version_from_model(root)}"' in model)
 ck('Health Center product rename', 'Razer Synapse + Chroma Health Center' in loc and 'HEALTH CENTER' in loc)
 ck('Health Center executable packaging', 'RazerHealthCenter.exe' in build and 'RazerHealthCenter.exe' in pack)
 ck('problem platform source exists', (root/'problem.go').exists())
