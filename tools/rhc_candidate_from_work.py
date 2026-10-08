@@ -37,7 +37,7 @@ def enforce_version_only_model_edit(original, updated):
         require(match.group(2) == old_version, "unexpected model version before change")
         replacements[0] += 1
         return match.group(1) + new_version + match.group(3)
-    pattern = re.compile(r'(^[ \\t]*(?:appVersion|referenceVersion)[ \\t]*=[ \\t]*")([^"]+)(")', re.M)
+    pattern = re.compile(r'(^[ \t]*(?:appVersion|referenceVersion)[ \t]*=[ \t]*")([^"]+)(")', re.M)
     predicted = pattern.sub(replace, original)
     require(replacements[0] == 2 and predicted == updated,
             "model.go has changes beyond its two version literals")

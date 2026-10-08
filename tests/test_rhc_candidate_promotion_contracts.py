@@ -59,13 +59,12 @@ class CandidatePromotion(unittest.TestCase):
             with self.assertRaises(ValueError):validate_plan(dict(fixture(),policy=p))
 
     def test_version_only_source_must_preserve_all_other_model_bytes(self):
-        original='const (\\n appVersion = "3.0.8.0"\\n referenceVersion = "3.0.8.0"\\n diagnosticMode = true\\n)\\n'
-        updated=original.replace('version = "3.0.8.0"', 'version = "3.0.8.1"')
+        original='const (\n appVersion = "3.0.8.0"\n referenceVersion = "3.0.8.0"\n diagnosticMode = true\n)\n'
         # use both exact field assignments, retain all other source text
         updated=original.replace('appVersion = "3.0.8.0"', 'appVersion = "3.0.8.1"').replace(
             'referenceVersion = "3.0.8.0"', 'referenceVersion = "3.0.8.1"')
         self.assertTrue(enforce_version_only_model_edit(original, updated))
-        for malicious in (updated+'\\n', updated.replace("diagnosticMode = true", "diagnosticMode = false"),
+        for malicious in (updated+'\n', updated.replace("diagnosticMode = true", "diagnosticMode = false"),
                           updated.replace('referenceVersion = "3.0.8.1"', 'referenceVersion = "3.0.8.0"')):
             with self.subTest(malicious=malicious),self.assertRaises(ValueError):
                 enforce_version_only_model_edit(original, malicious)
