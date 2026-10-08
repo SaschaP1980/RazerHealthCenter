@@ -45,6 +45,7 @@ def main() -> int:
     ap.add_argument('--expected-archive-sha256', required=True)
     ap.add_argument('--expected-file-count', type=int, required=True)
     ap.add_argument('--expected-head', help='optional verified current branch SHA lease')
+    ap.add_argument('--expected-branch', default='main', help='exact branch being imported; default: main')
     ap.add_argument('--apply', action='store_true', help='write source files, still never commits or pushes')
     ap.add_argument('--public-source-reviewed', action='store_true',
                     help='explicit acknowledgement that historical logs/forensics have been reviewed before public import')
@@ -56,8 +57,8 @@ def main() -> int:
         raise RuntimeError('archive or repository path missing')
     if git(repo, 'rev-parse', '--show-toplevel') != str(repo):
         raise RuntimeError('repo must point to the checked-out Git repository root')
-    if git(repo, 'branch', '--show-current') != 'main':
-        raise RuntimeError('source intake requires checked-out main (no implicit checkout)')
+    if git(repo, 'branch', '--show-current') != ns.expected_branch:
+        raise RuntimeError('source intake requires checked-out expected branch (no implicit checkout)')
     if git(repo, 'status', '--porcelain'):
         raise RuntimeError('Git working tree must be completely clean before import')
     head = git(repo, 'rev-parse', 'HEAD')
