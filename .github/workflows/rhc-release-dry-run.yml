@@ -40,8 +40,8 @@ jobs:
           assert policy['signingDecision'] == 'unknown'
           assert policy['rollbackVerified'] is False
           m=pathlib.Path('model.go').read_text()
-          assert re.search(r'appVersion\s*=\s*"3\.0\.8"',m)
-          assert re.search(r'referenceVersion\s*=\s*"3\.0\.8"',m)
+          assert re.search(r'appVersion\s*=\s*"3\.0\.8\.0"',m)
+          assert re.search(r'referenceVersion\s*=\s*"3\.0\.8\.0"',m)
           sys.path.insert(0,'tools')
           from rhc_orchestration_contracts import publication_policy
           try:

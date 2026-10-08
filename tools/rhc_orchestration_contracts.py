@@ -11,10 +11,14 @@ REQUIRED_RELEASE_CONTEXTS = ('rhc/release/source', 'rhc/release/portable', 'rhc/
 
 
 def safe_ref(ref, prefix):
-    require(isinstance(ref, str) and re.fullmatch(prefix + r'/v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)', ref),
+    require(prefix in ('candidate', 'release'), 'invalid versioned branch kind')
+    marker = prefix + '/v'
+    require(isinstance(ref, str) and ref.startswith(marker),
             'invalid branch name or version')
-    return ref.split('/v', 1)[1]
-
+    version = ref[len(marker):]
+    require(bool(SEMVER.fullmatch(version)),
+            'RHC refs require four-part MAJOR.MINOR.PATCH.HOTFIX')
+    return version
 
 def validate_candidate(*, previous, version, changed_paths, release_profile, current_main_parent):
     assert_future_version(version, previous)
