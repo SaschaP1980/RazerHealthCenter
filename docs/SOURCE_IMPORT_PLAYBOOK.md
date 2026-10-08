@@ -21,7 +21,7 @@ git status --short
 git rev-parse HEAD
 ~~~
 
-The status **must** be empty. Save the current SHA as the `--expected-head` lease.
+The status **must** be empty. Save the current SHA as the `--expected-head` lease. The migration PR branch may also be used if it exists: run `git switch import/RHC-1-v3.0.8`, verify its clean status and exact HEAD, and add `--expected-branch import/RHC-1-v3.0.8` to the intake commands below. Do not reuse an old SHA after switching branches.
 
 ## 2. Preview source intake; no mutation
 
@@ -48,7 +48,7 @@ Repeat command with `--apply --public-source-reviewed`. This is an explicit huma
 ## 4. Stage a reviewed import on a dedicated PR branch
 
 ~~~bash
-git switch -c import/RHC-1-v3.0.8
+git switch -c import/RHC-1-v3.0.8  # omit if already on this existing PR branch
 git status --short
 git add -A
 git diff --cached --stat

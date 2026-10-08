@@ -1,9 +1,27 @@
-name: RHC v3.0.8 Source Intake (manual, no release)
+name: RHC v3.0.8 Source Intake (PR validation; no release)
 
-# This is NOT a release or candidate gate. Dispatch only after the reviewed
-# v3.0.8 source tree has been imported and hashed. Never auto-deploy.
+# This is a non-publishing migration validation gate, NOT production CI/CD.
+# Pull requests run against the exact proposed merge tree; absent source fails closed.
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/rhc-source-intake.yml'
+      - 'tools/verify_source_intake.py'
+      - 'tools/import_source_archive.py'
+      - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
+      - 'go.mod'
+      - 'model.go'
+      - 'build.sh'
+      - '**/*.go'
+      - '**/*.ps1'
+      - 'resources/**'
+      - 'assets/**'
+      - 'diagnostics/**'
+      - 'repair/**'
+      - 'tools/**'
 
 permissions:
   contents: read
@@ -30,6 +48,9 @@ jobs:
           done
           grep -Fq 'appVersion                   = "3.0.8"' model.go
           grep -Fq 'referenceVersion             = "3.0.8"' model.go
+      - name: Verify exact imported v3.0.8 source manifest
+        shell: bash
+        run: python3 -B tools/verify_source_intake.py --root .
       - name: Run original full build without fetching modules
         shell: bash
         env:
@@ -56,6 +77,11 @@ jobs:
         with:
           go-version: '1.23.2'
           cache: false
+      - name: Verify imported source identity on Windows
+        shell: powershell
+        run: |
+          python -B tools/verify_source_intake.py --root .
+          if ($LASTEXITCODE -ne 0) { throw 'RHC exact source identity FAILED' }
       - name: Parse PowerShell sources on actual Windows PowerShell 5.1
         shell: powershell
         run: |
