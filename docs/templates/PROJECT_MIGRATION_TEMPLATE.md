@@ -48,23 +48,23 @@ An initial comment added *after* code commits does not retrospectively establish
 
 ### Provision missing Issue labels automatically (idempotent)
 
-Before assigning Issue priority or a development path, **reconcile the target repository's Issue-label catalog**. Use the live canonical definitions in [LenovoBootSelector](https://github.com/SaschaP1980/LenovoBootSelector) (its [Issue-label taxonomy](https://github.com/SaschaP1980/LenovoBootSelector/blob/main/docs/GITHUB_HOWTO.md)). Copy each missing canonical label's **name, description and hexadecimal color**, not just its name. For target-specific text, replace only the source's \`work/LBS-<issue>\` reference with \`work/<PROJECT_CODE>-<issue>\`.
+Before assigning Issue priority or a development path, **reconcile the target repository's Issue-label catalog**. Use the live canonical definitions in [LenovoBootSelector](https://github.com/SaschaP1980/LenovoBootSelector) (its [Issue-label taxonomy](https://github.com/SaschaP1980/LenovoBootSelector/blob/main/docs/GITHUB_HOWTO.md)). Copy each missing canonical label's **name, description and hexadecimal color**, not just its name. For target-specific text, replace only the source's `work/LBS-<issue>` reference with `work/<PROJECT_CODE>-<issue>`.
 
 The following nine labels were confirmed in LenovoBootSelector's actual labeled Issues and are the default migration set. The final provisioner fetches their live metadata again from the source repository; this table is an auditable reference, not a claim that the donor has no additional labels.
 
 | Name | Color (hex) | Source description |
 | --- | --- | --- |
-| \`bug\` | \`d73a4a\` | Something isn't working |
-| \`enhancement\` | \`a2eeef\` | New feature or request |
-| \`priority: critical\` | \`b60205\` | Requires immediate attention / blocks important functionality |
-| \`priority: high\` | \`FFA500\` | High priority; should be addressed soon |
-| \`priority: medium\` | \`fbca04\` | Normal priority |
-| \`priority: low\` | \`c5def5\` | Low priority; can be addressed later |
-| \`dev-path: fast\` | \`2DA44E\` | Branchless atomic path for small, well-bounded Patch/Hotfix work. |
-| \`dev-path: work-branch\` | \`8250DF\` | Uses work/LBS-<issue> for Major/Minor or complex Patch/Hotfix work. |
-| \`wontfix\` | \`ffffff\` | This will not be worked on |
+| `bug` | `d73a4a` | Something isn't working |
+| `enhancement` | `a2eeef` | New feature or request |
+| `priority: critical` | `b60205` | Requires immediate attention / blocks important functionality |
+| `priority: high` | `FFA500` | High priority; should be addressed soon |
+| `priority: medium` | `fbca04` | Normal priority |
+| `priority: low` | `c5def5` | Low priority; can be addressed later |
+| `dev-path: fast` | `2DA44E` | Branchless atomic path for small, well-bounded Patch/Hotfix work. |
+| `dev-path: work-branch` | `8250DF` | Uses `work/LBS-<issue>` for Major/Minor or complex Patch/Hotfix work. |
+| `wontfix` | `ffffff` | This will not be worked on |
 
-**Executable bootstrap:** Authenticate GitHub CLI \`gh\` with read access to the donor and label-management write access to the target. Set \`TARGET_REPO\` and \`PROJECT_CODE\` for the **new project**, then run this block. It reads both catalogs completely before any write, creates **only missing** labels, and verifies the saved state. No issue labels are assigned automatically, no existing definitions are edited/deleted, and foreign labels are retained. Re-running it is a no-op when complete.
+**Executable bootstrap:** Authenticate GitHub CLI `gh` with read access to the donor and label-management write access to the target. Set `TARGET_REPO` and `PROJECT_CODE` for the **new project**, then run this block. It reads both catalogs completely before any write, creates **only missing** labels, and verifies the saved state. No issue labels are assigned automatically, no existing definitions are edited/deleted, and foreign labels are retained. Re-running it is a no-op when complete.
 
 ~~~bash
 TARGET_REPO=OWNER/NEW_REPOSITORY PROJECT_CODE=NEW python3 - <<'PY'
@@ -164,7 +164,7 @@ if bad:
 PY
 ~~~
 
-**Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine canonical names exist, colors and descriptions match (with the one documented project-code substitution), and a second execution reports \`created=0\`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic \`gh issue edit --add-label\` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
+**Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine canonical names exist, colors and descriptions match (with the one documented project-code substitution), and a second execution reports `created=0`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic `gh issue edit --add-label` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
 
 ## Stage 2 — Validate the original product before import
 
