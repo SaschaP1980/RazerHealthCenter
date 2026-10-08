@@ -45,3 +45,21 @@ or an exact version/source/archive-bound unsigned owner decision,
 native Razer acceptance, real rollback/first-release recovery demonstration,
 actual `release/vX.Y.Z.H` orchestration, mandatory GitHub main PR/status
 rules, and independent postmerge readback. No absent gate may be labeled GREEN.
+
+## Continuation — 2026-10-08 (Chat RHC20CHAT236C9E999A7A)
+
+The RHC-20 Work-Path retained the same branch and Draft PR #21. Actual resumed implementation milestones:
+
+- Added a focused **test-first RED** on `84a7cc610cbc57994b2f60e93d05db25478c48a9`: [Linux Actions run #37798149161](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37798149161), five failed assertions due to absent Candidate `workflow_dispatch` and missing `rhc/preflight/*` contexts. Expected RED is never counted as GREEN.
+- Candidate Preflight now supports explicit `workflow_dispatch` and writes **exact SHA statuses** `rhc/preflight/linux`, `rhc/preflight/windows`, `rhc/preflight/candidate` only after their respective successful hosted OS checks. **The promotion job still deliberately exits 1**, and `config/rhc-release-policy.json` is unchanged.
+- `rhc-candidate-from-work.yml` now filters event commits for both `Release-Profile: version-only` and `Development-Completion: requested` in addition to same-repository origin and successful Work Completion. This prevents infrastructure-only Work paths from reaching the Candidate writer.
+- Candidate Linux now runs **two separate clean Go/PE builds** and compares the EXE bytes; independently packages source/portable archives twice and compares the archive bytes. This is workflow source now; a real future Candidate run is required to qualify it end-to-end.
+- The Work→Candidate creator enforces the exact two-literal `model.go` version diff against separately fetched main/work file bytes, before any write; other model edits cause a hard error. Five fully mocked API transaction tests exercise a positive nonpublishing candidate, stale main, absent Completion, source modification, existing candidate, partial dispatch and no blind retry. No real candidate was generated.
+- New `.github/workflows/rhc-release-preactivation.yml` is **strictly read-only** and independently runs the RHC-12 pure adversarial release fixtures, immutable QA/downloads verification and a negative test showing that the actual `productionEnabled=false` policy rejects the preactivation fixture. [Push #37799708401](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37799708401) and [PR #37799721368](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37799721368) are both actual SUCCESS. These green checks **do not prove** signed/unsigned publisher consent, real Razer hardware, real rollback or a published artifact.
+
+### Remaining fail-closed boundaries
+
+- Candidate `workflow_dispatch`, permission/status publication and independent Go builds have been added to PR #21, **but a real Candidate v3.0.8.1 has not been created or run**. Candidate-to-Release orchestration still requires an independent exact-SHA qualification and a separately authorized source/tag/package release transaction.
+- Full RHC-12 production `repo-downloads` publisher, mandatory GitHub Ruleset PR/status protection, physical Windows/Razer acceptance, verified rollback and exact artifact-bound signing or unsigned approval remain OPEN. The pure RHC-12 plan and the read-only workflow cannot perform or substitute these actions.
+- `main` remains `efcac9ee5a99940c8c2f85f779404f4eae524cfa`, application `3.0.8.0`. RHC-18 PR #19 stays separate/Draft, RHC-20 PR #21 stays Draft until explicitly qualified for review and safe merge. No ZIP, tag, latest pointer, product/version/policy change or Razer repair occurred.
+- The source of truth for exact final Work SHA, hosted Linux/Windows results, Work Completion result, liveness/deviations and remaining acceptance gates is the [single RHC-20 Rolling Comment](https://github.com/SaschaP1980/RazerHealthCenter/issues/20#issuecomment-6062346819). Do not infer current GREEN or Completion from a previous SHA.
