@@ -100,6 +100,21 @@ class GitHubReleaseTransaction(unittest.TestCase):
             self.stage()
         self.assertEqual(len(self.gh.writes),9)
 
+    def test_release_pr_atomically_promotes_candidate_source_and_catalog(self):
+        # Release main must contain the candidate version, not only a ZIP
+        # whose appVersion is newer than main/model.go. Source tag stays pinned
+        # to the exact independently-qualified Candidate SHA.
+        (self.root/"model.go").write_text(
+            'const (\\nappVersion = "3.0.8.1"\\nreferenceVersion = "3.0.8.1"\\n)\\n')
+        (self.root/"CHANGELOG.md").write_text("# 3.0.8.1\\n")
+        self.stage()
+        changed={x["path"] for x in self.gh.tree["tree"]}
+        self.assertEqual(changed,{
+            "model.go", "CHANGELOG.md",
+            "downloads/RazerHealthCenter-Portable-v3.0.8.1.zip",
+            "downloads/releases.json", "downloads/latest.json",
+            "downloads/README.md"})
+
     def test_preexisting_branch_blocks_before_any_write(self):
         self.gh.branch=D
         with self.assertRaises(ValueError):
