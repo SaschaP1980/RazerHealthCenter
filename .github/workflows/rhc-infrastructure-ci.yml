@@ -5,12 +5,14 @@ on:
   push:
     branches:
       - 'work/RHC-3'
+      - 'work/RHC-5'
   pull_request:
     branches:
       - main
     paths:
       - '.github/workflows/rhc-infrastructure-ci.yml'
       - 'tools/rhc_release_contracts.py'
+      - 'tools/rhc_release_dry_run.py'
       - 'tests/test_rhc_*_contracts.py'
       - 'docs/RHC_CICD_ARCHITECTURE.md'
   workflow_dispatch:
