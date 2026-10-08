@@ -1,14 +1,14 @@
 # RHC v3.0.8 — Migration state and evidence ledger
 
-**Status: SOURCE INTAKE NOT COMPLETE.** This document records verified inputs and the repository setup separately; it is **not** a product release manifest or a claim that all source bytes are present in GitHub.
+**Status: SOURCE BASELINE MIGRATED AND HOSTED-VERIFIED.** The exact 321-file v3.0.8 source is now on GitHub `main` after PR #2. RHC production Candidate/Release automation, branch protection, updater/signing policy and physical Razer acceptance are **not yet approved or complete**. This is not a product release manifest.
 
 ## Authority transition
 
 - Destination: [RazerHealthCenter](https://github.com/SaschaP1980/RazerHealthCenter), default branch `main`.
 - Migration tracking Issue: [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1).
-- Current source-release baseline: **v3.0.8**. The user-provided source and portable archives remain historical intake evidence until all files are committed and independently qualified from GitHub.
+- Current canonical development **source** baseline: **v3.0.8** in `main`, merged from [PR #2](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), final source-qualified PR head `2a28a08ba75ecb404df03847cdf1e5eaba941acd`, merge commit `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`. Original ZIP and portable archives remain provenance, not build authority.
 - Prior Lenovo Boot Selector process is a **pattern**, never the runtime/build authority for RHC. Use the generic migration template in `docs/templates/PROJECT_MIGRATION_TEMPLATE.md`.
-- This repository's initial README and process documents establish the *destination* authority, not yet the *complete* source-of-truth state.
+- The complete source and hosted reproducibility checks are now recoverable from GitHub. **Release/distribution authority remains a separate unimplemented phase**; do not infer a published RHC release from source verification.
 
 ## Verified input identity (2026-10-08)
 
@@ -20,7 +20,7 @@
 | Source-side AppEngine diagnostic 1.0.2 | `4ac0f44212a5c53db932f6033a6fa53fa0c60a9b5b7a125f9485e17a39bd6121` | From supplied v3.0.8 handover; not remeasured independently during bootstrap |
 | Source-side AppEngine recovery 1.0.0 | `ff53cdabcd7c046c25e15ca30419986ace3012532b05e83a9b681e28de6f738a` | From supplied v3.0.8 handover; not remeasured independently during bootstrap |
 
-Independent local validation used **Go 1.23.2 Linux/amd64** with `GOPROXY=off`, `GOSUMDB=off` and `GOTOOLCHAIN=local`. The source `build.sh` completed its Python static/regression validators, `go test .`, the i18n guard, Windows cross-platform `go vet`, Windows amd64 `go build -trimpath -ldflags='-H windowsgui'`, resource injection and PE validation. The full clean rerun reproduced the exact reference EXE SHA-256 above. **This is local evidence, not yet a GitHub-hosted Actions run.** Windows-native PowerShell 5.1 and real Razer hardware acceptance are separately pending.
+Independent local validation used **Go 1.23.2 Linux/amd64** with `GOPROXY=off`, `GOSUMDB=off` and `GOTOOLCHAIN=local`. The source `build.sh` completed its Python static/regression validators, `go test .`, the i18n guard, Windows cross-platform `go vet`, Windows amd64 `go build -trimpath -ldflags='-H windowsgui'`, resource injection and PE validation. The full clean rerun reproduced the exact reference EXE SHA-256 above. These initial numbers were local evidence. They have since been supplemented by GitHub-hosted [run #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046), which verified the exact 321-file source inventory on both Linux and Windows, reproduced the golden Windows amd64 EXE SHA-256, parsed 15/15 PowerShell source files in native Windows PowerShell 5.1, and passed Go test/vet and repair safety checks. **Physical Razer hardware acceptance is still pending.**
 
 The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-background-runtime report says 20/20 GREEN versus 3/20 on v3.0.7, and original full validation 20.20 seconds / clean rebuild 18.74 seconds. These numbers are **provided historical reports** and must not be mislabeled as newly hosted results.
 
@@ -38,8 +38,8 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | --- | --- | --- |
 | M0 | Intake hashes, ZIP integrity, safe extraction and independent local EXE reproduction | **PASS (local)** |
 | M1 | Empty GitHub repository initialized with migration docs, Issue and reusable template | **PASS — GitHub commits and exact trees verified** |
-| M2 | Complete reviewed source tree imported to GitHub with original content byte equality | **STAGED: 321/321 bytes in Draft PR #2; merge and hosted approval still open** |
-| M3 | GitHub-hosted source intake reproduces the golden EXE; Linux and Windows checks | **CORRECTION UNDER TEST — first full-source run revealed deterministic build/checkout differences** |
+| M2 | 321-file source tree imported to `main` with exact original content-byte identity | **PASS — PR #2 merged, original source SHA inventory verified on both hosted OSes** |
+| M3 | GitHub-hosted source intake reproduces golden EXE; Linux and native Windows PS5.1 checks | **PASS — run #37737410046, Linux and Windows jobs both success on exact head** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **NOT IMPLEMENTED** |
 | M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **NOT CONFIGURED / NOT VERIFIED** |
 | M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
@@ -86,6 +86,17 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - Linux full source `build.sh` source/regression tests ran, but the EXE SHA mismatched the golden reference. Controlled local Go 1.23.2 characterization proved the cause: builds inside Git repositories automatically include Go VCS metadata, whereas the golden source-archive EXE does not. Building with `GOFLAGS=-buildvcs=false` restored the exact golden EXE SHA `6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a`. CI now sets the flag explicitly without altering product source or build.sh.
 - The transient write-capable staging workflow is removed from the proposed final source tree after its successful import. The permanent **read-only, nonpublishing** source-intake workflow is re-executed on the exact final PR commit; previous failed runs remain evidence, not accepted gates.
 
+## Source migration finalized in GitHub
+
+- The owner uploaded the original source archive and 321-file inventory to public `main`; a restricted one-shot GitHub Action validated and staged the exact archive contents into PR #2. Initial staging failures and corrections are preserved in the migration ledger.
+- [Final GitHub Actions run #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046) completed **success** against PR head `2a28a08ba75ecb404df03847cdf1e5eaba941acd`. Linux: 321/321 manifest PASS, full `build.sh` PASS, golden Windows GUI EXE `6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a` PASS. Windows: 321/321 manifest PASS, PS5.1 parser **15 files PASS**, Go native test/vet PASS, AppEngine recovery **25/25 PASS**, repair safety PASS.
+- PR #2 [merged](https://github.com/SaschaP1980/RazerHealthCenter/pull/2) at **2026-10-08T06:27:14Z**; `main` now contains all source files individually, plus original ZIP provenance. The postmerge source tree remains version **3.0.8**; no runtime/version mutations, production release or public update-pointer activation occurred.
+- The temporary **write-capable** source staging workflow was removed before the final exact-SHA qualification; the remaining `rhc-source-intake.yml` workflow has only `contents: read` and **cannot publish**.
+- RHC uses `.gitattributes` to preserve all original file bytes across Windows/Linux and explicit `GOFLAGS=-buildvcs=false` for the archive-based golden EXE test. Both were validated on GitHub runners.
+- **Important outstanding packaging risk:** Owner-uploaded original ZIP, original inventory and extra import documents remain at repository root. Existing `tools/package_source.py` recursively packages most repo files and currently does not exclude ZIP inputs; its policy needs an explicit reproducibility/security correction **before any future production Source ZIP is published**. Do not alter the original v3.0.8 byte-frozen source files during baseline import.
+- Repository policy remains unverified: no rulesets observed, branch protection API returned 403 for the integration; no owner-supplied attestation of external license/privacy clearance for the already-public archive. This is not a claim of a comprehensive legal audit.
+- Source import is complete; **RHC-1 remains OPEN** for M4–M6 (release machinery, repository security/distribution policy, and real native acceptance).
+
 ## Next action
 
-Import the **reviewed complete 321-file source tree** into the existing Draft PR #2 using the verified branch-specific importer, review all publicly published content, and push the source manifest. The PR-triggered Linux and Windows intake workflow will run automatically. Only after both hosted tests PASS and a verified source-byte audit may PR #2 merge; then plan the RHC-specific production Candidate/Release pipeline separately.
+Proceed to M4–M6 only after a separate explicit scope decision: design/qualify RHC's secure Candidate, reproducible Source/Portable packages, release statuses and postrelease verification; validate branch/ruleset/Actions permissions and signing/updater choices. Do not publish v3.0.9 or alter native repair semantics as part of source migration.

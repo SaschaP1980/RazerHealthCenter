@@ -2,7 +2,7 @@
 
 ## Current state: NOT ACTIVATED
 
-Do not create a production RHC release from this document alone. The initial GitHub repository is being bootstrapped; all source files and hosted CI have not yet been imported/qualified. This document is the target process adapted from LBS's audited deployment architecture, not evidence that an RHC Release Orchestrator already exists.
+Do not create a production RHC release from this document alone. RHC v3.0.8 **source import and exact Linux/Windows hosted qualification have completed** (PR #2; GitHub Actions run #37737410046), but a secure RHC Candidate/Release Orchestrator **does not yet exist**. This document is the target process adapted from LBS's audited architecture, not permission to release.
 
 ## Source-native build contract
 
@@ -22,4 +22,4 @@ A GREEN Candidate promotion must check exact status provenance, tree/branch iden
 
 ## Migration gate
 
-The manual-only `.github/workflows/rhc-source-intake.yml` is *not* a candidate or release workflow and cannot publish. Its baseline EXE hash check intentionally applies to v3.0.8 only. Do not enable new automatic deployment until RHC-1 source-intake, hosted build, policy and security checks have passed.
+The read-only `.github/workflows/rhc-source-intake.yml` is an exact v3.0.8 baseline-validation workflow (PR/one-off import-branch push/manual dispatch), *not* a Candidate/Release workflow and cannot publish. Source intake and hosted Linux/Windows qualification are PASS, but branch/security policy, reproducible post-import source packaging and production CI/CD safeguards are still OPEN.

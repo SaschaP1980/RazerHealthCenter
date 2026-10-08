@@ -4,7 +4,7 @@
 
 ## Authority
 
-Use current GitHub `main` plus Issues as the canonical working record **after source import**; until then acknowledge `docs/MIGRATION_STATUS.md` as the migration boundary. Never use another project's main branch or private conversation memory as RHC runtime authority.
+Use current GitHub `main` plus Issues as the canonical working record: **source import and hosted baseline verification completed in PR #2**. The separate production Candidate/Release infrastructure is still unimplemented; `docs/MIGRATION_STATUS.md` records those open gates. Never use another project's main branch or private conversation memory as RHC runtime authority.
 
 ## Preserve product invariants
 

@@ -2,7 +2,7 @@
 
 ## Current limitation
 
-GitHub is the intended canonical project authority. **The source import is pending**; do not mistake initial process documentation for complete project contents. See `docs/MIGRATION_STATUS.md`.
+GitHub `main` is now the **canonical source-of-truth for RHC v3.0.8 source**: 321 original files were imported in PR #2 and exact-byte/Windows-build CI passed. The **future production release pipeline is not activated**; do not mistake the source-intake workflow for release authorization. See `docs/MIGRATION_STATUS.md`.
 
 ## Identity and issues
 

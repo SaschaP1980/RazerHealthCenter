@@ -5,9 +5,9 @@
 
 ## 1. Authority and current migration phase
 
-Repository: `SaschaP1980/RazerHealthCenter`. Every new session must check the current GitHub `main` SHA, branch tree, active Issues and pull requests, plus `docs/MIGRATION_STATUS.md`. Previous chat history, local extracted ZIPs and remembered versions are **not** an authority. **During migration**, do not claim GitHub is a complete single source of truth until the complete v3.0.8 source import and hosted gates have been verified.
+Repository: `SaschaP1980/RazerHealthCenter`. Every new session must check the current GitHub `main` SHA, branch tree, active Issues and pull requests, plus `docs/MIGRATION_STATUS.md`. Previous chat history, local extracted ZIPs and remembered versions are **not** an authority. **Source import and baseline hosted gates are now verified**, but do not claim the RHC production release/deployment pipeline exists until it is implemented and independently qualified.
 
-Current verified product baseline at initial bootstrap: **v3.0.8**. GitHub source import: **not yet complete**. No new product release is authorized.
+Current canonical RHC source baseline: **v3.0.8 on GitHub `main`**, imported via PR #2 and hosted-qualified on Linux and native Windows. Production Candidate/Release automation is **NOT IMPLEMENTED**. No new product release is authorized.
 
 ## 2. Mandatory discovery
 

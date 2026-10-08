@@ -99,4 +99,8 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 9. **GitHub policy visibility:** a repository may expose zero rulesets yet branch-protection reads may return 403 through integration credentials. Mark required branch protection **unverified** until owner-visible review, rather than assuming permissions from successful writes.
 10. **Public history is hard to undo:** enforce a real operator review of historical logs/forensics and license/privacy scope before source import; false-positive-free regex scans are not proof of safe publication.
 
+11. **Hosted success is a per-SHA statement:** source verification and platform builds must pass on the exact final PR head before merge; post-merge documentation may record that source success but must not claim a new release.
+12. **Temporary elevated workflow lifetime:** remove one-shot write-enabled source staging workflows *before* qualification of the final mergeable PR tree; the remaining permanent intake workflow should be read-only.
+13. **Source packaging after archive upload:** a user may upload a canonical Source ZIP at repository root. If source packaging blindly traverses the entire repo, the next Source ZIP may recursively include its own archived source and private provenance files. Establish explicit packaging inclusion/exclusion and deterministic metadata **before** enabling release automation.
+
 **Maintenance rule:** this template is expected to evolve in small reviewable documentation commits after each migration and each confirmed issue.

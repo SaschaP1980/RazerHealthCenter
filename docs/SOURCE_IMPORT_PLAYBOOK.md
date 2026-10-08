@@ -1,6 +1,6 @@
 # RHC v3.0.8 — Safe source import playbook
 
-**State:** current GitHub repository is initialized with governance, but **the complete source has not yet been imported**. Follow [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1) and [migration status](MIGRATION_STATUS.md). This playbook does **not** authorize a release or Razer repair action.
+**Historical playbook — completed via PR #2.** All 321 original sources were verified and merged at `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`; both hosted Linux and Windows passed in [run #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046). Retain the procedures below as reproducible migration history; they are **not** an instruction to repeat the already-completed import or authorize a release/repair. Current state: [migration status](MIGRATION_STATUS.md).
 
 ## Preconditions
 
