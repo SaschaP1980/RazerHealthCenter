@@ -13,6 +13,7 @@ import sys
 
 from rhc_release_contracts import SEMVER, VERSION_PATTERN, require
 from rhc_orchestration_contracts import validate_candidate
+from rhc_release_transaction import assess_candidate_recovery
 
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 WORK = re.compile(r"work/RHC-([1-9][0-9]*)\Z")
@@ -114,7 +115,54 @@ def remote_version(ref):
     return model_version(remote_model(ref))
 
 
+
+def inspect_candidate_recovery():
+    """Read-only inspection; NEVER retry uncertain Candidate API writes."""
+    work_branch = os.environ.get("WORK_BRANCH", "")
+    work_sha = os.environ.get("WORK_SHA", "")
+    require(WORK.fullmatch(work_branch) and SHA.fullmatch(work_sha),
+            "invalid recovery Work source")
+    require(os.environ.get("GH_TOKEN"), "recovery requires read-only GitHub token")
+    main_sha = gh("GET", "/branches/main")["commit"]["sha"]
+    actual_work = gh("GET", "/git/ref/heads/" + work_branch)["object"]["sha"]
+    commit = gh("GET", "/git/commits/" + work_sha)
+    version = model_version(remote_model(work_sha))
+    ref = gh("GET", "/git/ref/heads/candidate/v" + version, optional404=True)
+    target_sha = ref.get("object", {}).get("sha") if ref else None
+    target_parent = None
+    candidate_work = None
+    statuses = []
+    run_state = "not-started" if target_sha is None else "unknown"
+    if target_sha:
+        candidate_commit = gh("GET", "/git/commits/" + target_sha)
+        parents = candidate_commit.get("parents", [])
+        target_parent = parents[0]["sha"] if len(parents) == 1 else None
+        source = re.findall(r"^Work-SHA: ([0-9a-f]{40})$", candidate_commit.get("message", ""), re.M)
+        candidate_work = source[0] if len(source) == 1 else None
+        statuses = gh("GET", "/commits/" + target_sha + "/statuses")
+        latest = {record.get("context"): record for record in reversed(statuses)
+                  if record.get("context") in (
+                      "rhc/preflight/linux","rhc/preflight/windows","rhc/preflight/candidate")}
+        if (len(latest) == 3 and all(x.get("state") == "success" and
+                x.get("creator", {}).get("login") == "github-actions[bot]"
+                for x in latest.values())):
+            run_state = "success"
+    verdict = assess_candidate_recovery(dict(
+        mainSha=main_sha, expectedMainSha=os.environ.get("EXPECTED_MAIN_SHA"),
+        workSha=actual_work, expectedWorkSha=work_sha,
+        candidateSha=target_sha, candidateParentSha=target_parent,
+        candidateWorkSha=candidate_work, candidateVersion=version,
+        statuses=statuses, runState=run_state))
+    verdict.update(candidateSha=target_sha, mainSha=main_sha,
+                   workSha=work_sha, version=version)
+    print("RHC_CANDIDATE_RECOVERY=" + json.dumps(verdict, sort_keys=True))
+    return verdict
+
+
 def main():
+    if os.environ.get("RHC_CANDIDATE_RECOVERY") == "READ_ONLY":
+        inspect_candidate_recovery()
+        return
     branch = os.environ.get("WORK_BRANCH", "")
     expected = os.environ.get("WORK_SHA", "")
     require(WORK.fullmatch(branch) is not None

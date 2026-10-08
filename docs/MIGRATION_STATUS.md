@@ -157,3 +157,7 @@ RHC-12 implements a read-only catalog/ZIP checksum validator, staging helpers, a
 ## RHC-16 — app version namespace changes to MAJOR.MINOR.PATCH.HOTFIX (2026-10-08)
 
 Latest owner instruction moves **current app/reference version** from historical three-part v3.0.8 to four-part **v3.0.8.0**, without publication. Historical 321-file source archive SHA, fingerprint and pinned v3.0.8 EXE hash are immutable, validated on the original exact SHA rather than silently rebaselined to new bytes. QA `downloads/qa/RazerHealthCenter-Portable-v3.0.8-TEST-UNSIGNED.zip` remains original with unchanged SHA, while future official `candidate/v3.0.8.1` and `release/v3.0.8.1` refer to four-digit versions (with `hotfix` profile semantics). Engine / legacy History and third-party Razer versions remain unaffected. No main/latest release advance is implied by this schema migration.
+
+## RHC-20 release automation 2026-10-08
+
+The real v3.0.8.1 Candidate was qualified on GitHub Actions; production promotion intentionally failed. New Candidate recovery and Release PR/ZIP/status controllers exist without actual publication. Main ruleset ID 24701145 still lacks required PR/status checks; owner-admin configuration and real hardware/rollback/signed-or-unsigned consent remain external Issue #22 gates. Historical v3.0.8 QA binaries/metadata and `downloads/latest.json` remain untouched.

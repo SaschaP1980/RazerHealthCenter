@@ -1,0 +1,69 @@
+name: RHC Owner-Authorized Release PR Stage (RHC-22 only)
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact four-part approved release version
+        type: string
+        required: true
+      candidate_sha:
+        description: Exact verified Candidate SHA
+        type: string
+        required: true
+      main_sha:
+        description: Exact authorized current main SHA
+        type: string
+        required: true
+      owner_comment_id:
+        description: Exact GitHub Issue 22 Owner approval comment ID
+        type: string
+        required: true
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  statuses: read
+  issues: read
+concurrency:
+  group: rhc-release-stage-${{ inputs.version }}
+  cancel-in-progress: false
+jobs:
+  owner-bound-stage:
+    if: github.actor == 'SaschaP1980' && github.repository == 'SaschaP1980/RazerHealthCenter'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RHC_REAL_PUBLICATION_APPROVED: EXPLICIT_OWNER_RHC22
+      VERSION: ${{ inputs.version }}
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      EXPECTED_MAIN_SHA: ${{ inputs.main_sha }}
+      ISSUE_COMMENT_ID: ${{ inputs.owner_comment_id }}
+      GOPROXY: off
+      GOSUMDB: off
+      GOTOOLCHAIN: local
+      GOFLAGS: -buildvcs=false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Verify source SHA, build independent PE and stage only after owner hard-gates
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bash build.sh "$RUNNER_TEMP/release-build1"
+          bash build.sh "$RUNNER_TEMP/release-build2"
+          cmp -s "$RUNNER_TEMP/release-build1/RazerHealthCenter.exe" "$RUNNER_TEMP/release-build2/RazerHealthCenter.exe"
+          python3 -B tools/rhc_release_live.py stage \
+            --root . --exe-a "$RUNNER_TEMP/release-build1/RazerHealthCenter.exe" \
+            --exe-b "$RUNNER_TEMP/release-build2/RazerHealthCenter.exe" \
+            --version "$VERSION" --candidate-sha "$CANDIDATE_SHA" \
+            --main-sha "$EXPECTED_MAIN_SHA" --owner-comment-id "$ISSUE_COMMENT_ID" \
+            --published-utc "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo 'RHC_RELEASE_STAGE=OWNER_BOUND_PR_ONLY; NOT YET MERGED'

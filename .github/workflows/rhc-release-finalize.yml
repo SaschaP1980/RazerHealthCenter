@@ -1,0 +1,44 @@
+name: RHC Owner-Authorized Release PR Finalize (RHC-22 only)
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: Exact release/vX.Y.Z.H branch with verified source and ZIP
+        required: true
+        type: string
+      release_sha:
+        description: Exact release PR HEAD SHA with three green release contexts
+        required: true
+        type: string
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: read
+  issues: read
+  actions: read
+concurrency:
+  group: rhc-release-finalize-${{ inputs.release_branch }}
+  cancel-in-progress: false
+jobs:
+  authorize-merge-and-verify:
+    if: github.actor == 'SaschaP1980' && github.repository == 'SaschaP1980/RazerHealthCenter'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RHC_REAL_PUBLICATION_APPROVED: EXPLICIT_OWNER_RHC22
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_SHA: ${{ inputs.release_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Independent exact-SHA status, Owner evidence, immutable ZIP and tag gates
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          python3 -B tools/rhc_release_finish.py \
+            --root . --release-branch "$RELEASE_BRANCH" --release-sha "$RELEASE_SHA"
+          echo 'RHC_RELEASE_POSTMERGE_REMOTE_READBACK=PASS'
