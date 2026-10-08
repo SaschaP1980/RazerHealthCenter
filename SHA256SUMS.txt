@@ -1,0 +1,5 @@
+218368d3fdeb8101bc87bcab40bb20aba8837719a9b6b35287f782dce4198fe5  IMPORT-TO-RHC-GITHUB.md
+af66ea97ec097a703ebd9e7c66d02333c75cc054ffca8cb97e19f08865a2396e  RHC-v3.0.8-original-source-manifest.json
+f2f973acf587b4334f6b90b4418a0d953641fb706188bd354e0577a97a86d495  Razer-Synapse-Chroma-Health-Center-Source-v3.0.8.zip
+9f6d2161585db5e3b99f085b42e7e91654124994f27cfb3cdbad5a7003396bcb  tools/import_source_archive.py
+2a63d03394fdd75fbf27faef1682445bb15d628e8ea016d216f7cae449eae3bb  tools/verify_source_intake.py
