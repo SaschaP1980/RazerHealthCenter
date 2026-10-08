@@ -1,39 +1,53 @@
-name: RHC Release Contract Rehearsal (read-only)
+name: RHC-20 Isolated Real-Byte Release Rehearsal (nonpublishing)
 on:
-  workflow_dispatch:
   push:
     branches:
-      - 'work/RHC-3'
+      - 'work/RHC-*'
     paths:
+      - 'tools/rhc_release_rehearsal.py'
+      - 'tests/test_rhc_release_rehearsal_contracts.py'
       - '.github/workflows/rhc-release-rehearsal.yml'
-      - 'config/rhc-release-policy.json'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  contract:
+  isolated-rehearsal:
+    name: Two real PE builds and isolated seven-file ZIP staging
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Adversarial release contract and disabled production check
-        shell: bash
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Python isolated release contracts and historical downloads
         run: |
           set -euo pipefail
-          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
-          python3 - <<'PY'
-          import json,sys
-          sys.path.insert(0,'tools')
-          from rhc_orchestration_contracts import publication_policy
-          policy=json.load(open('config/rhc-release-policy.json'))
-          assert policy['productionEnabled'] is False
-          try:
-              publication_policy(policy)
-          except ValueError as e:
-              assert 'disabled' in str(e),e
-              print('RHC_RELEASE_ACTIVATION_BLOCKED=PASS')
-          else:
-              raise RuntimeError('UNSAFE: production release authorization accepted')
-          PY
-          echo 'RHC_RELEASE_REHEARSAL=PASS (no tag/push/release/activation)'
+          python3 -m unittest discover -s tests -p 'test_rhc_release_rehearsal_contracts.py' -v
+          python3 -B tools/rhc_downloads.py --downloads downloads
+      - name: Build independent PE binaries, stage disposable immutable index, reject tampering
+        env:
+          GOPROXY: off
+          GOSUMDB: off
+          GOTOOLCHAIN: local
+          GOFLAGS: '-buildvcs=false'
+        run: |
+          set -euo pipefail
+          bash build.sh "$RUNNER_TEMP/rhc-build-one"
+          bash build.sh "$RUNNER_TEMP/rhc-build-two"
+          cmp -s "$RUNNER_TEMP/rhc-build-one/RazerHealthCenter.exe" "$RUNNER_TEMP/rhc-build-two/RazerHealthCenter.exe"
+          python3 -B tools/rhc_release_rehearsal.py \
+            --root . \
+            --first-exe "$RUNNER_TEMP/rhc-build-one/RazerHealthCenter.exe" \
+            --second-exe "$RUNNER_TEMP/rhc-build-two/RazerHealthCenter.exe" \
+            --stage-root "$RUNNER_TEMP/rhc20-release-sandbox" \
+            --source-sha "$(git rev-parse HEAD)"
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          test ! -e downloads/latest.json
+          test "$(find downloads -maxdepth 1 -name '*.zip' | wc -l)" -eq 0
+          echo 'RHC20_REAL_BYTE_SANDBOX_REHEARSAL=PASS; no public release'

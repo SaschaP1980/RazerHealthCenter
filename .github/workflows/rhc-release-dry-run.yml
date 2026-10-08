@@ -2,7 +2,7 @@ name: RHC-5 Release State Dry Run (read-only)
 on:
   push:
     branches:
-      - 'work/RHC-5'
+      - 'work/RHC-*'
   pull_request:
     branches:
       - main
@@ -39,11 +39,11 @@ jobs:
           assert policy['distribution'] == 'repo-downloads'
           assert policy['signingDecision'] == 'unknown'
           assert policy['rollbackVerified'] is False
-          m=pathlib.Path('model.go').read_text()
-          assert re.search(r'appVersion\s*=\s*"3\.0\.8\.0"',m)
-          assert re.search(r'referenceVersion\s*=\s*"3\.0\.8\.0"',m)
           sys.path.insert(0,'tools')
+          from rhc_release_contracts import version_from_model
           from rhc_orchestration_contracts import publication_policy
+          version=version_from_model('.')
+          print('RHC5_CURRENT_SOURCE_VERSION='+version)
           try:
               publication_policy(policy)
           except ValueError as exc:

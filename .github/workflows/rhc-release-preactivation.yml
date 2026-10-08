@@ -1,0 +1,69 @@
+name: RHC-12 Release Preactivation Evidence Check (read-only)
+on:
+  push:
+    branches:
+      - 'work/RHC-*'
+    paths:
+      - 'tools/rhc12_release_plan.py'
+      - 'tests/test_rhc_release_preactivation_contracts.py'
+      - '.github/workflows/rhc-release-preactivation.yml'
+      - 'config/rhc-release-policy.json'
+      - 'downloads/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/rhc12_release_plan.py'
+      - 'tests/test_rhc_release_preactivation_contracts.py'
+      - '.github/workflows/rhc-release-preactivation.yml'
+      - 'config/rhc-release-policy.json'
+      - 'downloads/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rhc12-preactivation-${{ github.sha }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  read-only-gates:
+    name: Verify immutable downloads and current release policy rejection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Verify archived QA and public downloads remain immutable and empty
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_downloads.py --downloads downloads
+      - name: Exercise RHC12 release preactivation adversarial fixtures
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests \
+            -p 'test_rhc_release_preactivation_contracts.py' -v
+      - name: Prove real current production policy cannot qualify fixture
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import sys
+          sys.path[:0] = ['tests', 'tools']
+          from rhc12_release_plan import evaluate
+          from test_rhc_release_preactivation_contracts import case
+          policy = json.loads(pathlib.Path('config/rhc-release-policy.json').read_text())
+          sample = case()
+          sample['policy'] = policy
+          try:
+              evaluate(sample)
+          except ValueError as exc:
+              if str(exc) != 'production releases disabled by policy':
+                  raise
+          else:
+              raise AssertionError('UNSAFE: current production release policy accepted')
+          print('RHC12_REAL_PRODUCTION_POLICY=BLOCKED; fixture evidence is not hardware, signing or rollback acceptance')
+          PY

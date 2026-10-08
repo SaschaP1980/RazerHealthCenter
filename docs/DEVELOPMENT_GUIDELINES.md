@@ -1,5 +1,7 @@
 # RHC — Development guidelines
 
+> **Variante B / 2026-10-08:** [RHC-20](https://github.com/SaschaP1980/RazerHealthCenter/issues/20) umfasst die vollständig geprüfte **technische, bis zur gesonderten Freigabe nichtpublizierende** Candidate-/Release-Automatisierung. Native Razer-Geräteabnahme, Rollback-/First-Release-Recovery, konkrete Source-/ZIP-gebundene Signatur-/Unsigned-Owner-Zustimmung und tatsächliche Produktionsaktivierung/Erstveröffentlichung liegen **ausschließlich in [Issue #22](https://github.com/SaschaP1980/RazerHealthCenter/issues/22)**. Die GitHub-Schließreferenz darf erst im letzten vollständig technisch GREEN geprüften PR aktiviert werden und ausschließlich #20, **niemals #22**, schließen oder die reale Produktionspolicy automatisch freigeben. Der Owner führt keine manuellen GitHub Reviews für normale, technisch qualifizierte PRs durch; Merge und Cleanup sind autonom nach tatsächlichen Gates. `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false` bleiben bis zu getrennten externen Belegen gültig.
+
 > **Target operating contract; production release automation is not ready until the migration acceptance gates are met.**
 
 ## Authority
