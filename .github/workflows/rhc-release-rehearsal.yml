@@ -1,0 +1,39 @@
+name: RHC Release Contract Rehearsal (read-only)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'work/RHC-3'
+    paths:
+      - '.github/workflows/rhc-release-rehearsal.yml'
+      - 'config/rhc-release-policy.json'
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Adversarial release contract and disabled production check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
+          python3 - <<'PY'
+          import json,sys
+          sys.path.insert(0,'tools')
+          from rhc_orchestration_contracts import publication_policy
+          policy=json.load(open('config/rhc-release-policy.json'))
+          assert policy['productionEnabled'] is False
+          try:
+              publication_policy(policy)
+          except ValueError as e:
+              assert 'disabled' in str(e),e
+              print('RHC_RELEASE_ACTIVATION_BLOCKED=PASS')
+          else:
+              raise RuntimeError('UNSAFE: production release authorization accepted')
+          PY
+          echo 'RHC_RELEASE_REHEARSAL=PASS (no tag/push/release/activation)'

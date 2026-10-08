@@ -11,7 +11,7 @@ on:
     paths:
       - '.github/workflows/rhc-infrastructure-ci.yml'
       - 'tools/rhc_release_contracts.py'
-      - 'tests/test_rhc_release_contracts.py'
+      - 'tests/test_rhc_*_contracts.py'
       - 'docs/RHC_CICD_ARCHITECTURE.md'
   workflow_dispatch:
 
@@ -41,7 +41,7 @@ jobs:
           set -euo pipefail
           python3 -B tools/verify_source_intake.py --root .
           python3 -B tools/rhc_release_contracts.py --root .
-          python3 -m unittest discover -s tests -p 'test_rhc_release_contracts.py' -v
+          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
           python3 -B tools/rhc_release_contracts.py --root . --base-version 3.0.8 \
             && { echo 'RHC_FAIL_CLOSED_VIOLATION: unchanged version was accepted'; exit 1; } \
             || echo 'RHC_CANDIDATE_BASELINE_REJECTED=PASS'
@@ -108,7 +108,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python -B tools/verify_source_intake.py --root .
           if ($LASTEXITCODE -ne 0) { throw 'Original source-byte inventory differs on Windows' }
-          python -m unittest discover -s tests -p test_rhc_release_contracts.py -v
+          python -m unittest discover -s tests -p test_rhc_*_contracts.py -v
           if ($LASTEXITCODE -ne 0) { throw 'Release contract tests failed on Windows' }
       - name: Actual PowerShell 5.1 parser and read-only safety tests
         shell: powershell
