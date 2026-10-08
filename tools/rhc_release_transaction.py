@@ -150,7 +150,8 @@ def _verified_release_pr_scope(snapshot, expected_state):
     """Check the same exact four-file release diff before and after a real merge."""
     pr = snapshot.get("pr", {})
     version = snapshot["version"]
-    expected = sorted(("downloads/README.md", "downloads/releases.json",
+    expected = sorted(("model.go", "CHANGELOG.md",
+                       "downloads/README.md", "downloads/releases.json",
                        "downloads/latest.json",
                        "downloads/RazerHealthCenter-Portable-v" + version + ".zip"))
     require(pr.get("state") == expected_state
