@@ -82,6 +82,14 @@ def verify_merged_release(*, main_before, release_sha, candidate_sha,
             "public ZIP bytes do not match approved ZIP hash")
     latest = json.loads(blob_bytes(after["downloads/latest.json"]))
     catalog = json.loads(blob_bytes(after["downloads/releases.json"]))
+    previous_index = before.get("downloads/releases.json")
+    require(hash40(previous_index), "previous release history index missing")
+    previous = json.loads(blob_bytes(previous_index))
+    require(isinstance(previous.get("releases"), list)
+            and isinstance(catalog.get("releases"), list)
+            and len(catalog["releases"]) == len(previous["releases"]) + 1
+            and catalog["releases"][1:] == previous["releases"],
+            "postmerge immutable previous release history changed")
     require(latest == catalog["releases"][0]
             and latest["version"] == version
             and latest["sourceSha"] == candidate_sha
