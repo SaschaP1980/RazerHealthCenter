@@ -1,0 +1,15 @@
+# Razer Health Center — generated, local or machine-specific outputs.
+/dist/
+/portable-stage/
+/build/
+/__pycache__/
+*.pyc
+*.pyo
+/.pytest_cache/
+*.exe
+*.exe.sha256
+.DS_Store
+Thumbs.db
+
+# Keep historical source-provided validation reports and logs deliberately,
+# but never add new private exported runtime/user diagnostic dumps.
