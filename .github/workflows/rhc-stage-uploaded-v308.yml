@@ -147,7 +147,7 @@ jobs:
         run: |
           set -euo pipefail
           remote="$(git ls-remote origin refs/heads/import/RHC-1-v3.0.8 | cut -f1)"
-          test "$remote" = 'f9f5afd5988d451a42419f8ff2b5d2df10c540b1' || {
+          test "$remote" = "$GITHUB_SHA" || {
             echo "SOURCE_STAGE_BLOCKED: import branch moved"; exit 1;
           }
           basic="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
