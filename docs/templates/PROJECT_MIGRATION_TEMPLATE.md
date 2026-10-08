@@ -139,6 +139,22 @@ for name in required:
         name=name, color=color, description=description
     )
 
+# Fail closed on ALL pre-existing name/metadata drift BEFORE the first POST.
+# This is deliberately earlier than the post-write verification below:
+# otherwise other missing labels might already have been created.
+drift = [
+    row["name"] for key, row in wanted.items()
+    if key in existing and (
+        str(existing[key].get("color") or "").casefold() != row["color"].casefold()
+        or existing[key].get("description") != row["description"]
+    )
+]
+if drift:
+    raise SystemExit(
+        "BLOCKED: existing label definition(s) differ; zero changes made: "
+        + ", ".join(drift)
+    )
+
 missing = [wanted[n.casefold()] for n in required if n.casefold() not in existing]
 print(json.dumps({"target": target, "missing": missing}, ensure_ascii=False, indent=2))
 for row in missing:
@@ -165,6 +181,22 @@ PY
 ~~~
 
 **Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine canonical names exist, colors and descriptions match (with the one documented project-code substitution), and a second execution reports `created=0`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic `gh issue edit --add-label` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
+
+### If the GitHub connector cannot manage repository labels
+
+**Observed RHC-5 migration follow-up (2026-10-08):** The connected GitHub integration did not expose a repository-label creation/listing action, and its generic read endpoint rejected `GET /repos/{owner}/{repo}/labels` as unsupported. This was an **integration capability limitation**, not a failed label POST or a GitHub repository merge/branch-protection failure. Do not interpret a generic `400` from that connector as proof that the actual GitHub REST endpoint is unavailable.
+
+**Recommended order:** First use the executable `gh api` block above from an explicitly authorized operator environment with target label-management permissions. If the connected environment has no authenticated `gh`/terminal access, a **single-purpose temporary GitHub Actions workflow** is a permissible, separately authorized provisioning transport. Do not grant an existing read-only validation workflow permanent write privileges, and do not use `gh issue edit --add-label` to work around absent repository labels.
+
+For a one-time Actions fallback:
+
+1. Confirm the target repository, current `main` SHA, donor catalog, expected missing-label names, correct `PROJECT_CODE`, and that creating labels is authorized. Do not automatically relabel any existing Issues. Keep the existing source/package/release policy untouched.
+2. Add a **temporary** `.github/workflows/<PROJECT_CODE-lowercase>-label-provision-once.yml` to the target with `permissions: contents: read, issues: write`, a specific one-time `workflow_dispatch` confirmation or SHA-scoped push trigger, `GH_TOKEN: ${{ github.token }}`, `TARGET_REPO` and `PROJECT_CODE` set to the intended target, and a short timeout. Execute the **same Python code shown above** in a runner step (copy its Python body into a `python3 - <<'PY'` heredoc); no repository checkout or artifact upload is needed if embedded inline. The `issues: write` scope is necessary for label creation, not for GitHub Releases.
+3. Verify the Actions job **completed successfully** and inspect its actual JSON summary: `created`, `present`, `mismatchedExistingOrPostwrite`. A queued/skipped workflow is not PASS. Check the exact labels and adapted descriptions using an independent fresh GitHub API read; if an existing label mismatches, the corrected script now blocks **before any POST**. An interrupted/ambiguous write must be reconciled by reading the catalog before retrying.
+4. When successful, **delete the temporary write-enabled workflow in a separate commit**, re-read `main`, and compare the final Git tree with the pre-bootstrap tree. The labels persist as GitHub repository metadata even though the short-lived workflow file is removed. No permanent CI write permission should remain.
+5. Re-running the provisioner should produce `created=0` with nine present labels; test this only if the same authorized execution access remains available. If not actually rerun, record idempotence as a **code contract**, not a tested historical fact.
+
+**Actual RHC evidence:** [one-time label workflow run #37757322836](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37757322836) completed successfully: six missing labels created, nine present, zero metadata deviations. The workflow was then removed in [cleanup commit `919592e`](https://github.com/SaschaP1980/RazerHealthCenter/commit/919592eac51b4a3946fa395e30c9dc175c792df6); final Git tree matched the pre-provisioning tree. A second provisioning execution was **not** claimed. This is a successful alternate transport with an observed documentation/safety improvement, not a label provisioning failure.
 
 ## Stage 2 — Validate the original product before import
 
@@ -253,5 +285,7 @@ After every genuine problem, add **observed symptom → evidence → root cause 
 23. **Exact heartbeat timestamps must be captured, not inferred:** a rolling GitHub Issue comment's `Last heartbeat` is an actual, fresh ISO 8601 UTC edit timestamp including seconds and milliseconds. Obtain current time from a checked clock, update the existing comment in place, and verify GitHub's `updated_at` after write. Never substitute a date-only `YYYY-MM-DD`, the Issue's `created_at`, an unrelated workflow event or the statement that 'GitHub timestamps are authoritative' for a real heartbeat. A few seconds of edit/write latency are expected and should not be misrepresented as an exact GitHub event time. If no verified clock is available, record time as unknown and identify the missing evidence.
 
 24. **Static workflow concurrency can silently replace pending Work evidence:** `cancel-in-progress: false` protects an already running job but a later pending event can cancel an earlier pending event sharing a global concurrency group. In RHC-5 several intermediate Infrastructure runs ended `cancelled` with zero jobs during rapid commits; these are neither PASS nor an application-test failure. Key validation concurrency to an exact SHA/event when independent checkpoint evidence matters, freeze the final Work head, and qualify it through actual completed Linux and Windows jobs.
+
+25. **Connector label APIs may be unavailable even when GitHub labels work:** the GitHub connector rejected label-list requests and offered no repository-label-create action, so RHC used a temporary least-privilege Actions job executing the canonical `gh api` provisioning script. It added six missing labels and validated nine, then its write-enabled workflow was removed without changing the final Git tree. Generalize this fallback in the migration guide, and validate **existing-label drift before any POST** (the first template only checked after creation); late checks can leave partial metadata mutations. Do not claim a second idempotence run without evidence. [Successful run #37757322836](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37757322836).
 
 **Maintenance rule:** this template is expected to evolve in small reviewable documentation commits after each migration and each confirmed issue.
