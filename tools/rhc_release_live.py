@@ -26,8 +26,9 @@ from rhc_release_transaction import (
 
 OWNER = "SaschaP1980"
 REPO = OWNER + "/RazerHealthCenter"
-MAIN_CONTEXTS = ["rhc/infra/linux", "rhc/infra/windows",
-                 *RELEASE]
+# Main branch rules apply to all PRs. Release-only contexts remain an
+# independent exact-SHA prerequisite enforced in rhc_release_finish.py.
+MAIN_CONTEXTS = ["rhc/infra/linux", "rhc/infra/windows"]
 
 
 def gh(method, endpoint, payload=None, allow404=False):
