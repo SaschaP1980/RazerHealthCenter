@@ -1,0 +1,74 @@
+Razer Synapse + Chroma Health Center v3.0.5 - Final Build Validation
+======================================================================
+
+Scope
+-----
+Fix the Health Center false-green gap where the base 13-gate Health Engine can
+PASS while the official Razer prod manifest defines Synapse/Chroma product
+registrations that are not locally readable. Health Engine 1.4.6 remains
+unchanged. The new app-level composition guard converts a base PASS AppEngine
+gate to UNKNOWN and the final overall result to UNCLEAR / PRÜFUNG UNVOLLSTÄNDIG.
+Version differences remain INFO-only and manifest/network unavailability has no
+Health impact.
+
+Observed regression basis
+-------------------------
+The supplied v3.0.4 diagnostic package showed:
+- all 13 base gates PASS;
+- RazerAppEngine active;
+- official Razer prod manifest resolved successfully;
+- both manifest-defined product registry mappings unreadable;
+- installedSynapse="" / installedChroma="" and both version states UNKNOWN.
+The v3.0.4 UI nevertheless finalized GESUND. v3.0.5 closes this composition gap.
+
+RED -> GREEN
+------------
+Canonical v3.0.4 against tools/validate_v305_false_green_guard.py:
+  2/21 PASS, exit 1 (expected RED)
+
+v3.0.5:
+  21/21 PASS (GREEN)
+
+Retained regression gates
+-------------------------
+Guided/live calibration:                 44/44 PASS
+Guided Flow:                             13/13 PASS
+Guided UX:                               20/20 PASS
+Rounded tray menu:                       10/10 PASS
+Historical measurement details:          21/21 PASS
+Historical session/archive lifecycle:    17/17 PASS
+Archive header polish:                   22/22 PASS
+Archive surface tint:                     9/9 PASS
+Diagnostic/repair platform:              24/24 PASS
+Manifest authority:                      20/20 PASS
+False-green guard:                       21/21 PASS
+Healthcheck/UI:                           28/28 PASS
+Connection presentation:                 10/10 PASS
+Structured failure details:              11/11 PASS
+Gate applicability/finalization:         14/14 PASS
+Live Performance:                        13/13 PASS
+PowerShell Encoding:                      7/7 PASS
+Log Evidence:                            13/13 PASS
+Static UI/diagnostics/setup/repair/ref: 103/103 PASS
+
+Additional build gates
+----------------------
+go test .:                                PASS
+i18n guard:                              PASS
+Windows amd64 go vet:                    PASS
+Windows amd64 CGO=0 GUI build:           PASS
+Resource patch:                          PASS
+PE validation:                           PASS
+
+Release EXE SHA-256
+-------------------
+90171e2c85f1770393f4a8f450353dc76a359de5e06354821cb0f0ee28159381
+
+Core component SHA-256
+---------------------
+Health Engine 1.4.6: a50203129512b912dee148a572079c928d4964686defaf6b855b544fff889970
+Setup Scanner 1.0.6: 8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Chroma Diagnostic Module 1.0.0: 6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+Chroma Repair Recipe 1.1.0: 4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+versioncheck.go: 4317079025c0117571a653a11f08ec95b08376f749b3cbd017d0c87fb41e60ec
+health_application_guard.go: d3d320f5971525ceba0f793d308ce4b750a43d4eadb91ce959f22a1082574dee

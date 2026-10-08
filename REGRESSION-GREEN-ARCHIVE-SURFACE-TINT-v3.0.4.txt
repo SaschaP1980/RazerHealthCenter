@@ -1,0 +1,10 @@
+PASS: app/reference version 3.0.4
+PASS: catalog version 3.0.4
+PASS: locale metadata version 3.0.4
+PASS: archive surface is exact 4-percent preblend
+PASS: old 6-percent archive surface is absent
+PASS: archive comment documents roughly 4 percent
+PASS: historical card still uses archive surface
+PASS: v3.0.4 validator is build gated
+PASS: v3.0.3 archive semantics validator remains build gated
+v3.0.4 archive surface tint regression: 9/9 PASS

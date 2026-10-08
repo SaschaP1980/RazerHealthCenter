@@ -1,0 +1,143 @@
+Razer Synapse + Chroma Health Monitor v2.3.1
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.1
+- Health Engine: 1.4.3
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.0)
+- Fast Setup Live Probe: 1.0.1
+- Repair Engine: 1.0.0 (byte-identical to v2.3.0)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 321 UI keys
+
+Native v2.3.0 bug evidence
+--------------------------
+The first native Windows acceptance run of v2.3.0 showed:
+- RegisterDeviceNotificationW registration succeeded.
+- the startup fast live refresh then failed before presence publication with:
+  "Cannot overwrite variable PID because it is read-only or constant."
+- root cause: PowerShell variables are case-insensitive. Local write targets named
+  $pid in setup-razer-live-v1.0.0.ps1 collided with the read-only automatic $PID
+  process variable.
+
+Mandatory RED -> GREEN regression proof
+---------------------------------------
+RED on the unmodified v2.3.0 production source before the fix:
+- setup/setup-razer-live-v1.0.0.ps1: one direct $pid assignment
+- setup/setup-razer-live-v1.0.0.ps1: three foreach($pid ...) write targets
+- health-engine-v1.4.2.ps1: one latent fallback $pid assignment in
+  Test-ConnectionUsesRazerStack
+- targeted regression guard result: FAIL as required
+
+GREEN after the v2.3.1 fix:
+- Fast Live Probe 1.0.1 uses $devicePid for all local PID variables.
+- Health Engine 1.4.3 uses $devicePid in the same fallback; gate/evidence semantics
+  are unchanged from 1.4.2.
+- tools/test_powershell_reserved_pid.py now discovers actual production payloads
+  from runtime embed references plus active setup/repair payloads and rejects any
+  future assignment/foreach target colliding with reserved $PID.
+- build.sh executes this regression guard before all other validators.
+- targeted regression guard result: PASS.
+
+v2.3.1 live/device-change architecture
+--------------------------------------
+Unchanged from v2.3.0 except for the PowerShell reserved-variable fix:
+- persisted presentAtScan is historical until a current-session live refresh succeeds
+- startup with a valid inventory automatically runs the known-PID PresentOnly probe
+- known-PID live refresh avoids Registry history, DriverStore and INF traversal
+- current USB-root product identity must verify to stored productKey before presence
+  publication
+- RegisterDeviceNotificationW / WM_DEVICECHANGE events only trigger debounced
+  re-verification and are never identity/role evidence
+- probe-level errors fail closed
+- Acid Green means current verified live presence only
+- legacy inventories can recover mouse/keyboard presentation from stored PnP/HID
+  evidence without PID/model mappings or persistence rewrite
+
+Guided connection learning
+--------------------------
+Unchanged from v2.3.0:
+- product-specific fast baseline -> wait for Windows device event -> target delta probe
+- target probe may discover a previously unknown present PID only after current root
+  identity verifies to the selected productKey
+- Wired requires exactly one new verified connection
+- Wireless excludes the already-known HIGH wired connection and requires exactly one
+  remaining verified target connection
+- ambiguity, weak identity or explicit descriptor-role conflict writes no history
+- passive topology/incidental-transition role production remains disabled
+
+PID / identity / role safety
+----------------------------
+PASS: active Setup production logic has no known endpoint PID/model constants
+PASS: built EXE raw-byte scan has no known Viper/BlackWidow endpoint PID/model constants
+PASS: observed PIDs remain runtime inventory/history data only
+PASS: deviceClass uses generic PnP evidence, not PID/model mappings
+PASS: ContainerId remains supporting evidence, not a product merge key
+PASS: generic product identity prefers root BusReportedDeviceDesc
+PASS: Windows device events are triggers only, never semantic evidence
+PASS: live identity is reverified before presence publication
+PASS: guided calibration remains fail-closed on ambiguity/conflict
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard
+PASS: i18n catalog / placeholders (321 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 95/95
+PASS: 81/81 icon assets byte-identical to v2.3.0
+PASS: PE resource source payload byte-identical to v2.3.0
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.0
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.0
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: final Source ZIP integrity
+PASS: fresh extraction of final Source ZIP builds a byte-identical internal EXE
+
+Native acceptance status
+------------------------
+v2.3.1 specifically corrects the native startup failure observed in v2.3.0. The
+corrected fast live probe, subsequent WM_DEVICECHANGE presence refresh and the
+same probe inside event-driven guided learning still require native Windows
+acceptance on the user's system; this record does not claim those runtime checks
+were executed in the Linux cross-build environment.
+
+Hashes
+------
+Release internal EXE SHA-256:
+8985515f417604c181f3eee05144f2d8834d6a76e90555960399ef7a2febb663
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Fast Setup Live Probe 1.0.1 source SHA-256:
+d4f4ea7ac71ebaa5038d90120bd887327667bc530b8662d976edcbb829e651ef
+Fast Setup Live Probe runtime UTF-8-BOM SHA-256:
+4127a2f6ae4cef1d9f86539fdc602a7858b99d0dea16ab8879d1f778e1541ef3
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+c50adb499841efcb75c691e4f79859b05282992a3312c8dd4d587292813e6bd0

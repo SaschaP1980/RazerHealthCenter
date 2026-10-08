@@ -1,0 +1,10 @@
+FAIL: app/reference version 3.0.4
+FAIL: catalog version 3.0.4
+FAIL: locale metadata version 3.0.4
+FAIL: archive surface is exact 4-percent preblend
+FAIL: old 6-percent archive surface is absent
+FAIL: archive comment documents roughly 4 percent
+PASS: historical card still uses archive surface
+FAIL: v3.0.4 validator is build gated
+PASS: v3.0.3 archive semantics validator remains build gated
+v3.0.4 archive surface tint regression: 2/9 PASS

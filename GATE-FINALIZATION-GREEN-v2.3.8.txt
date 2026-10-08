@@ -1,0 +1,15 @@
+PASS: app version 2.3.8
+PASS: health engine version 1.4.5
+PASS: Gate 3 evaluates issues rather than requiring positive count
+PASS: Gate 3 zero-requirement detail is explicit
+PASS: Gate 3 emits structured INFO when not applicable
+PASS: real Kernel driver FAIL/UNKNOWN remains gate determining
+PASS: Gate 3 JSON checks remain mapped to UI inspection
+PASS: final snapshot sanitizer exists
+PASS: completed health worker uses final snapshot sanitizer
+PASS: detail status reads live final display
+PASS: structured failure detail regression is in build gate
+PASS: finalization regression is in build gate
+PASS: new structured field labels are localized
+PASS: no endpoint PID/model-specific semantics added
+v2.3.8 Gate applicability/finalization checks: 14/14

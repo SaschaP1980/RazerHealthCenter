@@ -1,0 +1,4 @@
+# Canonical v3.0.8 source was delivered as a byte-frozen ZIP inventory.
+# Prevent platform-specific Git checkout from changing LF/CRLF or binary bytes.
+# Source integrity is verified by 321 file SHA-256 values on Linux and Windows.
+* -text

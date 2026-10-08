@@ -1,0 +1,93 @@
+Razer Synapse + Chroma Health Center v3.0.0
+Build Validation
+============================================================
+
+Release architecture
+--------------------
+App: 3.0.0
+Health Engine: 1.4.5
+Setup Scanner: 1.0.6
+Fast Setup Live Probe: 1.1.0 (native SetupAPI)
+Diagnostic Orchestrator: 1.0.0
+Problem Catalog: 1.0.0
+Chroma deep diagnostic module: 1.0.0 (read-only)
+Repair Engine / Catalog: 2.0.0
+Chroma repair recipe: 1.1.0
+Device Inventory Schema: 2
+Connection History Schema: 2
+VersionStatus Schema: 3
+ExportManifest Schema: 4
+Runtime locale: de-DE
+UI catalog keys: 371
+
+Mandatory safety contract
+-------------------------
+PASS: No repair is automatic.
+PASS: Every repair definition requires explicit user confirmation.
+PASS: UAC is additional and does not replace in-app confirmation.
+PASS: Diagnostic orchestrator has no repair-execution path.
+PASS: Deep diagnostic module is read-only.
+PASS: Unknown causes remain UNCLASSIFIED and cannot select a repair.
+PASS: Repair helper validates problem ID, recipe ID, payload integrity and output confinement.
+PASS: Repair success requires post-repair read-only verification; exit code 0 alone is insufficient.
+
+RED -> GREEN platform regression
+--------------------------------
+RED: pristine v2.4.0 = 2/24 PASS, validator exit 1 (expected).
+GREEN: v3.0.0 = 24/24 PASS, validator exit 0.
+Validator: tools/validate_v300_diagnostic_repair_platform.py
+
+Release gates
+-------------
+PASS: reserved PowerShell $PID guard
+PASS: i18n validation (371 keys)
+PASS: repair safety / helper confinement / confirmation invariant / read-only deep diagnostics
+PASS: setup inventory validation
+PASS: Guided/Live calibration 44/44
+PASS: Guided Flow 13/13
+PASS: Guided UX 20/20
+PASS: Tray Menu 10/10
+PASS: Historical measurement details 21/21
+PASS: v3.0.0 diagnostic/repair platform 24/24
+PASS: Healthcheck/UI selection 28/28
+PASS: Connection Presentation 10/10
+PASS: Structured Failure Details 11/11
+PASS: Gate Applicability/Finalization 14/14
+PASS: Live Performance 13/13
+PASS: PowerShell Encoding 7/7
+PASS: Version Check validation
+PASS: AppEngine/Log Evidence architecture 13/13
+PASS: Go tests
+PASS: i18n presentation-hardcode guard
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE resource patch and validation
+PASS: UI/Diagnostics/Setup/Repair/Reference 103/103
+
+Final build
+-----------
+Build command: ./build.sh <release-build-directory>
+Build exit: 0
+Measured build-gate wall time: 12.94 s
+Final executable: RazerHealthCenter.exe
+Final EXE SHA-256:
+74c7938aaadb18182e990ef4286d0cf0bc63af80426e142d92264fe88a5342ba
+
+Component SHA-256
+----------------
+Health Engine 1.4.5:
+324c482db4a22502742338d3dd2cf8266c6f4c505d834b40305ef3016601e12e
+
+Setup Scanner 1.0.6:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+
+Chroma diagnostic module 1.0.0:
+6f7d101c60261f9b5888f3de89b7de1ec5a5673e703131a5d285f9c4e9609bac
+
+Chroma repair recipe 1.1.0:
+4d3dd3244f761866c34ad0edb9f29e6bec3b7ead0edcfe3d93566c009b6c0a51
+
+Native Windows acceptance
+-------------------------
+Not yet performed for v3.0.0. Cross-build/static/regression validation is complete.
+The natively accepted baseline before this release is v2.4.0.

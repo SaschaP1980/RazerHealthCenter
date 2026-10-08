@@ -1,0 +1,116 @@
+Razer Synapse + Chroma Health Monitor v2.2.4
+Build validation record
+Date: 2026-09-10
+
+Release scope
+-------------
+- App version: 2.2.4
+- Health Engine: 1.4.2 (unchanged)
+- Setup Scanner: 1.0.3
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2 (backward-compatible enrichment)
+- Connection History schema: 1 (new)
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+
+PID-free device identity architecture
+-------------------------------------
+The active Setup production path no longer contains any endpoint PID constant
+that assigns a product identity or a wired/wireless role.
+
+Present Razer endpoint PIDs are discovered generically from VID 1532 PnP/CIM,
+registry and DriverStore evidence. For each present PID, Setup Scanner 1.0.3
+queries only the physical USB root with Get-PnpDeviceProperty and prefers
+DEVPKEY_Device_BusReportedDeviceDesc as the identity. Matching normalized bus
+identities are grouped into one end product even when the observed connections
+use different PIDs or ContainerIds.
+
+The prior VerifiedConnectionTypes table and the four-state BlackWidow PID-role
+marker are removed from active production code. The old scanner source is kept
+only under docs/setup-history and is not part of the embedded Runtime/setup
+production payload.
+
+Generic connection-role learning
+--------------------------------
+Connection role is evidence/confidence based rather than PID based:
+- explicit dongle/receiver or wired/cable transport text => HIGH confidence;
+- paired HID-collection topology asymmetry => MEDIUM confidence;
+- a later one-path/two-path transition of the same learned pair can promote the
+  established topology roles to HIGH confidence;
+- equal-rank contradictory non-explicit evidence => role-evidence-conflict and
+  generic usb-device; no guessed role is emitted.
+
+Persistent app-owned learning is stored in:
+  Setup/RazerConnectionHistory-v1.json
+
+Observed PIDs are stored there only as runtime data/fingerprint keys. Reuse of a
+historical role is guarded by matching productKey, so a reused PID cannot import
+an unrelated product's role.
+
+Performance architecture
+------------------------
+The diagnostic 1.0.3-identity-debug prototype queried many properties for every
+HID/USB interface and was intentionally slow. Production Setup Scanner 1.0.3
+uses one root-only Get-PnpDeviceProperty call per present PID. HID collection /
+interface counts are computed from the Get-PnpDevice enumeration already needed
+by the normal scanner, avoiding the deep per-interface property sweep.
+
+Native evidence represented by the generic algorithm
+----------------------------------------------------
+The controlled v2.2.3 identity experiments showed that the two simultaneously
+present connection paths of the tested Viper model shared one bus-reported
+product identity while exposing HID collection counts 5 vs 6. The tested
+BlackWidow model likewise shared one bus-reported product identity while
+exposing HID collection counts 7 vs 10. The production implementation encodes
+neither product name nor PID; it only uses the generic identity/topology rules.
+
+Unchanged health/evidence architecture
+--------------------------------------
+Health Engine 1.4.2 remains capability-driven and read-only. The v2.2.3
+PRIMARY/RUNTIME/SUPPORTING AppEngine evidence-role architecture is unchanged.
+Gates 7, 10 and 11 remain direct-source driven; SUPPORTING log evidence cannot
+independently promote health severity.
+
+Validation
+----------
+PASS: i18n catalog / placeholders (293 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / role-learning confinement
+PASS: active Setup Scanner contains no known endpoint PID/model constants
+PASS: active embedded Setup directory contains exactly one scanner source (1.0.3)
+PASS: built EXE string scan contains no known endpoint PID/model constants
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 92/92
+PASS: 81/81 icon assets SHA-256-identical to v2.2.3
+PASS: PE resource payload identical to v2.2.3
+PASS: Health Engine 1.4.2 unchanged
+PASS: Repair Engine 1.0.0 unchanged
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: Source ZIP integrity
+PASS: clean rebuild from the complete final Source ZIP produces a byte-identical internal EXE
+
+Hashes
+------
+Release internal EXE SHA-256:
+74b09c7d9b15eedf2768ce8c47b7ace9254556c3d19bb28abf2a1bc020490945
+
+Health Engine 1.4.2 source SHA-256:
+627189dbddecc38397b24223cbf79f1e6b79f9b00f4c70ffdf9e52ec48a88a57
+Health Engine runtime UTF-8-BOM SHA-256:
+9cc46613e28a8e05361450ac9c9e4350918ca8e5d85dfcfc7b15ff84050eb507
+
+Setup Scanner 1.0.3 source SHA-256:
+75f74ecb44a038be5090141de876ad15f506be9eee78caea869536651930597c
+Setup Scanner runtime UTF-8-BOM SHA-256:
+b9f05e65683d6bc2a1201058f8f14ad46202b103df4aa4d3f73ccc0eb591b862
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a

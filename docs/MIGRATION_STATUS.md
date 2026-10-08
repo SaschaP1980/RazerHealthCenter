@@ -38,8 +38,8 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | --- | --- | --- |
 | M0 | Intake hashes, ZIP integrity, safe extraction and independent local EXE reproduction | **PASS (local)** |
 | M1 | Empty GitHub repository initialized with migration docs, Issue and reusable template | **PASS — GitHub commits and exact trees verified** |
-| M2 | Complete reviewed source tree imported to GitHub with original content byte equality | **BLOCKED / not imported** |
-| M3 | GitHub-hosted source intake reproduces the golden EXE; Linux and Windows checks | **NOT RUN** |
+| M2 | Complete reviewed source tree imported to GitHub with original content byte equality | **STAGED: 321/321 bytes in Draft PR #2; merge and hosted approval still open** |
+| M3 | GitHub-hosted source intake reproduces the golden EXE; Linux and Windows checks | **CORRECTION UNDER TEST — first full-source run revealed deterministic build/checkout differences** |
 | M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **NOT IMPLEMENTED** |
 | M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **NOT CONFIGURED / NOT VERIFIED** |
 | M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
@@ -76,6 +76,15 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 - GitHub log also showed a Node.js 20 deprecation warning for `actions/checkout@v4` and `actions/setup-go@v5`. The PR now uses SHA-pinned Node 24 versions, `checkout v7.0.1`/`setup-go v7.0.0`. Hosted [run #37736021306](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37736021306) reproduced the expected missing-source failures, with **no such Node 20 warning**.
 - The complete import cannot be pushed from the available container: `git ls-remote` failed DNS resolution of github.com; connector writes are suitable for ordinary text/Git objects but do not provide a verified 4.6 MB binary-archive transfer. A full locally verified GitHub import kit is available as a conversation artifact; an authenticated computer with Git network access must push the reviewed source to this Draft PR.
 - **All source/hosted-build PASS claims remain BLOCKED.** Do not merge Draft PR #2, tag, or publish until all 321 exact source files exist on the PR branch and both hosted OS gates PASS.
+
+## Owner upload and verified branch-source staging
+
+- The owner uploaded the canonical `Razer-Synapse-Chroma-Health-Center-Source-v3.0.8.zip`, 321-file original inventory, SHA256SUMS and handover to public `main` in `f789132d31bb7e96b4fdca5d4ed0510fdbc2a3c7`. This is archive material, not yet individual canonical files on `main`.
+- One-shot [run #37737103537](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737103537) verified the uploaded ZIP SHA-256 and all 321 per-file bytes/fingerprint, merged the owner's current `main` into `import/RHC-1-v3.0.8`, imported 321 files plus a 321-file manifest, and **pushed the exact source files to Draft PR #2**. No production release/tag was created.
+- Earlier staging [run #37737052502](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737052502) failed at the final push guard because it compared against an outdated branch SHA rather than the triggering commit; corrected to an exact `GITHUB_SHA` lease, then reverified. This was an orchestration implementation defect, not source data failure.
+- Full-source [qualification run #37737117960](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737117960) verified Linux source manifest PASS (321 files). Windows strict manifest check failed on `BUILD-FULL-v3.0.6.log` because Git Windows checkout applied line-ending normalization; original Git blob SHA matches the source ZIP byte-for-byte. The next Candidate explicitly uses `.gitattributes: * -text` to preserve source bytes across operating systems.
+- Linux full source `build.sh` source/regression tests ran, but the EXE SHA mismatched the golden reference. Controlled local Go 1.23.2 characterization proved the cause: builds inside Git repositories automatically include Go VCS metadata, whereas the golden source-archive EXE does not. Building with `GOFLAGS=-buildvcs=false` restored the exact golden EXE SHA `6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a`. CI now sets the flag explicitly without altering product source or build.sh.
+- The transient write-capable staging workflow is removed from the proposed final source tree after its successful import. The permanent **read-only, nonpublishing** source-intake workflow is re-executed on the exact final PR commit; previous failed runs remain evidence, not accepted gates.
 
 ## Next action
 

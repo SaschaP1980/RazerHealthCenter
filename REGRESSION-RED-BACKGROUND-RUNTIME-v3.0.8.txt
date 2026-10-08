@@ -1,0 +1,21 @@
+FAIL | app version 3.0.8
+FAIL | diagnostic module version 1.0.2
+FAIL | diagnostic script name 1.0.2
+FAIL | diagnostic asset exists
+FAIL | script module version 1.0.2
+FAIL | PS51 native arrays retained
+FAIL | systray evidence
+FAIL | background-manager evidence
+FAIL | lighting-engine evidence
+FAIL | generic device middleware evidence
+FAIL | dashboard evidence retained as supporting
+FAIL | healthy requires persistent background contract
+PASS | healthy does not require synapse dashboard renderer
+PASS | healthy does not require chroma dashboard renderer
+FAIL | missing systray still prevents healthy
+PASS | no PID-specific runtime requirement
+FAIL | Go exposes new evidence fields
+FAIL | read-only contract retained
+FAIL | validator build gated
+FAIL | locale and manifest version 3.0.8
+3/20 PASS

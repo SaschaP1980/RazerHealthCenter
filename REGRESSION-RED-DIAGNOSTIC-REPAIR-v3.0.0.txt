@@ -1,0 +1,25 @@
+FAIL: app version 3.0.0
+FAIL: Health Center product rename
+FAIL: Health Center executable packaging
+FAIL: problem platform source exists
+FAIL: structured ProblemFinding model
+FAIL: problem catalog versioned
+FAIL: unclassified findings supported
+FAIL: diagnostic orchestrator versioned
+FAIL: read-only Chroma diagnostic module
+FAIL: diagnostic module has no mutation commands
+FAIL: runtime embeds diagnostics
+FAIL: health run invokes diagnostic orchestrator
+FAIL: problem findings persisted per measurement
+FAIL: measurement collection recognizes findings
+FAIL: repair catalog exists
+FAIL: all repair definitions require confirmation
+FAIL: known Gate 8 problem id
+FAIL: Gate 8 maps to repair recipe
+FAIL: repair helper accepts recipe id
+FAIL: repair audit records explicit confirmation
+FAIL: post-repair diagnostic verification
+PASS: no automatic repair from orchestrator
+PASS: safety model forbids automatic repairs
+FAIL: v3 validator build-gated
+v3.0.0 diagnostic/repair platform: 2/24 PASS

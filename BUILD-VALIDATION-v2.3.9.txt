@@ -1,0 +1,278 @@
+PASS: no reserved $PID write collision in 3 production PowerShell payload(s)
+i18n catalog keys: 342
+i18n static Go keys: 245; plural bases: 3
+i18n validation: PASS
+repair safety: PASS
+repair helper confinement: PASS
+setup inventory validation: PASS
+PASS: app/scanner versions
+PASS: native live probe version
+PASS: native SetupAPI enumeration
+PASS: live PowerShell removed from active setup
+PASS: known PID target set
+PASS: present USB roots only
+PASS: root identity verification
+PASS: target-product discovery native
+PASS: native probe diagnostics
+PASS: probe errors fail closed
+PASS: pnp burst debounce generation
+PASS: pnp active follow-up bounded
+PASS: device notification registration
+PASS: wm device change
+PASS: arrival/removal events
+PASS: startup live refresh
+PASS: debounced event refresh
+PASS: historical snapshot not green
+PASS: snapshot wording
+PASS: old inventory class recovery
+PASS: wizard state machine
+PASS: wizard arms native baseline
+PASS: wizard waits for OS event
+PASS: unrelated event ignored
+PASS: wired exact delta
+PASS: wireless excludes wired role
+PASS: wireless flow derives from device profile
+PASS: mouse wireless remains event driven
+PASS: non-mouse wireless requires confirmation
+PASS: confirmation cannot auto-complete on device event
+PASS: confirmation is user initiated
+PASS: confirmation has distinct evidence source
+PASS: confirmation rejects still-active wired path
+PASS: identity fail closed
+PASS: explicit evidence conflict
+PASS: runtime role history
+PASS: guided sources
+PASS: history pid candidates
+PASS: no automatic post-learning full scan
+PASS: new pid metadata is advisory only
+PASS: wizard skip supported
+PASS: guided UI localized
+PASS: passive topology roles disabled
+PASS: no endpoint PID/model semantics
+guided/live calibration checks: 44/44
+PASS: wireless confirmation stage exists
+PASS: flow is device-profile driven
+PASS: mouse keeps automatic cable transition
+PASS: non-mouse defaults to explicit confirmation
+PASS: confirmation stage cannot be auto-completed by WM_DEVICECHANGE
+PASS: explicit wireless confirmation action exists
+PASS: confirmed wireless evidence is distinct
+PASS: confirmation requires learned wired path to be absent
+PASS: confirmation UI explains optional hardware switch
+PASS: completion no longer launches full setup scan
+PASS: skip completion no longer launches full setup scan
+PASS: new PID metadata remains explicit advisory
+PASS: no known endpoint PID/model rule
+guided flow v2.3.6 regression checks: 13/13
+PASS: app version 2.3.9
+PASS: health engine version 1.4.5
+PASS: active-product helpers
+PASS: zero-active inventory remains valid
+PASS: participation persisted atomically
+PASS: setup rescan preserves known participation
+PASS: new products retain active default
+PASS: merged preferences staged before inventory replacement
+PASS: whole-row toggle patches participation
+PASS: toggle invalidates current health result
+PASS: column renamed HEALTHCHECK
+PASS: status labels match active state
+PASS: inactive icon/status grey and active Acid Green
+PASS: device rows have hover treatment
+PASS: device row click toggles participation
+PASS: connection presence rendering independent of Healthcheck participation
+PASS: setup scan blocked when all products inactive
+PASS: custom in-app setup notice modal
+PASS: no-active-device modal message
+PASS: health start blocked when no product active
+PASS: health engine filters products and connections by participation
+PASS: unattributed global logical product IDs cannot leak excluded products into Gate 12
+PASS: guided device skip function and UI
+PASS: device skip and step skip remain distinct
+PASS: device skip localized
+PASS: lower setup action subtexts shortened
+PASS: v2.3.9 regression validator is part of build gate
+PASS: no product/PID-specific semantics added to Healthcheck selection
+v2.3.9 Healthcheck/UI regression checks: 28/28
+PASS: typed display uses role before PID in summary
+PASS: typed display uses role before PID in table
+PASS: table no longer draws PID before learned role
+PASS: connection sort helper exists
+PASS: wired sorts before wireless
+PASS: unknown or untyped connections sort last
+PASS: table uses sorted product connections
+PASS: text summary uses sorted product connections
+PASS: stable tie break by PID
+PASS: live present still colors entire typed entry green
+v2.3.9 connection presentation regression: 10/10
+PASS: fixture contains final failed Gate 3
+PASS: fixture contains structured Gate 3 failure
+PASS: Gate 3 ownership maps Kernel drivers checks
+PASS: normal structured-finding renderer exists
+PASS: failure/unknown renderer uses actual JSON value
+PASS: failure/unknown renderer uses expected JSON value
+PASS: failure/unknown renderer uses detail JSON value
+PASS: failure/unknown renderer uses section/source JSON value
+PASS: full expansion is limited to FAIL or UNKNOWN
+PASS: normal popover uses structured renderer
+PASS: generic no-structured fallback is guarded by zero checks
+v2.3.8 structured failure details regression: 11/11
+PASS: app version 2.3.9
+PASS: health engine version 1.4.5
+PASS: Gate 3 evaluates issues rather than requiring positive count
+PASS: Gate 3 zero-requirement detail is explicit
+PASS: Gate 3 emits structured INFO when not applicable
+PASS: real Kernel driver FAIL/UNKNOWN remains gate determining
+PASS: Gate 3 JSON checks remain mapped to UI inspection
+PASS: final snapshot sanitizer exists
+PASS: completed health worker uses final snapshot sanitizer
+PASS: detail status reads live final display
+PASS: structured failure detail regression is in build gate
+PASS: finalization regression is in build gate
+PASS: new structured field labels are localized
+PASS: no endpoint PID/model-specific semantics added
+v2.3.9 Gate applicability/finalization checks: 14/14
+PASS: native SetupAPI DLL
+PASS: present USB enumerator
+PASS: instance IDs native
+PASS: bus descriptor native
+PASS: no powershell live subprocess
+PASS: no active live ps1
+PASS: known PID filtering before property probe
+PASS: native target discovery
+PASS: quiet-window generation debounce
+PASS: only one active follow-up
+PASS: performance diagnostics
+PASS: native diagnostic JSON
+PASS: runtime advertises native
+live performance checks: 13/13
+PASS: current health engine 1.4.5 hash
+PASS: health engine remains utf8 without bom
+PASS: runtime adds utf8 bom execution copy
+PASS: runtime writes normalized engine copy
+PASS: powershell console output forced utf8
+PASS: health invocation uses command prelude
+PASS: powershell paths single quote escaped
+PowerShell encoding checks: 7/7
+version check validation: PASS
+PASS: fixed tail is explicitly runtime-only
+PASS: checks carry evidence-role metadata
+PASS: module log evidence is classified as supporting
+PASS: module log evidence is informational, not health severity
+PASS: gate 7 severity uses direct registry evidence only
+PASS: gate 10 severity uses direct service evidence only
+PASS: gate 11 severity uses direct RzCom evidence only
+PASS: PowerShell gate severity excludes supporting evidence generically
+PASS: raw diagnostic excludes supporting evidence generically
+PASS: Go result model preserves evidence role
+PASS: Go gate display ignores supporting evidence generically
+PASS: Go gate inspection scopes are direct-source for gates 7/10/11
+PASS: module-log absence/parse/version state cannot create UNKNOWN/WARN/FAIL
+Log evidence architecture checks: 13/13
+ok  	razerhealthmonitor	(cached)
+PASS: no presentation string literals in UI/tray/modal sinks
+resource relocated 0x73c000->0xc86000; data_entries=11; SizeOfImage=0xca2000
+PASS: amd64 GUI, sections=16, .rsrc RVA=0xc86000, SizeOfImage=0xca2000, resource entries=11
+PASS: v2.3.9 version
+PASS: canonical source no recovered app version
+PASS: de runtime locale
+PASS: language switch disabled
+PASS: de source of truth
+PASS: de embedded locale
+PASS: golden sidebar width
+PASS: golden header height
+PASS: larger sidebar icons
+PASS: ping pong pulse helper
+PASS: high resolution info heart
+PASS: localized progress semantics
+PASS: progress not gate name
+PASS: gate progress name
+PASS: detail left accent
+PASS: detail failed red
+PASS: large detail close font
+PASS: detail close hover
+PASS: detail viewport clip
+PASS: raw variable block height
+PASS: raw word wrap
+PASS: raw pixel scrolling
+PASS: raw clip region
+PASS: raw labels from i18n
+PASS: popover consumes interior clicks
+PASS: whole middle viewport scroll
+PASS: scrollbar drag state
+PASS: scrollbar live mouse move
+PASS: scrollbar capture
+PASS: escape closes detail
+PASS: vector export icon
+PASS: vector open folder icon
+PASS: history overall normalized
+PASS: double buffer memory dc
+PASS: double buffer bitmap
+PASS: single publish BitBlt
+PASS: erase suppression
+PASS: TrackMouseEvent
+PASS: all gates canonical checking
+PASS: engine output metadata
+PASS: engine separate stderr
+PASS: schema 4 export
+PASS: export manifest
+PASS: app session paths
+PASS: startup debug
+PASS: ui trace exported
+PASS: ui trace heartbeat
+PASS: tray result uses i18n
+PASS: custom export modal uses i18n
+PASS: gate names from i18n
+PASS: gate details from i18n
+PASS: window title from i18n
+PASS: app name from i18n
+PASS: structured runtime root
+PASS: structured runtime asset dirs
+PASS: portable structured runtime dirs
+PASS: safety model file
+PASS: repair source present
+PASS: repair/setup embedded
+PASS: repair runtime path
+PASS: repair helper main
+PASS: repair narrow gate
+PASS: repair target allowlist
+PASS: repair exact eligibility
+PASS: repair UAC
+PASS: repair result audit
+PASS: repair 5 second check
+PASS: repair modal
+PASS: repair recheck action
+PASS: repair i18n keys
+PASS: version check source
+PASS: version check async
+PASS: version check does not alter health
+PASS: appengine version domains separate
+PASS: version status exported
+PASS: version ui
+PASS: version local product metadata
+PASS: version domain guard
+PASS: info footer widened security
+PASS: setup view first
+PASS: setup health gate
+PASS: setup persistent profile
+PASS: setup runtime script
+PASS: setup exported
+PASS: setup guided calibration action
+PASS: setup progress animation
+PASS: setup debug exported
+PASS: device gate generic
+PASS: setup present typed entry color
+PASS: setup inventory fade
+PASS: setup device-class icons
+PASS: setup live role and PID acid green
+PASS: setup live per-row refresh overlay
+PASS: setup live refresh overlays text band
+PASS: setup live refresh hides stale cell text
+PASS: setup live refresh animation timer
+PASS: gate4 contextual connection presentation
+PASS: detail bottom scroll reserve
+PASS: logs wheel hint removed
+PASS: info cyan
+PASS: info no pseudo expected
+PASS: powershell runtime bom shim
+PASS: powershell stdout utf8
+v2.3.9 static recovery/reference checks: 103/103

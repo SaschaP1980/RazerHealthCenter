@@ -66,3 +66,4 @@ if __name__ == '__main__':
     except Exception as exc:
         print('RHC_SOURCE_INTAKE_MANIFEST=FAIL: '+str(exc), file=sys.stderr)
         sys.exit(1)
+

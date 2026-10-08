@@ -1,0 +1,22 @@
+FAIL: app/reference version 3.0.5
+FAIL: overall incomplete state exists
+FAIL: official manifest registration states are explicit
+FAIL: registry errors retained per product
+FAIL: application health guard exists
+FAIL: guard uses official manifest mappings
+FAIL: manifest network failure has no health impact
+PASS: version difference does not drive health guard
+FAIL: unreadable registration becomes UNKNOWN
+FAIL: only passing AppEngine gate is downgraded by guard
+FAIL: health run resolves manifest in parallel
+PASS: guard applied before final snapshot/diagnostic orchestrator
+FAIL: final diagnostic JSON is patched
+FAIL: GateResult final result is patched
+FAIL: assessment sidecar is measurement-addressable
+FAIL: UNKNOWN gate makes live overall incomplete
+FAIL: incomplete measurement persists UNCLEAR
+FAIL: incomplete tray state is explicit
+FAIL: incomplete summary does not claim functional health
+FAIL: registration strings localized
+FAIL: validator build-gated
+v3.0.5 false-green guard: 2/21 PASS

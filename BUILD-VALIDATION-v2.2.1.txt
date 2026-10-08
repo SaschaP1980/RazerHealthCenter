@@ -1,0 +1,85 @@
+Razer Synapse + Chroma Health Monitor v2.2.1
+Build validation record
+Date: 2026-09-09
+
+Release scope
+-------------
+- App version: 2.2.1
+- Health Engine: 1.4.0 (unchanged from v2.2.0)
+- Setup Scanner: 1.0.1
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 1
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+
+Setup Scanner 1.0.1
+-------------------
+Productionizes the native-tested v1.0.4 debug scanner logic:
+- no PowerShell $PID automatic-variable collision
+- Windows PowerShell 5.1-safe array materialization before JSON object construction
+- OrderedDictionary-safe product grouping through dictionary indexers
+- StrictMode-safe optional Registry FriendlyName/DeviceDesc/Service/Mfg access
+- read-only VID_1532 PnP/CIM/SignedDriver/Registry/DriverStore discovery
+- no hardcoded Viper/BlackWidow/PID 00C1/02C9/02CC/product 716 requirements
+- latest scanner debug JSON/TXT persisted and copied to session Diagnostics
+
+Native pre-release scanner evidence from the user's Windows system:
+- Razer Viper V3 Pro discovered as current PID 00C1
+- Razer BlackWidow V4 Low-profile HyperSpeed discovered as current PID 02C9
+- BlackWidow alternate/historical PID 02CC associated through local Windows metadata
+- Setup profile accepted by the v2.2.0 host as 2 products / 3 known connection paths
+
+Setup UI/workflow
+-----------------
+- Setup is first sidebar view above Status
+- Setup view contains only Setup-Scan action; duplicate Systemprüfung action removed
+- Systemprüfung is initiated from Status only
+- Status start without inventory automatically starts Setup and resumes Health after success
+- Setup scanning uses a continuously animated indeterminate cyan progress bar
+- Setup timer is stopped on completion and handed cleanly to Health when auto-continuing
+
+Validation
+----------
+PASS: i18n catalog / placeholders (291 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / device-domain confinement
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 92/92
+PASS: 81/81 icon assets SHA-256-identical to v2.2.0
+PASS: PE resource payload identical to v2.2.0
+PASS: Health Engine 1.4.0 unchanged
+PASS: Repair Engine 1.0.0 unchanged
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: Source ZIP integrity
+PASS: clean rebuild from the complete final Source ZIP produces a byte-identical internal EXE
+
+Hashes
+------
+Release internal EXE SHA-256:
+22d89f04fb7c94f6ec3d654e959adc6400526a52a1d9ce85d5e406ff82885a4e
+
+Health Engine 1.4.0 source SHA-256:
+25e63ec39d0812c92447e61059906d9bcd8abf1a5d194b8b8f1d069ad2c38b33
+Health Engine runtime UTF-8-BOM SHA-256:
+f37cb5e82bb81518fe2a3f0d9d21558c2b92c7db94a6451ace2d1b8bca3ed4c5
+
+Setup Scanner 1.0.1 source SHA-256:
+8ddb3655d6f7f70ce6145cf8f44442ac6050686a693fb4285f19191cb3e0b9b9
+Setup Scanner runtime UTF-8-BOM SHA-256:
+437944473b1266e3db0f87c1fcf6b54a8b83447460013f9b16fbf0a50735b3fe
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Release note
+------------
+The scanner logic has native Windows evidence. The final packaged v2.2.1 EXE itself
+still requires the normal native smoke test for Setup progress UI, Status->Setup->Health
+auto-continuation, and diagnostic export of SetupScannerDebug artifacts.

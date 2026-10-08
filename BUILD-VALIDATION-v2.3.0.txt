@@ -1,0 +1,123 @@
+Razer Synapse + Chroma Health Monitor v2.3.0
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.0
+- Health Engine: 1.4.2 (unchanged)
+- Setup Scanner: 1.0.6
+- Fast Setup Live Probe: 1.0.0
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 321 UI keys
+
+v2.3.0 live presence / device-change architecture
+-----------------------------------------------
+- Persisted presentAtScan is historical until a current-session live refresh succeeds.
+- App startup with a valid inventory automatically runs the fast known-PID live probe.
+- Known-PID refresh uses current PresentOnly PnP evidence and avoids Registry history,
+  DriverStore and INF traversal.
+- A present connection is published live only after current USB-root product identity
+  verifies to the stored productKey.
+- RegisterDeviceNotificationW subscribes the Win32 window to device-interface changes.
+- WM_DEVICECHANGE arrival/removal/node-change events are debounced and only trigger
+  re-verification; the event itself is never identity or role evidence.
+- PnP event bursts can queue one follow-up refresh so an early transient probe cannot
+  strand the UI on a settling state.
+- Probe-level errors fail closed and do not publish false absence/presence.
+- Acid Green is based on fresh verified live presence only.
+- Old inventories without deviceClass can recover mouse/keyboard presentation from
+  stored MI_00 / mouhid / kbdhid evidence without changing the persisted inventory.
+
+v2.3.0 guided connection learning
+---------------------------------
+- Verbindungen einlernen reuses the fast live infrastructure.
+- Each selected-product step captures a fast baseline and then waits for a Windows
+  device-change event before running a target-product delta probe.
+- The target probe can discover a currently present PID not yet stored in the inventory,
+  but only after current root identity verifies to the selected productKey.
+- Wired learning requires exactly one unambiguous newly appeared verified connection.
+- Wireless learning excludes the already-known HIGH wired connection and requires
+  exactly one remaining verified target connection.
+- Unrelated device events are ignored.
+- Ambiguous delta, weak/missing identity and explicit descriptor-role conflicts fail
+  closed and do not write Connection History.
+- Successful roles remain HIGH with user-guided-wired-transition /
+  user-guided-wireless-transition.
+- Passive topology/HID asymmetry and incidental everyday transitions remain disabled
+  as role-producing semantics.
+- One normal full Setup scan after a successful guided sequence materializes complete
+  capability/inventory metadata; interactive steps themselves stay on the fast path.
+
+PID / identity / role safety
+----------------------------
+PASS: active Setup production logic has no known endpoint PID/model constants
+PASS: built EXE raw-byte string scan has no known Viper/BlackWidow endpoint PID/model constants
+PASS: observed PIDs remain runtime inventory/history data only
+PASS: deviceClass uses generic PnP evidence, not PID/model mappings
+PASS: ContainerId remains supporting evidence, not a product merge key
+PASS: generic product identity prefers root BusReportedDeviceDesc
+PASS: Windows device events are triggers only, never semantic evidence
+PASS: live product identity is reverified before presence publication
+PASS: guided calibration remains fail-closed on ambiguity/conflict
+
+Validation
+----------
+PASS: i18n catalog / placeholders (321 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 95/95
+PASS: 81/81 icon assets byte-identical to v2.2.6
+PASS: PE resource payload byte-identical to v2.2.6
+PASS: Health Engine 1.4.2 byte-identical to v2.2.6
+PASS: Repair Engine 1.0.0 byte-identical to v2.2.6
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: final Source ZIP integrity
+PASS: fresh extraction of final Source ZIP builds a byte-identical internal EXE
+
+Native acceptance status
+------------------------
+The v2.2.5 guided role-learning workflow was field-tested successfully before this
+release. Native Windows acceptance of v2.3.0 RegisterDeviceNotificationW /
+WM_DEVICECHANGE behavior, startup live presence and event-driven guided learning is
+pending and is not claimed by this record.
+
+Hashes
+------
+Release internal EXE SHA-256:
+dd68ddfb36b2d524ad33ed4a4f06daa64a1433cefd60421d2e7dacea1c806ca3
+
+Health Engine 1.4.2 source SHA-256:
+627189dbddecc38397b24223cbf79f1e6b79f9b00f4c70ffdf9e52ec48a88a57
+Health Engine runtime UTF-8-BOM SHA-256:
+9cc46613e28a8e05361450ac9c9e4350918ca8e5d85dfcfc7b15ff84050eb507
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Fast Setup Live Probe 1.0.0 source SHA-256:
+5246353ded8a87144d6488f6dc8981ec2d106fc148cae647fff8bd0d1425cc4b
+Fast Setup Live Probe runtime UTF-8-BOM SHA-256:
+dfe5c5e838035d3ddc09e166243e30fd39498ebedb18c4c91a8cf249c487f659
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+c97a8da5983dbb69b5ae8db7f61bb5421b3cb401f7062b38307c8c88d59634e8

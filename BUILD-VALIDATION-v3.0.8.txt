@@ -1,0 +1,48 @@
+Razer Synapse + Chroma Health Center v3.0.8 - Build Validation
+
+Scope
+- Fix AppEngine Gate-1 false positive observed on a fully functional steady-state Windows session.
+- AppEngine diagnostic module bumped 1.0.1 -> 1.0.2.
+- Transient win-synapse / win-chroma-app dashboard renderers remain supporting evidence only.
+- HEALTHY requires validated full Synapse+Chroma Run contract, one unambiguous versioned main runtime, systray, background manager, lighting engine and generic device middleware.
+- Missing systray continues to prevent HEALTHY.
+- No PID/product identity is inferred from middleware names.
+- Repair payloads and safety semantics unchanged.
+
+RED -> GREEN
+- v3.0.7 baseline: validate_v308_background_runtime_semantics.py = 3/20 PASS, exit 1.
+- v3.0.8: validate_v308_background_runtime_semantics.py = 20/20 PASS.
+
+Retained validation
+- v3.0.7 PS5.1 diagnostic regression: 19/19 PASS.
+- v3.0.6 AppEngine Recovery regression: 25/25 PASS.
+- v3.0.5 false-green guard: 21/21 PASS.
+- Diagnostic/Repair: 24/24 PASS.
+- Manifest Authority: 20/20 PASS.
+- Healthcheck/UI: 28/28 PASS.
+- Historical Details: 21/21 PASS.
+- Historical Session/Archive: 17/17 PASS.
+- Archive Header: 22/22 PASS.
+- Archive Surface Tint: 9/9 PASS.
+- Guided/live: 44/44 PASS.
+- Guided Flow: 13/13 PASS.
+- Guided UX: 20/20 PASS.
+- Tray: 10/10 PASS.
+- Connection Presentation: 10/10 PASS.
+- Structured Failure: 11/11 PASS.
+- Gate Finalization: 14/14 PASS.
+- Live Performance: 13/13 PASS.
+- PowerShell Encoding: 7/7 PASS.
+- Log Evidence: 13/13 PASS.
+- Static UI/Diagnostics/Setup/Repair/Reference: 103/103 PASS.
+- Go tests PASS; i18n guard PASS; Windows amd64 vet/build PASS; PE validation PASS.
+
+Full validation/build elapsed: 20.20 s.
+
+Key SHA-256
+- Release EXE: 6b48359e6388ee20a0b4974ce1c75ba7c2cd537dc58512e62ed9e6d263529f0a
+- AppEngine Diagnostic 1.0.2: 4ac0f44212a5c53db932f6033a6fa53fa0c60a9b5b7a125f9485e17a39bd6121
+- AppEngine Recovery 1.0.0: ff53cdabcd7c046c25e15ca30419986ace3012532b05e83a9b681e28de6f738a
+- versioncheck.go: 503bf87dc422d039ad3f3eab2ba92b0f46674d202b0634ff1768392823c03627
+- health_application_guard.go: 40eeb9edbb14d00f6455d0df8d712d4df3b63ab131583f647538547797787eea
+- appengine_diagnostic.go: 9c3527d425bf42b35b339edd7e772a8d926f5a4d9ad85f8b424d3e97e8593a61

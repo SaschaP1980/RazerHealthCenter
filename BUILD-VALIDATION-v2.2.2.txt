@@ -1,0 +1,95 @@
+Razer Synapse + Chroma Health Monitor v2.2.2
+Build validation record
+Date: 2026-09-10
+
+Release scope
+-------------
+- App version: 2.2.2
+- Health Engine: 1.4.1
+- Setup Scanner: 1.0.2
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+
+Capability-aware device inventory
+---------------------------------
+Setup Scanner 1.0.2 extends the v2.2 inventory with per-connection driver-domain
+and capability evidence:
+- physical connection presence is separated from RZVIRTUAL/RZCONTROL binding nodes
+- driverStack = windows-inbox or razer-filter
+- Razer-owned INF files are separated from Microsoft/Windows Inbox INF files
+- per-connection capabilities record whether RZVIRTUAL, RZCONTROL, Razer-bound
+  nodes and Upper-/LowerFilters are actually required
+- connectionType includes an evidence source; marketing terms such as HyperSpeed
+  are not used to guess the active connection path
+
+Empirically verified PID roles from four controlled native Windows scans:
+1. Dongle only / keyboard switch Wireless: PID 02C9 present, PID 02CC absent
+2. Cable only / keyboard switch Wire: PID 02C9 absent, PID 02CC present
+3. Dongle + cable / switch Wire: PID 02C9 present, PID 02CC present
+4. Dongle + cable / switch Wireless: PID 02C9 present, PID 02CC absent
+
+Result:
+- PID 02C9 = BlackWidow HyperSpeed Wireless-Dongle path
+- PID 02CC = BlackWidow wired USB path
+- Viper V3 Pro PID 00C1 remained present throughout all four BlackWidow-state tests
+
+The two verified PID-role constants live only in the Setup profile layer. The
+Health Engine contains no BlackWidow/Viper PID/model allowlist.
+
+Health Engine 1.4.1
+-------------------
+Fixes the false FAILED state observed with the first generic inventory:
+- Gate 2 validates only Razer-owned rzdevu_*/rzcommonu.inf DriverStore packages
+- Microsoft Inbox INF files are valid and no longer treated as missing Razer packages
+- Gate 5 requires RZVIRTUAL/RZCONTROL/Razer-bound nodes only when the active
+  connection profile says the Razer filter stack uses them
+- Gate 6 requires Upper-/LowerFilters only when the active connection profile
+  declares device-filter capability
+- Windows-Inbox-HID paths are INFO / not applicable for Gate 5/6 stack-specific checks
+- relevant Razer filter-stack paths continue to receive the full checks
+
+Expected current-system behavior after a fresh schema-2 Setup scan:
+- Viper V3 Pro PID 00C1: healthy Windows-Inbox-HID path; no false RzDev/binding/filter FAIL
+- BlackWidow PID 02C9 or PID 02CC: full RzDev/RZVIRTUAL/RZCONTROL/filter checks when physically active
+- inactive alternate BlackWidow path remains profile evidence and does not fail Live-PnP
+
+Validation
+----------
+PASS: i18n catalog / placeholders (293 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / device-domain / capability confinement
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 92/92
+PASS: 81/81 icon assets SHA-256-identical to v2.2.1
+PASS: PE resource payload identical to v2.2.1
+PASS: Repair Engine 1.0.0 unchanged
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: Source ZIP integrity
+PASS: clean rebuild from the complete final Source ZIP produces a byte-identical internal EXE
+
+Hashes
+------
+Release internal EXE SHA-256:
+14ab361fede02a82bac676c9a8193720669cac66cf630d6f0425dd206ee0a8db
+
+Health Engine 1.4.1 source SHA-256:
+dc1dd63b360c57f387b0fd894ccd81a4cc040c2aa9e30bb1dc5a79d047ad9e69
+Health Engine runtime UTF-8-BOM SHA-256:
+253273977ab9cf4ecdd26d1d62a030d25920fee232b3cceed21a550cd274036c
+
+Setup Scanner 1.0.2 source SHA-256:
+f946b9161df21f4abf62dda635868ad5cfdcdd0be08fb1b1275f3bb9c231892e
+Setup Scanner runtime UTF-8-BOM SHA-256:
+fe7f7ddd93711f4b9d8bdea9d5a7f2db2bf9374053e56ce681db70c6d023c9a8
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a

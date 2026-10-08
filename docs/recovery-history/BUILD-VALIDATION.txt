@@ -1,0 +1,2 @@
+Recovery r7 / RC1 build validation is generated during final packaging.
+See the packaged BUILD-VALIDATION-RC1.txt for measured hashes/check results.

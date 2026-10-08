@@ -1,0 +1,22 @@
+FAIL: app version 2.4.0
+FAIL: historical measurement stores gate snapshot
+FAIL: detail capability is validated from historical engine JSON
+FAIL: old or incomplete measurements remain listable
+FAIL: single historical tab state exists
+FAIL: historical tab state persists across restart
+FAIL: historical UI state can be overwritten repeatedly on Windows
+PASS: table selection and scroll are not persisted
+FAIL: double click opens historical measurement
+FAIL: details button exists and is gated by detail availability
+FAIL: historical tab has close control and two-tab switching
+FAIL: historical tab label uses measurement result color
+FAIL: historical view reuses gate detail popover read-only
+FAIL: historical detail disables repair path
+FAIL: historical Gate 4 avoids current live presentation enrichment
+FAIL: historical package targets opened measurement
+FAIL: historical package excludes current mutable setup snapshots
+FAIL: historical view keeps package and folder actions
+FAIL: current status wording changed
+FAIL: historical status wording exists
+FAIL: validator is build-gated
+v2.4.0 historical measurement regression checks: 1/21

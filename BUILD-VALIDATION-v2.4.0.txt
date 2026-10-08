@@ -1,0 +1,59 @@
+Razer Synapse + Chroma Health Monitor v2.4.0
+Build Validation
+Generated: 2026-09-11
+
+Canonical input baseline
+- Source baseline: v2.3.12
+- App version: 2.4.0
+- Health Engine: 1.4.5 (unchanged)
+- Setup Scanner: 1.0.6 (unchanged)
+- Native Fast Setup Live Probe: 1.1.0 (unchanged)
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE
+- UI keys: 355
+
+Feature regression: historical measurement details
+- RED against pristine v2.3.12: expected FAIL, 1/21 checks PASS
+- GREEN against v2.4.0: 21/21 PASS
+- Includes Windows-repeat-safe UI state persistence check
+
+Build-gated validation results
+- Reserved PowerShell $PID guard: PASS
+- i18n validation: PASS (355 keys)
+- Repair safety + helper confinement: PASS
+- Setup inventory validation: PASS
+- Guided/live calibration: 44/44 PASS
+- Guided flow: 13/13 PASS
+- Guided UX: 20/20 PASS
+- Tray menu v2.3.12 regression: 10/10 PASS
+- Historical measurement v2.4.0 regression: 21/21 PASS
+- Healthcheck/UI regression: 28/28 PASS
+- Connection presentation regression: 10/10 PASS
+- Structured failure details: 11/11 PASS
+- Gate applicability/finalization: 14/14 PASS
+- Live performance: 13/13 PASS
+- PowerShell encoding: 7/7 PASS
+- Version check validation: PASS
+- Log evidence architecture: 13/13 PASS
+- Go tests: PASS
+- i18n presentation literal guard: PASS
+- Windows amd64 go vet: PASS
+- Windows amd64 CGO=0 GUI build: PASS
+- PE resource relocation/patch: PASS
+- PE validation: PASS (amd64 GUI, 16 sections, 11 resource entries)
+- UI/Diagnostics/Setup/Repair/Reference static validation: 103/103 PASS
+
+Build execution note
+The canonical build.sh stages were all executed on the final source state. Because the execution environment limits long single tool calls, the same build.sh stages were run in controlled consecutive batches. No build gate was omitted. The final executable was produced after the last source-code change.
+
+Final release executable
+- RazerHealthMonitor.exe
+- SHA-256: 743abeff1730212f37209a85f56e0413e9fb510d4850c247b649da42d62e7bd9
+
+Native Windows acceptance
+- Not performed in the Linux cross-build environment.
+- Native Windows UI/interaction acceptance remains required, especially for the new historical tab, persistence, double-click, close-X hover, gate details and package export behavior.

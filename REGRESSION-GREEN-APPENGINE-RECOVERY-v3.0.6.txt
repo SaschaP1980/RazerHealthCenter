@@ -1,0 +1,26 @@
+PASS | app version 3.0.6
+PASS | registry view fields
+PASS | explicit registry64
+PASS | explicit registry32
+PASS | registry probe returns view
+PASS | health records registry view
+PASS | appengine diagnostic asset
+PASS | appengine diagnostic runtime
+PASS | appengine diagnostic model
+PASS | appengine health guard
+PASS | appengine problem id
+PASS | appengine repair id
+PASS | appengine repair catalog no elevation
+PASS | appengine repair asset
+PASS | repair no registry mutation
+PASS | repair no service mutation
+PASS | repair full contract
+PASS | repair no broad chroma installer heuristic
+PASS | definition chooses runtime script
+PASS | non elevated repair helper supported
+PASS | repair verification switches by recipe
+PASS | dynamic repair ui
+PASS | appengine locale strings
+PASS | absolute confirmation retained
+PASS | orchestrator cannot auto repair
+25/25 PASS

@@ -1,0 +1,24 @@
+v3.0.7 regression summary
+=========================
+New PS5.1 AppEngine diagnostic contract: 19/19 PASS
+v3.0.6 AppEngine recovery contract:       25/25 PASS
+v3.0.5 false-green guard:                 21/21 PASS
+Diagnostic/repair platform:               24/24 PASS
+Manifest authority:                       20/20 PASS
+Healthcheck/UI:                            28/28 PASS
+Historical details:                       21/21 PASS
+Historical session/archive:               17/17 PASS
+Archive header polish:                     22/22 PASS
+Archive surface tint:                       9/9 PASS
+Guided/live:                               44/44 PASS
+Guided Flow:                               13/13 PASS
+Guided UX:                                 20/20 PASS
+Tray:                                      10/10 PASS
+Connection presentation:                   10/10 PASS
+Structured failure:                        11/11 PASS
+Gate finalization:                          14/14 PASS
+Live Performance:                           13/13 PASS
+PowerShell Encoding:                         7/7 PASS
+Log Evidence:                               13/13 PASS
+Static UI/reference:                       103/103 PASS
+Go tests/vet/build/resource/PE:                 PASS

@@ -1,0 +1,91 @@
+Razer Synapse + Chroma Health Monitor v2.2.0
+Build validation
+Date: 2026-09-09
+
+Toolchain
+---------
+Go: go1.23.2 linux/amd64
+Target: windows/amd64
+CGO_ENABLED=0
+Subsystem: windowsgui
+
+Core versions
+-------------
+App: 2.2.0
+Health Engine: 1.4.0
+Setup Scanner: 1.0.0
+Repair Engine: 1.0.0
+Device Inventory schema: 1
+VersionStatus schema: 3
+ExportManifest schema: 4
+Active locale: de-DE only
+I18n keys: 291
+
+Payload hashes
+--------------
+Health Engine 1.4.0 source SHA-256:
+25e63ec39d0812c92447e61059906d9bcd8abf1a5d194b8b8f1d069ad2c38b33
+Health Engine runtime UTF-8-BOM copy SHA-256:
+f37cb5e82bb81518fe2a3f0d9d21558c2b92c7db94a6451ace2d1b8bca3ed4c5
+Setup Scanner 1.0.0 source SHA-256:
+f0c816aada79a4f1de6b6c306fffc136ae7b595984334ec151aaa7cb318dcd8b
+Setup Scanner runtime UTF-8-BOM copy SHA-256:
+64f270247e6edc53d0d17f811bd5fb49dc37dc59ba02a5969cb187467f83a823
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+PE resource payload SHA-256:
+3b616f5c1b79d42b7ea96acf22421cc7ffa8a359b33e629dbc59c6f28df3c9bc
+Internal release EXE SHA-256:
+6be33678577b71176ea17a14c1d38822a35504682a53571b3e710edc38cb470e
+
+Regression / safety validation
+------------------------------
+PASS - i18n catalog and placeholder validation (291 keys)
+PASS - AST presentation literal guard
+PASS - Repair safety and elevated-helper confinement
+PASS - Setup inventory read-only / device-domain confinement
+PASS - active Health Engine contains no hardcoded 02C9/02CC/BlackWidow/Viper/716 device requirement
+PASS - PowerShell encoding checks 7/7
+PASS - local/online version-check confinement and read-only validation
+PASS - Go unit tests
+PASS - Windows amd64 go vet
+PASS - Windows amd64 GUI build
+PASS - PE/resource validator (amd64 GUI, 16 sections, 11 resource entries)
+PASS - static UI/diagnostic/setup/repair/reference checks 89/89
+PASS - existing 79/79 v2.1.2 icon assets SHA-256-identical
+PASS - two new Setup navigation icons added; total icon assets 81
+PASS - PE resource payload unchanged from v2.1.2
+PASS - Repair Engine 1.0.0 unchanged from v2.1.2
+PASS - Version monitor implementation unchanged from v2.1.2
+
+Setup architecture validation
+-----------------------------
+PASS - SETUP view is first sidebar view, above Status
+PASS - no valid inventory => Health start is blocked and Setup scan starts
+PASS - successful Setup scan can continue the originally requested Health run
+PASS - persistent profile: Setup/RazerDeviceInventory-v1.json
+PASS - scanner discovers generic Razer VID_1532/PID_xxxx endpoints; no endpoint PID allowlist
+PASS - scanner inventories PnP, signed-driver, historical Enum, DriverStore INF and RzDev/RzCommon evidence read-only
+PASS - only products present during Setup become required products; alternate/historical connection paths remain profile evidence
+PASS - Gates 2-6 and product/power evidence consume the inventory profile
+PASS - Gate 4 renamed to Razer Geräte Live-PnP
+PASS - Setup profile and SetupScan session diagnostics included in diagnostic export
+PASS - INFO is dedicated cyan and normal INFO details no longer imply a Soll requirement
+
+Reproducibility
+---------------
+PASS - provisional complete Source ZIP extracted into a fresh directory
+PASS - all validators rerun from that extracted source
+PASS - clean Windows amd64 GUI rebuild from extracted source
+PASS - rebuilt PE/resources validated
+PASS - rebuilt EXE byte-identical to release EXE
+
+The final Source ZIP is validated again after this validation file is included.
+
+Native Windows acceptance still required
+----------------------------------------
+The build/static/reproducibility checks cannot substitute for a native scan of the
+actual Razer installation. The next acceptance step is to run v2.2.0 on Windows,
+perform Setup, verify that BlackWidow, Viper V3 Pro and their relevant connection
+paths/dongles are represented correctly, then run the 13-gate Health check from
+that inventory.

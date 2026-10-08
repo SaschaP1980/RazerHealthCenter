@@ -1,0 +1,11 @@
+FAIL: typed display uses role before PID in summary
+FAIL: typed display uses role before PID in table
+FAIL: table no longer draws PID before learned role
+FAIL: connection sort helper exists
+FAIL: wired sorts before wireless
+FAIL: unknown or untyped connections sort last
+FAIL: table uses sorted product connections
+FAIL: text summary uses sorted product connections
+FAIL: stable tie break by PID
+FAIL: live present still colors entire typed entry green
+v2.3.9 connection presentation regression: 0/10

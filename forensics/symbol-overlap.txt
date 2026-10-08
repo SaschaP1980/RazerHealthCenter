@@ -1,0 +1,4 @@
+Original main symbols: 240
+Recovered build main symbols: 156
+Shared symbol names: 136
+Note: this is not a source-coverage percentage; inlining/helper regrouping changes symbols.

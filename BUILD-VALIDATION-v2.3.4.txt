@@ -1,0 +1,88 @@
+Razer Synapse + Chroma Health Monitor v2.3.4
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.3.4
+- Health Engine: 1.4.3 (byte-identical to v2.3.3)
+- Setup Scanner: 1.0.6 (byte-identical to v2.3.3)
+- Fast Setup Live Probe: 1.0.1 (byte-identical to v2.3.3)
+- Repair Engine: 1.0.0 (byte-identical to v2.3.3)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 328 UI keys
+
+v2.3.4 focused UI correction
+----------------------------
+- During a fast known-PID live refresh, the PID/role cell no longer renders the
+  stale text beneath the Acid-Green sweep.
+- The refresh branch draws only the existing in-band Acid-Green indicator and
+  returns before any PID/role glyph is painted.
+- After refresh completion the indicator disappears and the verified PID plus
+  role label are rendered with the existing live-presence colors.
+- No row geometry, probe, identity, WM_DEVICECHANGE, guided-learning, Gate 4,
+  Health, Repair, persistence, raw-diagnostic or clipboard semantics changed.
+
+Validation
+----------
+PASS: permanent reserved-$PID regression guard
+PASS: i18n catalog / placeholders (328 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence guards
+PASS: live/guided calibration architecture validator 36/36
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 103/103
+PASS: explicit live-refresh hidden-text regression check
+PASS: 81/81 icon assets byte-identical to v2.3.3
+PASS: PE resource source payload byte-identical to v2.3.3
+PASS: Health Engine 1.4.3 byte-identical to v2.3.3
+PASS: Setup Scanner 1.0.6 byte-identical to v2.3.3
+PASS: Fast Setup Live Probe 1.0.1 byte-identical to v2.3.3
+PASS: Repair Engine 1.0.0 byte-identical to v2.3.3
+
+Source reproducibility
+----------------------
+The final delivered Source ZIP is freshly extracted and rebuilt after packaging.
+The result is recorded separately in CLEAN-REBUILD-FINAL-v2.3.4.txt.
+
+Native acceptance focus
+------------------------
+During startup and WM_DEVICECHANGE refreshes, verify that no PID/role characters
+are visible while the Acid-Green sweep is active. After the sweep disappears,
+verify that the current PID+role text reappears with the normal live colors.
+
+Hashes
+------
+Release internal EXE SHA-256:
+1bf606ccea15204efc9babee5aab39cd08926870f415361cf47d73375757b115
+
+Health Engine 1.4.3 source SHA-256:
+609ef084dfefa7b14f582cc729c9d055285b849427ec9b9807271e2ce4219969
+Health Engine runtime UTF-8-BOM SHA-256:
+0d74696e0b6166c87e7f281dfb512c03ec57d18091bc41f25bdefafc7f55a0af
+
+Setup Scanner 1.0.6 source SHA-256:
+8f32239cae2f5e136fc5265f8eb72ae37c416c475a3ef2114d1e86f10e47eaa3
+Setup Scanner runtime UTF-8-BOM SHA-256:
+a90558554f7fcc3a9f1542cb0174c78aca5e6105d4e5e0061c728dc850a2c29c
+
+Fast Setup Live Probe 1.0.1 source SHA-256:
+d4f4ea7ac71ebaa5038d90120bd887327667bc530b8662d976edcbb829e651ef
+Fast Setup Live Probe runtime UTF-8-BOM SHA-256:
+4127a2f6ae4cef1d9f86539fdc602a7858b99d0dea16ab8879d1f778e1541ef3
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+adc66b66e688411e25d37fdf56f2a848be2b4b9409e12c616401a8f633b48ace

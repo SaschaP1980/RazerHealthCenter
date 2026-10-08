@@ -1,0 +1,12 @@
+FAIL: owner-draw tray menu constants exist
+FAIL: owner-draw menu ids exist
+FAIL: wndproc handles tray menu measure/draw
+FAIL: header row is added to tray menu
+FAIL: show-window row is added to tray menu
+FAIL: all actionable rows are owner-drawn
+PASS: header renders Synapse brand text
+FAIL: selected row uses green accent strip
+FAIL: separator is custom-drawn
+FAIL: track popup menu uses return-cmd path
+FAIL: measure handler sizes header and action rows
+v2.3.11 tray-menu styling regression: 1/11

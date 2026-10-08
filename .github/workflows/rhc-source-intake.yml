@@ -1,9 +1,34 @@
-name: RHC v3.0.8 Source Intake (manual, no release)
+name: RHC v3.0.8 Source Intake (PR validation; no release)
 
-# This is NOT a release or candidate gate. Dispatch only after the reviewed
-# v3.0.8 source tree has been imported and hashed. Never auto-deploy.
+# This is a non-publishing migration validation gate, NOT production CI/CD.
+# Pull requests run against the exact proposed merge tree; absent source fails closed.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - import/RHC-1-v3.0.8
+    paths:
+      - '.gitattributes'
+      - '.github/workflows/rhc-source-intake.yml'
+      - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/rhc-source-intake.yml'
+      - 'tools/verify_source_intake.py'
+      - 'tools/import_source_archive.py'
+      - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
+      - 'go.mod'
+      - 'model.go'
+      - 'build.sh'
+      - '**/*.go'
+      - '**/*.ps1'
+      - 'resources/**'
+      - 'assets/**'
+      - 'diagnostics/**'
+      - 'repair/**'
+      - 'tools/**'
 
 permissions:
   contents: read
@@ -14,10 +39,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
         with:
           persist-credentials: false
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 (Node 24)
         with:
           go-version: '1.23.2'
           cache: false
@@ -30,12 +55,16 @@ jobs:
           done
           grep -Fq 'appVersion                   = "3.0.8"' model.go
           grep -Fq 'referenceVersion             = "3.0.8"' model.go
+      - name: Verify exact imported v3.0.8 source manifest
+        shell: bash
+        run: python3 -B tools/verify_source_intake.py --root .
       - name: Run original full build without fetching modules
         shell: bash
         env:
           GOPROXY: 'off'
           GOSUMDB: 'off'
           GOTOOLCHAIN: 'local'
+          GOFLAGS: '-buildvcs=false' # archive reference was produced without Git revision metadata
         run: |
           set -euo pipefail
           bash build.sh "$RUNNER_TEMP/rhc-intake-dist"
@@ -49,13 +78,18 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
         with:
           persist-credentials: false
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 (Node 24)
         with:
           go-version: '1.23.2'
           cache: false
+      - name: Verify imported source identity on Windows
+        shell: powershell
+        run: |
+          python -B tools/verify_source_intake.py --root .
+          if ($LASTEXITCODE -ne 0) { throw 'RHC exact source identity FAILED' }
       - name: Parse PowerShell sources on actual Windows PowerShell 5.1
         shell: powershell
         run: |

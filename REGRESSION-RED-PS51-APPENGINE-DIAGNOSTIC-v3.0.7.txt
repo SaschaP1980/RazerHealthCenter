@@ -1,0 +1,20 @@
+FAIL | app version 3.0.7
+FAIL | diagnostic module version 1.0.1
+FAIL | diagnostic script name 1.0.1
+FAIL | new diagnostic asset exists
+FAIL | script declares module version 1.0.1
+PASS | no generic list strings
+FAIL | native errors array
+FAIL | native rows array
+FAIL | errors appended PS51 safe
+FAIL | rows appended PS51 safe
+FAIL | result errors direct array
+FAIL | result processes direct array
+FAIL | read-only contract retained
+FAIL | run contract retained
+FAIL | runtime health evidence retained
+PASS | no mutation cmdlets
+FAIL | validator build gated
+FAIL | locale version 3.0.7
+FAIL | manifest version 3.0.7
+2/19 PASS

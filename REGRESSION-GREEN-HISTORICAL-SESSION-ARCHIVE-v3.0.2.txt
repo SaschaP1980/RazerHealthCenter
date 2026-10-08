@@ -1,0 +1,20 @@
+PASS: app/reference version 3.0.2
+PASS: historical persistence fields removed
+PASS: startup explicitly resets historical session state
+PASS: historical state is not written to persistent UI state
+PASS: opening historical measurement is session only
+PASS: refresh preserves open historical measurement inside current session
+PASS: archive mode tagline localized
+PASS: archive title localized
+PASS: archive subtitle localized
+PASS: static completion label localized
+PASS: shell switches archive tagline only for active historical log
+PASS: historical tab uses cyan mode color
+PASS: archive banner exists
+PASS: archive banner uses cyan mode color
+PASS: historical status result keeps health result color
+PASS: historical heart remains normal status icon
+PASS: historical live progress bar removed
+PASS: historical uses static completion information
+PASS: v3.0.2 validator is build gated
+v3.0.2 historical session/archive regression: 19/19 PASS

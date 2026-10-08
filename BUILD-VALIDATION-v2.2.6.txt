@@ -1,0 +1,94 @@
+Razer Synapse + Chroma Health Monitor v2.2.6
+Build validation record
+Stand: 2026-09-10
+
+Version contract
+----------------
+- App version: 2.2.6
+- Health Engine: 1.4.2 (unchanged)
+- Setup Scanner: 1.0.5
+- Repair Engine: 1.0.0 (unchanged)
+- Device Inventory schema: 2
+- Connection History schema: 2
+- VersionStatus schema: 3
+- ExportManifest schema: 4
+- Runtime locale: de-DE, 312 UI keys
+
+v2.2.6 Setup UI / device-class changes
+--------------------------------------
+- Current connection PIDs are colored from presentAtScan only.
+- presentAtScan=true => Acid Green; known but absent paths => muted.
+- Ready summary distinguishes current from all known connection paths.
+- Normal Setup scan uses a centered 70%-width Acid-Green indeterminate progress
+  bar inside the inventory table.
+- The inventory table is alpha-dimmed while the normal Setup scan is running.
+- Normal scan text is simplified for end users.
+- Setup Scanner 1.0.5 derives generic deviceClass from current PnP evidence,
+  preferring the primary HID MI_00 Mouse/Keyboard class and failing closed to
+  generic device on ambiguity.
+- Inventory rows and the guided calibration dialog display vector mouse /
+  keyboard / generic-device glyphs.
+- No endpoint PID or product/model constant is used to assign deviceClass.
+
+PID / identity / role safety
+----------------------------
+PASS: active Setup Scanner has no known endpoint PID/model constants
+PASS: Built EXE raw-byte string scan has no known endpoint PID/model constants
+PASS: observed PIDs remain runtime inventory/history data only
+PASS: deviceClass is generic current-PnP evidence, not PID/model mapping
+PASS: ContainerId remains supporting evidence, not product merge key
+PASS: generic product identity still uses root BusReportedDeviceDesc
+PASS: guided wired/wireless calibration semantics preserved
+PASS: passive topology role inference remains disabled
+
+Validation
+----------
+PASS: i18n catalog / placeholders (312 keys)
+PASS: presentation hardcode guard
+PASS: Repair safety and elevated-helper confinement
+PASS: Setup Inventory read-only / generic identity / presence / device-class guards
+PASS: guided calibration architecture validator 23/23
+PASS: active embedded Setup directory contains exactly one scanner source (1.0.5)
+PASS: PowerShell encoding checks 7/7
+PASS: Version monitor validator
+PASS: AppEngine evidence architecture validator 13/13
+PASS: Go unit tests
+PASS: Windows amd64 go vet
+PASS: Windows amd64 CGO=0 GUI build
+PASS: PE/resource validator
+PASS: UI/Diagnostics/Setup/Repair/reference static checks 95/95
+PASS: 81/81 icon assets byte-identical to v2.2.5
+PASS: PE resource payload byte-identical to v2.2.5
+PASS: Health Engine 1.4.2 byte-identical to v2.2.5
+PASS: Repair Engine 1.0.0 byte-identical to v2.2.5
+PASS: Portable internal SHA256SUMS validation
+PASS: Portable ZIP integrity
+PASS: final Source ZIP integrity
+PASS: fresh extraction of final Source ZIP builds a byte-identical internal EXE
+
+Native acceptance status
+------------------------
+The guided v2.2.5 calibration workflow was field-tested successfully before this
+release. Native Windows acceptance of the new v2.2.6 presentation and generic
+class glyphs is pending and is not claimed by this record.
+
+Hashes
+------
+Release internal EXE SHA-256:
+1be2269414810caadca024fac27b1248621e3af458ab1302667ba2b7e50a5f30
+
+Health Engine 1.4.2 source SHA-256:
+627189dbddecc38397b24223cbf79f1e6b79f9b00f4c70ffdf9e52ec48a88a57
+Health Engine runtime UTF-8-BOM SHA-256:
+9cc46613e28a8e05361450ac9c9e4350918ca8e5d85dfcfc7b15ff84050eb507
+
+Setup Scanner 1.0.5 source SHA-256:
+2df94a9f877690ad58867e29ed241ad73dcd31549260155321f8e16a71c522d4
+Setup Scanner runtime UTF-8-BOM SHA-256:
+7511cc67417f1316b19d2e6f28c965ddcdb745a10c1494cce91e4886dc9112e9
+
+Repair Engine 1.0.0 SHA-256:
+7704d532917c072174790641387acec125f5ce87406e2c0c0a42b20aa898b04a
+
+Portable ZIP SHA-256:
+ced184bf2f1fd06a230ed1be547ac507411afd98437482de47feee85674c9b9f

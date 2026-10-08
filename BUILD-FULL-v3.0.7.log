@@ -1,0 +1,500 @@
+PASS: no reserved $PID write collision in 5 production PowerShell payload(s)
+i18n catalog keys: 413
+i18n static Go keys: 292; plural bases: 3
+i18n validation: PASS
+repair safety: PASS
+repair helper confinement: PASS
+explicit confirmation invariant: PASS
+deep diagnostics read-only: PASS
+setup inventory validation: PASS
+PASS: app/scanner versions
+PASS: native live probe version
+PASS: native SetupAPI enumeration
+PASS: live PowerShell removed from active setup
+PASS: known PID target set
+PASS: present USB roots only
+PASS: root identity verification
+PASS: target-product discovery native
+PASS: native probe diagnostics
+PASS: probe errors fail closed
+PASS: pnp burst debounce generation
+PASS: pnp active follow-up bounded
+PASS: device notification registration
+PASS: wm device change
+PASS: arrival/removal events
+PASS: startup live refresh
+PASS: debounced event refresh
+PASS: historical snapshot not green
+PASS: snapshot wording
+PASS: old inventory class recovery
+PASS: wizard state machine
+PASS: wizard arms native baseline
+PASS: wizard waits for OS event
+PASS: unrelated event ignored
+PASS: wired exact delta
+PASS: wireless excludes wired role
+PASS: wireless flow derives from device profile
+PASS: mouse wireless remains event driven
+PASS: non-mouse wireless requires confirmation
+PASS: confirmation cannot auto-complete on device event
+PASS: confirmation is user initiated
+PASS: confirmation has distinct evidence source
+PASS: confirmation rejects still-active wired path
+PASS: identity fail closed
+PASS: explicit evidence conflict
+PASS: runtime role history
+PASS: guided sources
+PASS: history pid candidates
+PASS: no automatic post-learning full scan
+PASS: new pid metadata is advisory only
+PASS: wizard skip supported
+PASS: guided UI localized
+PASS: passive topology roles disabled
+PASS: no endpoint PID/model semantics
+guided/live calibration checks: 44/44
+PASS: wireless confirmation stage exists
+PASS: flow is device-profile driven
+PASS: mouse keeps automatic cable transition
+PASS: non-mouse defaults to explicit confirmation
+PASS: confirmation stage cannot be auto-completed by WM_DEVICECHANGE
+PASS: explicit wireless confirmation action exists
+PASS: confirmed wireless evidence is distinct
+PASS: confirmation requires learned wired path to be absent
+PASS: confirmation UI explains optional hardware switch
+PASS: completion no longer launches full setup scan
+PASS: skip completion no longer launches full setup scan
+PASS: new PID metadata remains explicit advisory
+PASS: no known endpoint PID/model rule
+guided flow v2.3.6 regression checks: 13/13
+PASS: wired success stage exists
+PASS: wireless success stage exists
+PASS: prompt title is recognition-oriented
+PASS: wired prompt is neutral before baseline
+PASS: wireless prompt is neutral before baseline
+PASS: physical USB instruction exists only as waiting copy
+PASS: separate USB waiting status exists
+PASS: separate wireless waiting status exists
+PASS: wired commit stops on success stage
+PASS: event wireless commit stops on success stage
+PASS: confirmed wireless commit stops on success stage
+PASS: success result is retained for acknowledgement
+PASS: success acknowledgement action exists
+PASS: wired acknowledgement enters wireless prompt
+PASS: wireless acknowledgement advances product
+PASS: success copy is explicit
+PASS: continue button is localized
+PASS: mouse auto wireless flow retained
+PASS: non-mouse confirmation flow retained
+PASS: new validator is build-gated
+Guided UX v2.3.10 checks: 20/20
+PASS: dedicated tray menu popup window class exists
+PASS: app tracks tray popup state
+PASS: tray menu uses popup window creation
+PASS: tray menu window is rounded and borderless
+PASS: tray menu paints its own rounded surface
+PASS: tray menu still renders branded header
+PASS: tray menu still has direct show-window action
+PASS: tray menu keeps green hover accent strip
+PASS: tray menu closes on focus loss or escape
+PASS: new validator is build-gated
+v2.3.12 tray-menu rounding regression: 10/10
+PASS: app version 3.0.7
+PASS: historical measurement stores gate snapshot
+PASS: detail capability is validated from historical engine JSON
+PASS: old or incomplete measurements remain listable
+PASS: single historical tab state exists
+PASS: historical tab state is session-only across restart
+PASS: historical UI state is never persisted to disk
+PASS: table selection and scroll reset at process startup
+PASS: double click opens historical measurement
+PASS: details button exists and is gated by detail availability
+PASS: historical tab has close control and two-tab switching
+PASS: historical tab uses cyan archive mode color
+PASS: historical view reuses gate detail popover read-only
+PASS: historical detail disables repair path
+PASS: historical Gate 4 avoids current live presentation enrichment
+PASS: historical package targets opened measurement
+PASS: historical package excludes current mutable setup snapshots
+PASS: historical view keeps package and folder actions
+PASS: current status wording changed
+PASS: historical status wording exists
+PASS: validator is build-gated
+v3.0.7 historical measurement regression checks: 21/21
+PASS: app/reference version 3.0.7
+PASS: historical persistence fields removed
+PASS: startup explicitly resets historical session state
+PASS: historical state is not written to persistent UI state
+PASS: opening historical measurement is session only
+PASS: refresh preserves open historical measurement inside current session
+PASS: archive mode tagline localized
+PASS: static completion label localized
+PASS: shell switches archive tagline only for active historical log
+PASS: historical tab uses cyan mode color
+PASS: archive summary avoids redundant banner copy
+PASS: archive banner uses cyan mode color
+PASS: historical status result keeps health result color
+PASS: historical heart remains normal status icon
+PASS: historical live progress bar removed
+PASS: historical uses static completion information
+PASS: v3.0.7 validator is build gated
+v3.0.7 historical session/archive regression: 17/17 PASS
+PASS: app/reference version 3.0.7
+PASS: catalog version 3.0.7
+PASS: redundant archive title removed from catalog
+PASS: redundant archive subtitle removed from catalog
+PASS: historical duration localized as DAUER
+PASS: historical gate count localized
+PASS: archive tagline remains cyan context
+PASS: historical tab remains cyan
+PASS: dedicated subtle archive surface exists
+PASS: historical draw function found
+PASS: archive card uses cyan-tinted surface
+PASS: no redundant archive title rendered
+PASS: no redundant archive subtitle rendered
+PASS: no cyan separator line over heart
+PASS: historical system label uses cyan
+PASS: historical heart remains normal result icon
+PASS: stored overall keeps health result color
+PASS: historical uses DAUER not live runtime label
+PASS: completion label is neutral result text
+PASS: completion count says Prüfgruppen
+PASS: live-style progress remains absent
+PASS: v3.0.7 validator is build gated
+v3.0.7 archive header polish regression: 22/22 PASS
+PASS: app/reference version 3.0.7
+PASS: catalog version 3.0.7
+PASS: locale metadata version 3.0.7
+PASS: archive surface is exact 4-percent preblend
+PASS: old 6-percent archive surface is absent
+PASS: archive comment documents roughly 4 percent
+PASS: historical card still uses archive surface
+PASS: v3.0.7 validator is build gated
+PASS: v3.0.3 archive semantics validator remains build gated
+v3.0.7 archive surface tint regression: 9/9 PASS
+PASS: app version 3.0.7
+PASS: Health Center product rename
+PASS: Health Center executable packaging
+PASS: problem platform source exists
+PASS: structured ProblemFinding model
+PASS: problem catalog versioned
+PASS: unclassified findings supported
+PASS: diagnostic orchestrator versioned
+PASS: read-only Chroma diagnostic module
+PASS: diagnostic module has no mutation commands
+PASS: runtime embeds diagnostics
+PASS: health run invokes diagnostic orchestrator
+PASS: problem findings persisted per measurement
+PASS: measurement collection recognizes findings
+PASS: repair catalog exists
+PASS: all repair definitions require confirmation
+PASS: known Gate 8 problem id
+PASS: Gate 8 maps to repair recipe
+PASS: repair helper accepts recipe id
+PASS: repair audit records explicit confirmation
+PASS: post-repair diagnostic verification
+PASS: no automatic repair from orchestrator
+PASS: safety model forbids automatic repairs
+PASS: v3 validator build-gated
+v3.0.7 diagnostic/repair platform: 24/24 PASS
+PASS: app/reference version 3.0.7
+PASS: health engine 1.4.6 selected
+PASS: health engine 1.4.6 exists
+PASS: no static Known-Good baseline object
+PASS: old Chroma baseline absent
+PASS: old local SHA256 baselines absent
+PASS: Chroma registry versions informational/non-normative
+PASS: kernel version not baseline WARN
+PASS: LampArray hash mismatch not normative
+PASS: installer cache no local known-good hash verdict
+PASS: official discovery endpoint
+PASS: official manifest endpoint construction
+PASS: no Razer Insider release-note authority
+PASS: VersionStatus schema 4
+PASS: manifest registry mapping used
+PASS: prod hash is discovered not hardcoded
+PASS: update remains INFO color
+PASS: update label explicitly new version available
+PASS: manifest source text
+PASS: validator build-gated
+v3.0.7 manifest authority regression: 20/20 PASS
+PASS: app/reference version 3.0.7
+PASS: overall incomplete state exists
+PASS: official manifest registration states are explicit
+PASS: registry errors retained per product
+PASS: application health guard exists
+PASS: guard uses official manifest mappings
+PASS: manifest network failure has no registration health impact
+PASS: version difference does not drive health guard
+PASS: unreadable registration becomes UNKNOWN
+PASS: only passing AppEngine gate is downgraded by guard
+PASS: health run resolves manifest in parallel
+PASS: guard applied before final snapshot/diagnostic orchestrator
+PASS: final diagnostic JSON is patched
+PASS: GateResult final result is patched
+PASS: assessment sidecar is measurement-addressable
+PASS: UNKNOWN gate makes live overall incomplete
+PASS: incomplete measurement persists UNCLEAR
+PASS: incomplete tray state is explicit
+PASS: incomplete summary does not claim functional health
+PASS: registration strings localized
+PASS: validator build-gated
+v3.0.7 false-green guard: 21/21 PASS
+PASS | app version 3.0.7
+PASS | registry view fields
+PASS | explicit registry64
+PASS | explicit registry32
+PASS | registry probe returns view
+PASS | health records registry view
+PASS | appengine diagnostic asset
+PASS | appengine diagnostic runtime
+PASS | appengine diagnostic model
+PASS | appengine health guard
+PASS | appengine problem id
+PASS | appengine repair id
+PASS | appengine repair catalog no elevation
+PASS | appengine repair asset
+PASS | repair no registry mutation
+PASS | repair no service mutation
+PASS | repair full contract
+PASS | repair no broad chroma installer heuristic
+PASS | definition chooses runtime script
+PASS | non elevated repair helper supported
+PASS | repair verification switches by recipe
+PASS | dynamic repair ui
+PASS | appengine locale strings
+PASS | absolute confirmation retained
+PASS | orchestrator cannot auto repair
+25/25 PASS
+PASS | app version 3.0.7
+PASS | diagnostic module version 1.0.1
+PASS | diagnostic script name 1.0.1
+PASS | new diagnostic asset exists
+PASS | script declares module version 1.0.1
+PASS | no generic list strings
+PASS | native errors array
+PASS | native rows array
+PASS | errors appended PS51 safe
+PASS | rows appended PS51 safe
+PASS | result errors direct array
+PASS | result processes direct array
+PASS | read-only contract retained
+PASS | run contract retained
+PASS | runtime health evidence retained
+PASS | no mutation cmdlets
+PASS | validator build gated
+PASS | locale version 3.0.7
+PASS | manifest version 3.0.7
+19/19 PASS
+PASS: app version 3.0.7
+PASS: health engine version 1.4.6
+PASS: active-product helpers
+PASS: zero-active inventory remains valid
+PASS: participation persisted atomically
+PASS: setup rescan preserves known participation
+PASS: new products retain active default
+PASS: merged preferences staged before inventory replacement
+PASS: whole-row toggle patches participation
+PASS: toggle invalidates current health result
+PASS: column renamed HEALTHCHECK
+PASS: status labels match active state
+PASS: inactive icon/status grey and active Acid Green
+PASS: device rows have hover treatment
+PASS: device row click toggles participation
+PASS: connection presence rendering independent of Healthcheck participation
+PASS: setup scan blocked when all products inactive
+PASS: custom in-app setup notice modal
+PASS: no-active-device modal message
+PASS: health start blocked when no product active
+PASS: health engine filters products and connections by participation
+PASS: unattributed global logical product IDs cannot leak excluded products into Gate 12
+PASS: guided device skip function and UI
+PASS: device skip and step skip remain distinct
+PASS: device skip localized
+PASS: lower setup action subtexts shortened
+PASS: v3.0.7 regression validator is part of build gate
+PASS: no product/PID-specific semantics added to Healthcheck selection
+v3.0.7 Healthcheck/UI regression checks: 28/28
+PASS: typed display uses role before PID in summary
+PASS: typed display uses role before PID in table
+PASS: table no longer draws PID before learned role
+PASS: connection sort helper exists
+PASS: wired sorts before wireless
+PASS: unknown or untyped connections sort last
+PASS: table uses sorted product connections
+PASS: text summary uses sorted product connections
+PASS: stable tie break by PID
+PASS: live present still colors entire typed entry green
+v2.3.9 connection presentation regression: 10/10
+PASS: fixture contains final failed Gate 3
+PASS: fixture contains structured Gate 3 failure
+PASS: Gate 3 ownership maps Kernel drivers checks
+PASS: normal structured-finding renderer exists
+PASS: failure/unknown renderer uses actual JSON value
+PASS: failure/unknown renderer uses expected JSON value
+PASS: failure/unknown renderer uses detail JSON value
+PASS: failure/unknown renderer uses section/source JSON value
+PASS: full expansion is limited to FAIL or UNKNOWN
+PASS: normal popover uses structured renderer
+PASS: generic no-structured fallback is guarded by zero checks
+v2.3.8 structured failure details regression: 11/11
+PASS: app version 3.0.7
+PASS: health engine version 1.4.6
+PASS: Gate 3 evaluates issues rather than requiring positive count
+PASS: Gate 3 zero-requirement detail is explicit
+PASS: Gate 3 emits structured INFO when not applicable
+PASS: real Kernel driver FAIL/UNKNOWN remains gate determining
+PASS: Gate 3 JSON checks remain mapped to UI inspection
+PASS: final snapshot sanitizer exists
+PASS: completed health worker uses final snapshot sanitizer
+PASS: detail status reads live final display
+PASS: structured failure detail regression is in build gate
+PASS: finalization regression is in build gate
+PASS: new structured field labels are localized
+PASS: no endpoint PID/model-specific semantics added
+v3.0.7 Gate applicability/finalization checks: 14/14
+PASS: native SetupAPI DLL
+PASS: present USB enumerator
+PASS: instance IDs native
+PASS: bus descriptor native
+PASS: no powershell live subprocess
+PASS: no active live ps1
+PASS: known PID filtering before property probe
+PASS: native target discovery
+PASS: quiet-window generation debounce
+PASS: only one active follow-up
+PASS: performance diagnostics
+PASS: native diagnostic JSON
+PASS: runtime advertises native
+live performance checks: 13/13
+PASS: current health engine 1.4.6 hash
+PASS: health engine remains utf8 without bom
+PASS: runtime adds utf8 bom execution copy
+PASS: runtime writes normalized engine copy
+PASS: powershell console output forced utf8
+PASS: health invocation uses command prelude
+PASS: powershell paths single quote escaped
+PowerShell encoding checks: 7/7
+version check validation: PASS
+PASS: fixed tail is explicitly runtime-only
+PASS: checks carry evidence-role metadata
+PASS: module log evidence is classified as supporting
+PASS: module log evidence is informational, not health severity
+PASS: gate 7 severity uses direct registry evidence only
+PASS: gate 10 severity uses direct service evidence only
+PASS: gate 11 severity uses direct RzCom evidence only
+PASS: PowerShell gate severity excludes supporting evidence generically
+PASS: raw diagnostic excludes supporting evidence generically
+PASS: Go result model preserves evidence role
+PASS: Go gate display ignores supporting evidence generically
+PASS: Go gate inspection scopes are direct-source for gates 7/10/11
+PASS: module-log absence/parse/version state cannot create UNKNOWN/WARN/FAIL
+Log evidence architecture checks: 13/13
+ok  	razerhealthmonitor	(cached)
+PASS: no presentation string literals in UI/tray/modal sinks
+resource relocated 0x73c000->0xcb9000; data_entries=11; SizeOfImage=0xcd5000
+PASS: amd64 GUI, sections=16, .rsrc RVA=0xcb9000, SizeOfImage=0xcd5000, resource entries=11
+PASS: v3.0.7 version
+PASS: canonical source no recovered app version
+PASS: de runtime locale
+PASS: language switch disabled
+PASS: de source of truth
+PASS: de embedded locale
+PASS: golden sidebar width
+PASS: golden header height
+PASS: larger sidebar icons
+PASS: ping pong pulse helper
+PASS: high resolution info heart
+PASS: localized progress semantics
+PASS: progress not gate name
+PASS: gate progress name
+PASS: detail left accent
+PASS: detail failed red
+PASS: large detail close font
+PASS: detail close hover
+PASS: detail viewport clip
+PASS: raw variable block height
+PASS: raw word wrap
+PASS: raw pixel scrolling
+PASS: raw clip region
+PASS: raw labels from i18n
+PASS: popover consumes interior clicks
+PASS: whole middle viewport scroll
+PASS: scrollbar drag state
+PASS: scrollbar live mouse move
+PASS: scrollbar capture
+PASS: escape closes detail
+PASS: vector export icon
+PASS: vector open folder icon
+PASS: history overall normalized
+PASS: double buffer memory dc
+PASS: double buffer bitmap
+PASS: single publish BitBlt
+PASS: erase suppression
+PASS: TrackMouseEvent
+PASS: all gates canonical checking
+PASS: engine output metadata
+PASS: engine separate stderr
+PASS: schema 4 export
+PASS: export manifest
+PASS: app session paths
+PASS: startup debug
+PASS: ui trace exported
+PASS: ui trace heartbeat
+PASS: tray result uses i18n
+PASS: custom export modal uses i18n
+PASS: gate names from i18n
+PASS: gate details from i18n
+PASS: window title from i18n
+PASS: app name from i18n
+PASS: structured runtime root
+PASS: structured runtime asset dirs
+PASS: portable structured runtime dirs
+PASS: safety model file
+PASS: repair source present
+PASS: repair/setup/diagnostics embedded
+PASS: repair runtime path
+PASS: repair helper main
+PASS: repair narrow gate
+PASS: repair target allowlist
+PASS: repair exact eligibility
+PASS: repair UAC
+PASS: repair result audit
+PASS: repair 5 second check
+PASS: repair modal
+PASS: repair recheck action
+PASS: repair i18n keys
+PASS: version check source
+PASS: version check async
+PASS: version check does not alter health
+PASS: appengine version domains separate
+PASS: version status exported
+PASS: version ui
+PASS: version local product metadata
+PASS: version domain guard
+PASS: info footer widened security
+PASS: setup view first
+PASS: setup health gate
+PASS: setup persistent profile
+PASS: setup runtime script
+PASS: setup exported
+PASS: setup guided calibration action
+PASS: setup progress animation
+PASS: setup debug exported
+PASS: device gate generic
+PASS: setup present typed entry color
+PASS: setup inventory fade
+PASS: setup device-class icons
+PASS: setup live role and PID acid green
+PASS: setup live per-row refresh overlay
+PASS: setup live refresh overlays text band
+PASS: setup live refresh hides stale cell text
+PASS: setup live refresh animation timer
+PASS: gate4 contextual connection presentation
+PASS: detail bottom scroll reserve
+PASS: logs wheel hint removed
+PASS: info cyan
+PASS: info no pseudo expected
+PASS: powershell runtime bom shim
+PASS: powershell stdout utf8
+v3.0.7 static recovery/reference checks: 103/103
+ELAPSED=19.01
