@@ -68,6 +68,9 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn("persist-credentials: false", wf)
         self.assertNotIn("create-release", wf)
         self.assertNotIn("productionEnabled: true", wf)
+        self.assertIn("head_commit.message", wf)
+        self.assertIn("Release-Profile: version-only", wf)
+        self.assertIn("Development-Completion: requested", wf)
 
 
 if __name__ == "__main__":
