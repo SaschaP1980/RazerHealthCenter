@@ -74,7 +74,7 @@ class GitHubReleaseTransaction(unittest.TestCase):
         for file in ("RazerHealthCenter-Portable-v3.0.8.1.zip",
                      "releases.json","latest.json","README.md"):
             (t/file).write_bytes(file.encode())
-        return ({"sha256":"d"*64},t)
+        return ({"sha256":"d"*64,"file":"RazerHealthCenter-Portable-v3.0.8.1.zip"},t)
 
     def stage(self):
         with patch.dict(os.environ,{"RHC_REAL_PUBLICATION_APPROVED":"EXPLICIT_OWNER_RHC22"}),\
