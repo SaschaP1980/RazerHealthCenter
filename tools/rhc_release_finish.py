@@ -68,9 +68,15 @@ def verify_merged_release(*, main_before, release_sha, candidate_sha,
     before = tree_map(main_before)
     after = tree_map(main)
     changed = {k for k in (set(before) | set(after)) if before.get(k) != after.get(k)}
-    allowed = {"downloads/" + downloads.filename(version),
+    allowed = {"model.go", "CHANGELOG.md",
+               "downloads/" + downloads.filename(version),
                "downloads/releases.json", "downloads/latest.json", "downloads/README.md"}
     require(changed == allowed, "postmerge changed previous binary/history/source paths")
+    candidate_source = tree_map(candidate_sha)
+    require(all(after.get(rel) == candidate_source.get(rel)
+                and after.get(rel) != before.get(rel)
+                for rel in ("model.go", "CHANGELOG.md")),
+            "published main source differs from qualified Candidate")
     archive = blob_bytes(after["downloads/" + downloads.filename(version)])
     require(hashlib.sha256(archive).hexdigest() == zip_sha,
             "public ZIP bytes do not match approved ZIP hash")
