@@ -8,6 +8,8 @@ on:
       - main
     paths:
       - 'tools/rhc_release_dry_run.py'
+      - 'model.go'
+      - 'tools/rhc_release_contracts.py'
       - 'tests/test_rhc_release_dry_run_contracts.py'
       - '.github/workflows/rhc-release-dry-run.yml'
   workflow_dispatch:
@@ -24,16 +26,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Confirm release remains fail-closed and source v3.0.8
+      - name: Confirm four-part source version and production remain blocked
         shell: bash
         run: |
           set -euo pipefail
-          python3 -B tools/verify_source_intake.py --root .
+          python3 -B tools/rhc_release_contracts.py --root .
+          python3 -B tools/rhc_downloads.py --downloads downloads
           python3 - <<'PY'
           import json, pathlib, re, sys
           policy=json.loads(pathlib.Path('config/rhc-release-policy.json').read_text())
           assert policy['productionEnabled'] is False
-          assert policy['distribution'] == 'github-release'
+          assert policy['distribution'] == 'repo-downloads'
           assert policy['signingDecision'] == 'unknown'
           assert policy['rollbackVerified'] is False
           m=pathlib.Path('model.go').read_text()

@@ -27,7 +27,7 @@ SOURCE_TOP = {'go.mod', 'build.sh', 'README.md', 'README-I18N.txt',
               '.gitattributes', '.gitignore'}
 SOURCE_DIRS = {'assets', 'diagnostics', 'repair', 'setup', 'locales', 'packaging',
                'resources', 'tools', 'docs', 'tests', '.github'}
-SEMVER = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z')
+SEMVER = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z')
 VERSION_PATTERN = re.compile(r'^\s*(appVersion|referenceVersion)\s*=\s*"([^"]+)"\s*$', re.M)
 
 

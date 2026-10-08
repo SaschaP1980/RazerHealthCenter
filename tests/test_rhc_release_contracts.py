@@ -17,7 +17,7 @@ class ContractTests(unittest.TestCase):
         self.root = Path(self.tmp.name) / 'src'
         self.root.mkdir()
         (self.root / 'tools').mkdir()
-        (self.root / 'model.go').write_text('const (\n appVersion = "3.0.8"\n referenceVersion = "3.0.8"\n)\n')
+        (self.root / 'model.go').write_text('const (\n appVersion = "3.0.8.0"\n referenceVersion = "3.0.8.0"\n)\n')
         for name in ('go.mod', 'build.sh', 'tools/rhc_release_contracts.py'):
             p = self.root / name
             p.write_bytes(b'canonical source\n')
@@ -38,14 +38,25 @@ class ContractTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_version_agreement_and_increasing(self):
-        self.assertEqual(r.version_from_model(self.root), '3.0.8')
-        self.assertTrue(r.assert_future_version('3.0.9', '3.0.8'))
-        for wrong in ('3.0.8', '3.0.7', '03.0.9', '3.0.9-beta', '4.0'):
+        self.assertEqual(r.version_from_model(self.root), '3.0.8.0')
+        self.assertTrue(r.assert_future_version('3.0.8.1', '3.0.8.0'))
+        for wrong in ('3.0.8.0', '3.0.7', '03.0.8.1', '3.0.8.1-beta', '4.0'):
             with self.assertRaises(ValueError):
-                r.assert_future_version(wrong, '3.0.8')
-        (self.root/'model.go').write_text('appVersion = "3.0.8"\nreferenceVersion = "3.0.7"')
+                r.assert_future_version(wrong, '3.0.8.0')
+        (self.root/'model.go').write_text('appVersion = "3.0.8.0"\nreferenceVersion = "3.0.7"')
         with self.assertRaises(ValueError):
             r.version_from_model(self.root)
+
+    def test_strict_four_part_and_hotfix_numeric_precedence(self):
+        bad = ("3.0.8", "3.0", "3.0.8.0.1", "3.0.08.0", "03.0.8.0",
+               "3.0.8.-1", "3.0.8.1-beta", "3.0.8.1\\n", "")
+        for candidate in bad:
+            with self.assertRaises(ValueError, msg=repr(candidate)):
+                r.assert_future_version(candidate, "3.0.8.0")
+        self.assertTrue(r.assert_future_version("3.0.8.10", "3.0.8.9"))
+        self.assertTrue(r.assert_future_version("3.0.9.0", "3.0.8.99"))
+        with self.assertRaises(ValueError):
+            r.assert_future_version("3.0.8.9", "3.0.8.10")
 
     def test_source_reproducibility_and_exclusion(self):
         files = self.paths + ['archive.zip', 'forensics/secret.txt', 'BUILD-FULL.log', 'foo.exe']

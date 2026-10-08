@@ -15,7 +15,7 @@ win32=(root/'win32.go').read_text(encoding='utf-8')
 i18n=(root/'i18n.go').read_text(encoding='utf-8')
 manifest=json.loads((root/'i18n-manifest.json').read_text(encoding='utf-8'))
 checks={
- 'v3.0.8 version':'appVersion                   = "3.0.8"' in model and 'referenceVersion             = "3.0.8"' in model,
+ 'v3.0.8.0 version':'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model,
  'canonical source no recovered app version':'recovered-r8-rc2' not in model,
  'de runtime locale':'activeLocale = "de-DE"' in i18n and manifest.get('runtimeLocale')=='de-DE',
  'language switch disabled':manifest.get('languageSwitchingImplemented') is False,
@@ -125,5 +125,5 @@ checks.update({
 })
 failed=[k for k,v in checks.items() if not v]
 for k,v in list(checks.items())[-2:]: print(('PASS' if v else 'FAIL')+': '+k)
-print(f'v3.0.8 static recovery/reference checks: {len(checks)-len(failed)}/{len(checks)}')
+print(f'v3.0.8.0 static recovery/reference checks: {len(checks)-len(failed)}/{len(checks)}')
 if failed: sys.exit(1)

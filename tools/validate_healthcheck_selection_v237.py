@@ -11,7 +11,7 @@ model=read('model.go'); sg=read('setupscan.go'); ui=read('ui.go'); engine=read('
 health=read('health-engine-v1.4.6.ps1') if (root/'health-engine-v1.4.6.ps1').exists() else ''
 locale=json.loads(read('locales/de-DE.json'))['strings']; build=read('build.sh')
 
-add('app version 3.0.8', 'appVersion                   = "3.0.8"' in model)
+add('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model)
 add('health engine version 1.4.6', 'engineVersion                = "1.4.6"' in model)
 add('active-product helpers', 'func activeHealthcheckProductCount(inv DeviceInventory) int' in sg and 'func hasActiveHealthcheckProduct(inv DeviceInventory) bool' in sg)
 valid_block=sg[sg.find('func (d DeviceInventory) valid() bool'):sg.find('func activeHealthcheckProductCount')]
@@ -40,11 +40,11 @@ add('guided device skip function and UI', 'func (a *App) skipCurrentCalibrationP
 add('device skip and step skip remain distinct', 'a.skipCurrentCalibrationProduct()' in ui and 'a.skipCurrentCalibrationStep()' in ui)
 add('device skip localized', locale.get('action.skip_device') == 'Gerät überspringen')
 add('lower setup action subtexts shortened', locale.get('action.setup_scan.sub') == 'Razer-Produkte neu inventarisieren' and locale.get('action.setup_calibrate.sub') == 'Wired/Wireless eindeutig zuordnen')
-add('v3.0.8 regression validator is part of build gate', 'validate_healthcheck_selection_v237.py' in build)
+add('v3.0.8.0 regression validator is part of build gate', 'validate_healthcheck_selection_v237.py' in build)
 production=(sg+'\n'+engine+'\n'+health).lower()
 add('no product/PID-specific semantics added to Healthcheck selection', not any(t in production for t in ['00c0','00c1','02c9','02cc','viper v3 pro','blackwidow']))
 
 failed=[name for name,ok in checks if not ok]
 for name,ok in checks: print(('PASS' if ok else 'FAIL')+': '+name)
-print(f'v3.0.8 Healthcheck/UI regression checks: {len(checks)-len(failed)}/{len(checks)}')
+print(f'v3.0.8.0 Healthcheck/UI regression checks: {len(checks)-len(failed)}/{len(checks)}')
 if failed: sys.exit(1)

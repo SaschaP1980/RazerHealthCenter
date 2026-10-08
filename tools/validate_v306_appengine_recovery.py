@@ -12,7 +12,7 @@ v=txt('versioncheck.go'); h=txt('health_application_guard.go'); p=txt('problem.g
 repair=txt('repair/repair-appengine-runtime-v1.0.0.ps1')
 diag=txt('diagnostics/diagnose-appengine-usermode-v1.0.2.ps1')
 
-ck('app version 3.0.8', 'appVersion                   = "3.0.8"' in txt('model.go'))
+ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in txt('model.go'))
 ck('registry view fields', 'SynapseRegistryView' in v and 'ChromaRegistryView' in v)
 ck('explicit registry64', 'RegistryView]::Registry64' in v)
 ck('explicit registry32', 'RegistryView]::Registry32' in v)

@@ -52,6 +52,10 @@ Use the LenovoBootSelector storage model: immutable released Portable ZIPs under
 
 Do not create tags, publish a ZIP, advance `latest.json` or enable production release until the real Candidate/Release orchestrator, native/device gates, version-scoped signing/unsigned approval and rollback evidence pass. Routine code/CI merges remain autonomous; release authorization stays distinct.
 
+## RHC-16 four-component application versioning
+
+Current authoritative `model.go` values are both `3.0.8.0`; all future app/release versions must be exactly `MAJOR.MINOR.PATCH.HOTFIX`. HOTFIX starts at 0. Hotfix releases require `Release-Profile: hotfix` and increase only the fourth component by exactly one; a new PATCH resets HOTFIX to 0. Candidate/ref validators reject legacy three-part names. Razer Synapse, Chroma, engine, setup and migration-history version domains are separate and must not be reformatted. Existing unsigned QA `3.0.8` download is immutable and not a production version; canonical `downloads/releases.json` remains empty until a separately authorized release. Historical 321-file/EXE Golden verification stays pinned to the original source ref; current four-part release verification requires current SHA independent builds.
+
 ## Validation sequence
 
 1. Read exact current base; identify allowed code/file changes and protected repair/firmware boundaries.

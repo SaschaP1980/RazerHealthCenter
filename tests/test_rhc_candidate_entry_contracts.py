@@ -31,23 +31,23 @@ class AtomicGitCandidateTests(unittest.TestCase):
         for tool in ('rhc_candidate_entry.py','rhc_orchestration_contracts.py','rhc_release_contracts.py'):
             shutil.copy2(SOURCE_TOOLS/tool,self.checkout/'tools'/tool)
         self.model=self.checkout/'model.go'
-        self.model.write_text('const (\n appVersion = "3.0.8"\n referenceVersion = "3.0.8"\n)\n')
+        self.model.write_text('const (\n appVersion = "3.0.8.0"\n referenceVersion = "3.0.8.0"\n)\n')
         (self.checkout/'go.mod').write_text('module testing\ngo 1.23.2\n')
         cmd('git','add','-A',cwd=self.checkout)
-        cmd('git','commit','-qm','baseline RHC v3.0.8',cwd=self.checkout)
+        cmd('git','commit','-qm','baseline RHC v3.0.8.0',cwd=self.checkout)
         cmd('git','remote','add','origin',str(self.remote),cwd=self.checkout)
         cmd('git','push','-q','-u','origin','main',cwd=self.checkout)
         cmd('git','fetch','-q','origin','main',cwd=self.checkout)
-        cmd('git','switch','-qc','candidate/v3.0.9',cwd=self.checkout)
-        self.model.write_text('const (\n appVersion = "3.0.9"\n referenceVersion = "3.0.9"\n)\n')
-        (self.checkout/'CHANGELOG.md').write_text('## 3.0.9 — version only\n')
+        cmd('git','switch','-qc','candidate/v3.0.8.1',cwd=self.checkout)
+        self.model.write_text('const (\n appVersion = "3.0.8.1"\n referenceVersion = "3.0.8.1"\n)\n')
+        (self.checkout/'CHANGELOG.md').write_text('## 3.0.8.1 — version only\n')
         cmd('git','add','-A',cwd=self.checkout)
-        cmd('git','commit','-qm','release: RHC v3.0.9\n\nRelease-Profile: version-only\nRHC-Issue: 3',cwd=self.checkout)
+        cmd('git','commit','-qm','release: RHC v3.0.8.1\n\nRelease-Profile: version-only\nRHC-Issue: 3',cwd=self.checkout)
 
     def tearDown(self):
         self.temp.cleanup()
 
-    def check_cli(self, ref='candidate/v3.0.9'):
+    def check_cli(self, ref='candidate/v3.0.8.1'):
         return cmd(sys.executable,'-B','tools/rhc_candidate_entry.py','--root','.','--candidate-ref',ref,
                    cwd=self.checkout,check=False)
 
@@ -58,9 +58,14 @@ class AtomicGitCandidateTests(unittest.TestCase):
         self.assertIn('"baseMainSha"',res.stdout)
 
     def test_mismatched_ref_fail_closed(self):
-        res=self.check_cli('candidate/v3.0.10')
+        res=self.check_cli('candidate/v3.0.8.2')
         self.assertNotEqual(res.returncode,0)
         self.assertIn('version',res.stderr)
+
+    def test_legacy_three_part_candidate_ref_denied(self):
+        result = self.check_cli("candidate/v3.0.9")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("four-part", result.stderr)
 
     def test_dirty_checkout_fail_closed(self):
         (self.checkout/'dirty.txt').write_text('untracked changes\n')
@@ -75,7 +80,7 @@ class AtomicGitCandidateTests(unittest.TestCase):
         cmd('git','commit','-qm','main advanced',cwd=self.checkout)
         cmd('git','push','-q','origin','main',cwd=self.checkout)
         cmd('git','fetch','-q','origin','main',cwd=self.checkout)
-        cmd('git','switch','-q','candidate/v3.0.9',cwd=self.checkout)
+        cmd('git','switch','-q','candidate/v3.0.8.1',cwd=self.checkout)
         res=self.check_cli()
         self.assertNotEqual(res.returncode,0)
         self.assertIn('current main',res.stderr)

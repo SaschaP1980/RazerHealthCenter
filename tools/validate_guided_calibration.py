@@ -13,7 +13,7 @@ locale=(root/'locales/de-DE.json').read_text(encoding='utf-8')
 model=(root/'model.go').read_text(encoding='utf-8')
 device_change_handler=dm[dm.index('func (a *App) handleWindowsDeviceChange'):dm.index('func livePIDSet')]
 checks={
- 'app/scanner versions':'appVersion                   = "3.0.8"' in model and "$ScanVersion = '1.0.6'" in setup and 'setupScanVersion = "1.0.6"' in sg,
+ 'app/scanner versions':'appVersion                   = "3.0.8.0"' in model and "$ScanVersion = '1.0.6'" in setup and 'setupScanVersion = "1.0.6"' in sg,
  'native live probe version':'setupLiveProbeVersion = "1.1.0"' in dm,
  'native SetupAPI enumeration':all(x in dm for x in ['procSetupDiGetClassDevsW.Call','procSetupDiEnumDeviceInfo.Call','utf16("USB")','digcfPresent|digcfAllClasses']),
  'live PowerShell removed from active setup':not any((root/'setup').glob('setup-razer-live-*.ps1')) and 'setupLiveScriptPath' not in model and 'setupLiveScriptPath' not in runtime,

@@ -8,7 +8,7 @@ def text(rel):
     p=root/rel
     return p.read_text(encoding='utf-8') if p.exists() else ''
 model=text('model.go'); runtime=text('runtime.go'); engine=text('engine.go'); repair=text('repair.go'); prob=text('problem.go'); build=text('build.sh'); pack=text('tools/package_portable.py'); loc=text('locales/de-DE.json'); safety=text('SAFETY-MODEL.txt')
-ck('app version 3.0.8', 'appVersion                   = "3.0.8"' in model and 'referenceVersion             = "3.0.8"' in model)
+ck('app version 3.0.8.0', 'appVersion                   = "3.0.8.0"' in model and 'referenceVersion             = "3.0.8.0"' in model)
 ck('Health Center product rename', 'Razer Synapse + Chroma Health Center' in loc and 'HEALTH CENTER' in loc)
 ck('Health Center executable packaging', 'RazerHealthCenter.exe' in build and 'RazerHealthCenter.exe' in pack)
 ck('problem platform source exists', (root/'problem.go').exists())
@@ -35,5 +35,5 @@ ck('safety model forbids automatic repairs', 'niemals automatisch' in safety.low
 ck('v3 validator build-gated', 'validate_v300_diagnostic_repair_platform.py' in build)
 passed=sum(v for _,v in checks)
 for n,v in checks: print(('PASS' if v else 'FAIL')+': '+n)
-print(f'v3.0.8 diagnostic/repair platform: {passed}/{len(checks)} PASS')
+print(f'v3.0.8.0 diagnostic/repair platform: {passed}/{len(checks)} PASS')
 sys.exit(0 if passed==len(checks) else 1)

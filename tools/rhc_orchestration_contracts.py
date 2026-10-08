@@ -18,7 +18,12 @@ def safe_ref(ref, prefix):
 
 def validate_candidate(*, previous, version, changed_paths, release_profile, current_main_parent):
     assert_future_version(version, previous)
-    require(release_profile in ('version-only', 'patch'), 'unknown release profile')
+    require(release_profile in ('version-only', 'patch', 'hotfix'), 'unknown release profile')
+    if release_profile == 'hotfix':
+        earlier = tuple(map(int, previous.split('.')))
+        newer = tuple(map(int, version.split('.')))
+        require(earlier[:3] == newer[:3] and newer[3] == earlier[3] + 1,
+                'hotfix must increment only HOTFIX by exactly one')
     require(current_main_parent, 'candidate must be based on exact current main')
     changed = set(changed_paths)
     require(changed and len(changed)==len(changed_paths), 'empty/duplicate candidate diff')

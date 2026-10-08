@@ -18,7 +18,7 @@ import rhc_release_contracts as release
 
 CATALOG_SCHEMA = 1
 ZIP_PREFIX = "RazerHealthCenter-Portable-v"
-SEMVER = re.compile(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z")
+SEMVER = release.SEMVER  # Single strict four-part application/release version contract.
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 COMMIT = re.compile(r"[0-9a-f]{40}\Z")
 EXPECTED_FILES = frozenset({"RazerHealthCenter.exe", "SHA256SUMS.txt", *release.PORTABLE_ASSETS})

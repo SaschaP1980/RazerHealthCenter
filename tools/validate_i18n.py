@@ -17,14 +17,14 @@ except Exception as e:
 
 manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
 if doc.get('_meta',{}).get('locale')!='de-DE': fail('catalog locale must be de-DE')
-if doc.get('_meta',{}).get('version')!='3.0.8': fail('catalog version must be 3.0.8')
-if manifest.get('catalogVersion')!='3.0.8': fail('manifest catalogVersion must be 3.0.8')
+if doc.get('_meta',{}).get('version')!='3.0.8.0': fail('catalog version must be 3.0.8.0')
+if manifest.get('catalogVersion')!='3.0.8.0': fail('manifest catalogVersion must be 3.0.8.0')
 if manifest.get('runtimeLocale')!='de-DE': fail('runtimeLocale must be de-DE')
-if manifest.get('availableLocales')!=['de-DE']: fail('only de-DE may be active in v3.0.8')
+if manifest.get('availableLocales')!=['de-DE']: fail('only de-DE may be active in v3.0.8.0')
 if manifest.get('languageSwitchingImplemented') is not False: fail('language switch must remain disabled')
 if manifest.get('sourceOfTruth')!='locales/de-DE.json': fail('de-DE must be declared source of truth')
 if manifest.get('uiKeyCount')!=len(strings): fail('uiKeyCount mismatch')
-if (root/'locales/en-US.json').exists(): fail('en-US runtime catalog must not be present in v3.0.8')
+if (root/'locales/en-US.json').exists(): fail('en-US runtime catalog must not be present in v3.0.8.0')
 
 ph=re.compile(r'\{([A-Za-z0-9_.-]+)\}')
 for k,v in strings.items():
@@ -52,7 +52,7 @@ for family in ('appengine','driverstore','kernel','devices','virtual','filters',
         k=f'gate.{family}.{suffix}'
         if k not in strings: fail(f'missing dynamic gate key: {k}')
 
-# Important v3.0.8 keys that may not be caught through literal call parsing.
+# Important v3.0.8.0 keys that may not be caught through literal call parsing.
 required={
  'app.title','app.window_title','app.brand.primary','app.brand.secondary','app.tagline','app.version',
  'measurement.result.healthy','measurement.result.hint','measurement.result.unclear','measurement.result.failed',
