@@ -81,7 +81,7 @@ class FutureVersionWorkContracts(unittest.TestCase):
         self.assertIn("cmp -s", wf)
 
     def test_all_retained_runtime_validators_use_current_four_part_app_version(self):
-        # These 14 validators were originally pinned to the historical 3.0.8.0.
+        # These 15 validators were originally pinned to the historical 3.0.8.0.
         # Never change catalog-domain historical fixture versions or weaken
         # the other read-only/repair/PowerShell/Setup safety assertions.
         paths = (
@@ -99,6 +99,7 @@ class FutureVersionWorkContracts(unittest.TestCase):
             "tools/validate_v307_ps51_appengine_diagnostic.py",
             "tools/validate_healthcheck_selection_v237.py",
             "tools/validate_gate_finalization_v238.py",
+            "tools/validate_ui_recovery.py",
         )
         for path in paths:
             with self.subTest(path=path):
