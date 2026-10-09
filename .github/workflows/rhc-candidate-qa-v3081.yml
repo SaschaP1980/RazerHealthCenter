@@ -1,0 +1,215 @@
+name: RHC-31 Exact v3.0.8.1 Candidate QA (TEST ONLY, no release)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rhc-candidate-qa-v3081.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/rhc-candidate-qa-v3081.yml'
+      - 'tools/rhc_candidate_qa_gate.py'
+      - 'tests/test_rhc_candidate_qa_gate_contracts.py'
+      - 'docs/RHC22_PHASE_A.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rhc31-candidate-qa-${{ github.sha }}-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  linux:
+    name: Verify qualified old Candidate, independent actual v3.0.8.1 PE/ZIP
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SOURCE_SHA: 1b78ca928979e9507863a53ce2e4b25491544d5e
+      QA_TOOL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      GOPROXY: off
+      GOSUMDB: off
+      GOTOOLCHAIN: local
+      GOFLAGS: '-buildvcs=false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: qa-tools
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1b78ca928979e9507863a53ce2e4b25491544d5e
+          fetch-depth: 0
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Two disjoint source checkouts and existing real Candidate bot status
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C qa-tools rev-parse HEAD)" = "$QA_TOOL_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$SOURCE_SHA"
+          python3 -m unittest discover -s qa-tools/tests -p 'test_rhc_candidate_qa_gate_contracts.py' -v
+          gh api "repos/$GITHUB_REPOSITORY/commits/$SOURCE_SHA/statuses?per_page=100" > "$RUNNER_TEMP/rhc31-statuses.json"
+          python3 -B qa-tools/tools/rhc_candidate_qa_gate.py \
+            --source candidate --sha "$SOURCE_SHA" \
+            --statuses "$RUNNER_TEMP/rhc31-statuses.json"
+          python3 -B qa-tools/tools/rhc_downloads.py --downloads candidate/downloads
+          test ! -e candidate/downloads/latest.json
+      - name: Two real candidate-source EXEs, immutable TEST-only seven-file ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd candidate && bash build.sh "$RUNNER_TEMP/rhc31-build1")
+          (cd candidate && bash build.sh "$RUNNER_TEMP/rhc31-build2")
+          cmp "$RUNNER_TEMP/rhc31-build1/RazerHealthCenter.exe" "$RUNNER_TEMP/rhc31-build2/RazerHealthCenter.exe"
+          python3 -B qa-tools/tools/rhc_phase_a_qa.py stage \
+            --root candidate --source-sha "$SOURCE_SHA" \
+            --exe-a "$RUNNER_TEMP/rhc31-build1/RazerHealthCenter.exe" \
+            --exe-b "$RUNNER_TEMP/rhc31-build2/RazerHealthCenter.exe" \
+            --stage "$RUNNER_TEMP/rhc31-stage"
+          python3 -B qa-tools/tools/rhc_phase_a_qa.py verify \
+            --root candidate --source-sha "$SOURCE_SHA" \
+            --stage "$RUNNER_TEMP/rhc31-stage"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'rhc31-stage/qa-evidence.json'
+          a=json.loads(p.read_text())
+          assert a['sourceSha']==os.environ['SOURCE_SHA']
+          assert a['version']=='3.0.8.1' and a['phaseB']['status']=='DISABLED'
+          assert a['archive']['file'].startswith('RazerHealthCenter-Portable-v3.0.8.1-TEST-UNSIGNED-')
+          print('RHC31_ACTUAL_CANDIDATE_3_0_8_1_QA='+json.dumps(a,sort_keys=True))
+          PY
+          python3 -B qa-tools/tools/rhc_downloads.py --downloads candidate/downloads
+          test ! -e candidate/downloads/latest.json
+      - name: INTERNAL QA runner transfer only, not a qualified artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: RHC31-INTERNAL-NOT-RELEASE-1b78ca928979
+          path: ${{ runner.temp }}/rhc31-stage/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  windows:
+    name: Native PS5.1 actual Candidate PE unsigned status and Razer safety
+    needs: linux
+    runs-on: windows-2025
+    timeout-minutes: 20
+    env:
+      SOURCE_SHA: 1b78ca928979e9507863a53ce2e4b25491544d5e
+      QA_TOOL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      GOPROXY: off
+      GOSUMDB: off
+      GOTOOLCHAIN: local
+      GOFLAGS: '-buildvcs=false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: qa-tools
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1b78ca928979e9507863a53ce2e4b25491544d5e
+          fetch-depth: 0
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: RHC31-INTERNAL-NOT-RELEASE-1b78ca928979
+          path: ${{ runner.temp }}/rhc31-stage
+      - name: Native Windows PowerShell 5.1 and exact v3.0.8.1 candidate ZIP
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PS5.1 required' }
+          if ((git -C candidate rev-parse HEAD).Trim() -ne $env:SOURCE_SHA) { throw 'Candidate source SHA mismatch' }
+          if ((git -C qa-tools rev-parse HEAD).Trim() -ne $env:QA_TOOL_SHA) { throw 'QA tooling SHA mismatch' }
+          gh api "repos/$env:GITHUB_REPOSITORY/commits/$env:SOURCE_SHA/statuses?per_page=100" | Set-Content -Encoding UTF8 "$env:RUNNER_TEMP/rhc31-statuses.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate bot statuses could not be fetched' }
+          python -B qa-tools/tools/rhc_candidate_qa_gate.py --source candidate --sha "$env:SOURCE_SHA" --statuses "$env:RUNNER_TEMP/rhc31-statuses.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate provenance gate blocked' }
+          python -B qa-tools/tools/rhc_phase_a_qa.py verify --root candidate --source-sha "$env:SOURCE_SHA" --stage "$env:RUNNER_TEMP/rhc31-stage"
+          if ($LASTEXITCODE -ne 0) { throw 'Transferred QA archive invalid' }
+          $scripts=@(Get-ChildItem candidate -Recurse -File -Filter '*.ps1')
+          if ($scripts.Count -lt 15) { throw 'Incomplete native Razer scripts' }
+          foreach ($file in $scripts) {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count -gt 0) { throw "PS5.1 parse failure $($file.FullName)" }
+          }
+          Push-Location candidate
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Go candidate tests failed' }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Go candidate vet failed' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate repair safety failed' }
+          python -B tools/validate_v307_ps51_appengine_diagnostic.py
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate diagnostics failed' }
+          python -B tools/validate_v306_appengine_recovery.py
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate recovery failed' }
+          Pop-Location
+          $stage=Join-Path $env:RUNNER_TEMP 'rhc31-stage'
+          $info=Get-Content (Join-Path $stage 'qa-evidence.json') -Raw | ConvertFrom-Json
+          if ($info.version -ne '3.0.8.1' -or $info.sourceSha -ne $env:SOURCE_SHA -or $info.phaseB.status -ne 'DISABLED') { throw 'Wrong candidate or Phase-B claim' }
+          $out=Join-Path $env:RUNNER_TEMP 'rhc31-extracted'
+          Expand-Archive -LiteralPath (Join-Path $stage $info.archive.file) -DestinationPath $out
+          $signature=Get-AuthenticodeSignature (Join-Path $out 'RazerHealthCenter.exe')
+          if ($signature.Status -ne 'NotSigned') { throw 'TEST-UNSIGNED identity mismatches actual PE signature' }
+          Write-Output 'RHC31_CANDIDATE_NATIVE_WINDOWS=PASS; real v3.0.8.1; PS5.1; NotSigned; NOT hardware/release approval'
+
+  qualified-test-artifact:
+    name: Upload actual v3.0.8.1 TEST artifact after both OS success
+    needs: windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_SHA: 1b78ca928979e9507863a53ce2e4b25491544d5e
+      QA_TOOL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: qa-tools
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1b78ca928979e9507863a53ce2e4b25491544d5e
+          fetch-depth: 0
+          path: candidate
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: RHC31-INTERNAL-NOT-RELEASE-1b78ca928979
+          path: ${{ runner.temp }}/rhc31-stage
+      - name: Final Candidate GitHub status/provenance, exact TEST v3.0.8.1 readback
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C qa-tools rev-parse HEAD)" = "$QA_TOOL_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$SOURCE_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/commits/$SOURCE_SHA/statuses?per_page=100" > "$RUNNER_TEMP/rhc31-statuses.json"
+          python3 -B qa-tools/tools/rhc_candidate_qa_gate.py --source candidate --sha "$SOURCE_SHA" --statuses "$RUNNER_TEMP/rhc31-statuses.json"
+          python3 -B qa-tools/tools/rhc_phase_a_qa.py verify --root candidate --source-sha "$SOURCE_SHA" --stage "$RUNNER_TEMP/rhc31-stage"
+          python3 -B qa-tools/tools/rhc_downloads.py --downloads candidate/downloads
+          test ! -e candidate/downloads/latest.json
+          echo 'RHC31_QA_TEST_ARTIFACT=REAL_3_0_8_1; PHASE_B_NOT_AUTHORIZED'
+      - name: Upload only time-limited real 3.0.8.1 TEST/UNSIGNED QA evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: RHC31-TEST-UNSIGNED-NOT-RELEASE-v3.0.8.1-1b78ca928979
+          path: ${{ runner.temp }}/rhc31-stage/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
