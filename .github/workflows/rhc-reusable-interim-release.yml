@@ -6,6 +6,10 @@ on:
   workflow_dispatch:  # Only an authorized exact Candidate preflight dispatch publishes
 permissions:
   contents: read
+# The read-only Linux proof performs authenticated GitHub GETs; each mutating
+# stage/finalizer job still gets only its own explicitly declared permissions.
+env:
+  GH_TOKEN: ${{ github.token }}
 concurrency:
   group: rhc-reusable-release-${{ github.ref }}
   cancel-in-progress: false

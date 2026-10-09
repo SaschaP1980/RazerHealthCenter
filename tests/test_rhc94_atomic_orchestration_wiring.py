@@ -15,6 +15,7 @@ class AtomicOrchestrationWiring(unittest.TestCase):
         self.assertNotIn("branches: [main]",y.split("jobs:")[0])
         self.assertIn("startsWith(github.ref, 'refs/heads/candidate/v')",y)
         self.assertIn("rhc94_atomic_release.py validate-candidate",y)
+        self.assertIn("GH_TOKEN: ${{ github.token }}",y)
         self.assertIn("rhc94_atomic_release.py validate-stage",y)
         self.assertEqual(y.count("gh pr create"),1)
         self.assertEqual(y.count("pulls/$RELEASE_PR/merge"),1)
