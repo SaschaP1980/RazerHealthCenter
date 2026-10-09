@@ -1,3 +1,12 @@
+## RHC-43 — Real reusable interim Publisher implementation checkpoint (2026-10-09)
+
+The source-controlled implementation is now split between [the version-independent source-triggered publisher](../.github/workflows/rhc-reusable-interim-release.yml) and [independent postmerge verification/tag workflow](../.github/workflows/rhc-reusable-interim-postmerge.yml). Both use the pure [rhc_reusable_interim.py](../tools/rhc_reusable_interim.py) eligibility contract, the immutable [downloads verifier](../tools/rhc_downloads.py), real independent Linux double-builds and actual hosted native Windows PowerShell 5.1/NotSigned safety evidence. The existing v3.0.8.1 writer remains historical manual-dispatch-only.
+
+**Execution is not proof:** Before promoting a hotfix PR or reporting any public Release, prove the actual workflow passed on the new main source SHA, its contents-write, actions-write, and pull-requests-write operations genuinely succeeded (or precisely report denied GitHub Actions PR permission and safely recover via an authorized GitHub App), independently verify the staged release PR Linux/native Windows/downloads jobs, and validate final ZIP bytes, public catalog/latest, immutable tag and branch cleanup. A declared permissions entry is NOT evidence of effective permission. A partial staged branch is NOT a published Release.
+
+**Current source checkpoint:** Historic CI trigger fixes are integrated; generic Publisher/Verifier is on Work branch but its real GitHub stage/merge/tag and v3.0.8.2 public downloads have NOT YET BEEN PROVEN. Requalify v3.0.8.2 against advanced main without reusing old candidate evidence. External Phase B remains DEFERRED/NOT_VERIFIED; standard production policy unchanged. Work chat German with English technical terms; GitHub artifacts English.
+
+---
 ## Current mandatory English GitHub and complete release lifecycle policy — RHC-43 (2026-10-09)
 
 **GitHub working language is English** for new documentation, issues, Issue Rolling Comments, tests, GitHub PR text, code comments and release notes. Communicate with the owner in **German using English technical terminology**. Existing German project history must not be silently rewritten as if it were new evidence.
