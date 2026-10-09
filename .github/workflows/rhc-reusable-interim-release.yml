@@ -284,7 +284,10 @@ jobs:
           git diff --name-only > "$RUNNER_TEMP/changed.txt"
           test "$(sort "$RUNNER_TEMP/changed.txt" | tr '\n' ' ')" = "downloads/README.md downloads/latest.json downloads/releases.json "
           test -f downloads/RazerHealthCenter-Portable-v$VERSION.zip
-          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+          # A Candidate is a ZIP-free commit over public main. It is NOT
+          # the same SHA as main: enforce the original exact one-parent
+          # ancestry again after generating the staged archive.
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$(git rev-parse "$GITHUB_SHA^")"
       - name: Create exact-parent four-path release branch and PR (never force push)
         shell: bash
         run: |
