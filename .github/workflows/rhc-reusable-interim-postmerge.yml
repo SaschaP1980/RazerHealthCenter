@@ -133,12 +133,28 @@ jobs:
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           test "$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["sourceSha"])')" = "$SOURCE"
           python3 -B tools/rhc_downloads.py --downloads downloads
-          BEFORE="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
+          TAG_ENDPOINT="repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION"
+          BEFORE=''
+          if gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json" 2>"$RUNNER_TEMP/tag-existing.err"; then
+            BEFORE="$(jq -er '.object.sha | select(type=="string")' "$RUNNER_TEMP/tag-existing.json")" || {
+              echo 'Malformed existing tag API response' >&2; exit 1;
+            }
+          elif ! grep -Eq 'HTTP 404|Not Found' "$RUNNER_TEMP/tag-existing.err"; then
+            echo 'Tag lookup API failure (not an HTTP 404)' >&2
+            cat "$RUNNER_TEMP/tag-existing.err" >&2
+            exit 1
+          fi
           if [ -n "$BEFORE" ]; then
-            test "$BEFORE" = "$SOURCE" || { echo 'Wrong immutable source tag target' >&2; exit 1; }
+            test "$BEFORE" = "$SOURCE" || { echo 'Existing immutable source tag points to different SHA' >&2; exit 1; }
           else
             gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$SOURCE" > "$RUNNER_TEMP/tag.json" || {
-              FOUND="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
+              FOUND=''
+              gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-after.json" 2>/dev/null || {
+                echo 'Tag write ambiguous or denied' >&2; exit 1;
+              }
+              FOUND="$(jq -er '.object.sha | select(type=="string")' "$RUNNER_TEMP/tag-after.json")" || {
+                echo 'Tag write ambiguous or denied' >&2; exit 1;
+              }
               test "$FOUND" = "$SOURCE" || { echo 'Ambiguous tag write, manual recovery' >&2; exit 1; }
             }
           fi
