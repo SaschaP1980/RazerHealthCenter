@@ -14,6 +14,10 @@ class InterimPostmergeContract(unittest.TestCase):
             "75b9209a90a192dba5f22665720a048195dc6881",
             "c7a7ac150d236e85710454c61c806a6f3f4fb400d5309487ecbb88746f28c4c8",
             "rhc_downloads.py", "tests -p 'test_rhc_downloads_contracts.py'",
+            "RHC34_PRETAG_RELEASE_PROVENANCE=PASS",
+            "git diff --name-only \"$SOURCE_SHA\" \"$FIRST\"",
+            "gh api \"repos/$GITHUB_REPOSITORY/branches/main\"",
+            "source=$SOURCE_SHA main=$MERGED_SHA",
             "git/ref/tags/v3.0.8.1", "git/refs/heads/release/v3.0.8.1",
         ):
             self.assertIn(needle,s)
