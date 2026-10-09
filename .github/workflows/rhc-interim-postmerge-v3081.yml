@@ -3,6 +3,11 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rhc-interim-postmerge-v3081.yml'
+      - 'tests/test_rhc_interim_postmerge_contracts.py'
 permissions:
   contents: read
 
@@ -146,3 +151,120 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq .state)" = open
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq .state)" = open
           echo "RHC34_POSTMERGE_RELEASE_SUCCESS=PASS; source=$SOURCE_SHA main=$MERGED_SHA, tag=v3.0.8.1; unsigned uncertified; PhaseB DEFERRED"
+
+
+  recover-tag:
+    name: Bounded v3.0.8.1 postmerge tag and branch recovery
+    if: github.repository == 'SaschaP1980/RazerHealthCenter' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: 75b9209a90a192dba5f22665720a048195dc6881
+      RELEASE_MERGE_SHA: d2509511ee913689e2d514dc72202d969ca60247
+      RELEASE_STAGE_SHA: 90fe14f47c826e89a26b9a7a1dde97eac7e02fac
+      ZIP_SHA256: c7a7ac150d236e85710454c61c806a6f3f4fb400d5309487ecbb88746f28c4c8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact published source, catalog, unmodified binaries and hosted Linux/native Windows
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha' | grep -qx "$GITHUB_SHA"
+          git merge-base --is-ancestor "$RELEASE_MERGE_SHA" "$GITHUB_SHA"
+          git diff --name-only "$RELEASE_MERGE_SHA" "$GITHUB_SHA" | sort > "$RUNNER_TEMP/diff.txt"
+          printf '%s\n' '.github/workflows/rhc-interim-postmerge-v3081.yml' 'tests/test_rhc_interim_postmerge_contracts.py' > "$RUNNER_TEMP/expected.txt"
+          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/diff.txt"
+          git diff --quiet "$RELEASE_MERGE_SHA" "$GITHUB_SHA" -- downloads model.go CHANGELOG.md build.sh
+          gh api "repos/$GITHUB_REPOSITORY/pulls/36" > "$RUNNER_TEMP/pr.json"
+          jq -e --arg merge "$RELEASE_MERGE_SHA" --arg stage "$RELEASE_STAGE_SHA" \
+            '.state=="closed" and .merged==true and .head.sha==$stage and .merge_commit_sha==$merge' "$RUNNER_TEMP/pr.json" > /dev/null
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          python3 -m unittest discover -s tests -p 'test_rhc_downloads_contracts.py' -v
+          python3 -m unittest discover -s tests -p 'test_rhc_interim_postmerge_contracts.py' -v
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,sys
+          sys.path.insert(0,'tools')
+          from rhc_downloads import portable_zip_check,verify_qa_archive
+          from rhc_release_contracts import version_from_model
+          d=pathlib.Path('downloads')
+          r=json.loads((d/'releases.json').read_text())['releases']
+          p=json.loads((d/'latest.json').read_text())
+          assert len(r)==1 and r[0]==p and p['version']=='3.0.8.1'
+          assert p['sourceSha']==os.environ['SOURCE_SHA'] and p['tag']=='v3.0.8.1'
+          z=d/'RazerHealthCenter-Portable-v3.0.8.1.zip'
+          assert p['file']==z.name and z.stat().st_size==8619984
+          assert hashlib.sha256(z.read_bytes()).hexdigest()==os.environ['ZIP_SHA256']==p['sha256']
+          assert len(portable_zip_check(z))==7 and verify_qa_archive(d)==1
+          assert version_from_model('.')=='3.0.8.1'
+          assert 'SmartScreen' in (d/'README.md').read_text()
+          PY
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37879861534" --jq '.head_sha' | grep -qx "$SOURCE_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37879861534/jobs?per_page=100" \
+            --jq '[.jobs[]|select(.name=="Exact-main double Linux PE/ZIP and isolated catalog verification" or .name=="Actual native Windows PS5.1 and unsigned EXE/ZIP safety verification")|.conclusion]|sort|join(",")' | grep -qx 'success,success'
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37881229970" --jq '.head_sha+" "+.conclusion' | grep -qx "$RELEASE_STAGE_SHA success"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37881386535/jobs?per_page=100" \
+            --jq '[.jobs[].steps[]|select(.name=="Verify actual immutable ZIP, exact merge ancestry, QA history and CI provenance")|.conclusion]|join(",")' | grep -qx 'success'
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq .state)" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq .state)" = open
+          echo "RHC34_RECOVERY_PRETAG=PASS source=$SOURCE_SHA merged=$RELEASE_MERGE_SHA"
+
+      - name: Create exact v3.0.8.1 Git tag with explicit 404 handling and independent readback
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" > "$RUNNER_TEMP/tag.json" 2>"$RUNNER_TEMP/get.err"; then
+            jq -er '.object.sha' "$RUNNER_TEMP/tag.json" | grep -qx "$SOURCE_SHA"
+          else
+            grep -q '404' "$RUNNER_TEMP/get.err" || { cat "$RUNNER_TEMP/get.err" >&2; exit 1; }
+            echo 'Tag is missing (HTTP 404), create on the exact verified original build source'
+            if ! gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref=refs/tags/v3.0.8.1 -f sha="$SOURCE_SHA" > "$RUNNER_TEMP/post.json" 2>"$RUNNER_TEMP/post.err"; then
+              cat "$RUNNER_TEMP/post.err" >&2
+              gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' | grep -qx "$SOURCE_SHA"
+            fi
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' | grep -qx "$SOURCE_SHA"
+          echo "RHC34_RECOVERY_TAG=PASS source=$SOURCE_SHA"
+
+      - name: Safe cleanup of exact known release/technical branches; final remote readback
+        shell: bash
+        run: |
+          set -euo pipefail
+          delete_safe() {
+            local ref="$1" expected="$2" live=''
+            live="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha' 2>/dev/null || true)"
+            if [ -n "$live" ]; then
+              test "$live" = "$expected" || { echo "Changed ref: $ref" >&2; exit 1; }
+              git merge-base --is-ancestor "$live" "$GITHUB_SHA"
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$ref"
+            fi
+            test -z "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha' 2>/dev/null || true)"
+          }
+          delete_safe release/v3.0.8.1 "$RELEASE_STAGE_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/pulls/37" \
+            --jq '.state+" "+(.merged|tostring)+" "+.head.sha' | grep -qx 'closed true 36b7112d140a591bc74cd67e54e48f51142c84a1'
+          delete_safe work/RHC-34-fixture 36b7112d140a591bc74cd67e54e48f51142c84a1
+          ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/work/RHC-34-tagfix" --jq '.object.sha' 2>/dev/null || true)"
+          if [ -n "$ref" ]; then
+            git merge-base --is-ancestor "$ref" "$GITHUB_SHA"
+            delete_safe work/RHC-34-tagfix "$ref"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' | grep -qx "$SOURCE_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha' | grep -qx "$GITHUB_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/contents/downloads/RazerHealthCenter-Portable-v3.0.8.1.zip?ref=main" --jq '.sha' \
+            | grep -qx "$(git rev-parse "$GITHUB_SHA:downloads/RazerHealthCenter-Portable-v3.0.8.1.zip")"
+          gh api "repos/$GITHUB_REPOSITORY/contents/downloads/latest.json?ref=main" --jq '.sha' \
+            | grep -qx "$(git rev-parse "$GITHUB_SHA:downloads/latest.json")"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq .state)" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq .state)" = open
+          echo "RHC34_TAG_RECOVERY_SUCCESS=PASS source=$SOURCE_SHA main=$GITHUB_SHA; tag/catalog/zip verified, PhaseB DEFERRED"
