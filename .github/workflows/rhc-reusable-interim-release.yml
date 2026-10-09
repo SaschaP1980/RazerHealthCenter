@@ -1,0 +1,394 @@
+name: RHC Reusable Interim Unsigned Release
+# RHC-43: real source, Linux, native Windows, immutable catalog and GitHub release PR.
+# Technical interim release remains unsigned/uncertified; Phase B deferred.
+# rhc_reusable_interim.py performs the read-only eligibility contract.
+on:
+  push:
+    branches: [main]
+    paths: ['model.go']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rhc-reusable-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: Exact-main double Linux PE/ZIP and isolated catalog verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GOPROXY: 'off'
+      GOSUMDB: 'off'
+      GOTOOLCHAIN: local
+      GOFLAGS: '-buildvcs=false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Version, release policy, tests, unchanged public history
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          import rhc_downloads as d
+          from rhc_release_contracts import version_from_model
+          version=version_from_model('.')
+          rows=d.verify('downloads')
+          assert rows, 'existing public latest required'
+          a,b=d.norm_version(version),d.norm_version(rows[0]['version'])
+          assert a[:3]==b[:3] and a[3]==b[3]+1, 'target must be exactly next HOTFIX'
+          assert '## '+version in Path('CHANGELOG.md').read_text()
+          policy=json.loads(Path('config/rhc-release-policy.json').read_text())
+          assert policy['productionEnabled'] is False and policy['rollbackVerified'] is False
+          assert policy['signingDecision']=='unknown' and policy['distribution']=='repo-downloads'
+          assert not (Path('downloads')/d.filename(version)).exists()
+          print('RHC_REUSABLE_SOURCE=PASS version='+version+' previous='+rows[0]['version'])
+          PY
+          python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
+          python3 -B tools/rhc_downloads.py --downloads downloads
+      - name: Build two independent real Windows EXEs and two bit-identical lean ZIPs
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash build.sh "$RUNNER_TEMP/build1"
+          bash build.sh "$RUNNER_TEMP/build2"
+          cmp "$RUNNER_TEMP/build1/RazerHealthCenter.exe" "$RUNNER_TEMP/build2/RazerHealthCenter.exe"
+          mkdir -p "$RUNNER_TEMP/proof" "$RUNNER_TEMP/full"
+          cp -a downloads "$RUNNER_TEMP/full/downloads"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,sys
+          from datetime import datetime,timezone
+          sys.path.insert(0,'tools')
+          import rhc_downloads as d
+          from rhc_release_contracts import version_from_model
+          tmp=pathlib.Path(os.environ['RUNNER_TEMP'])
+          version=version_from_model('.')
+          previous=d.verify('downloads')
+          a,b=tmp/'build1/RazerHealthCenter.exe',tmp/'build2/RazerHealthCenter.exe'
+          first=tmp/'first'/d.filename(version)
+          second=tmp/'second'/d.filename(version)
+          first.parent.mkdir()
+          second.parent.mkdir()
+          d.make_lean_zip('.',a,first)
+          d.make_lean_zip('.',b,second)
+          assert first.read_bytes()==second.read_bytes(), 'independent seven-file ZIPs differ'
+          stamp=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')
+          record=d.stage_release(tmp/'full/downloads',first,version,stamp,os.environ['GITHUB_SHA'])
+          assert d.verify(tmp/'full/downloads')==[record,*previous]
+          assert '## v'+version+' interim-release disclosure' in (tmp/'full/downloads/README.md').read_text()
+          stage=tmp/'proof'
+          for name in [record['file'],'releases.json','latest.json','README.md']:
+              (stage/name).write_bytes((tmp/'full/downloads'/name).read_bytes())
+          evidence=dict(version=version,previousLatestVersion=previous[0]['version'],
+              previousReleaseCount=len(previous),previousHistoryIntact=True,
+              sourceSha=os.environ['GITHUB_SHA'],archiveFile=record['file'],
+              archiveSha256=record['sha256'],archiveSize=record['size'],
+              exeSha256=hashlib.sha256(a.read_bytes()).hexdigest(),archiveFiles=7,
+              twoIndependentPeBuilds=True,twoIndependentZipBuilds=True,
+              archiveReproducible=True,linux='SUCCESS')
+          (stage/'linux-evidence.json').write_text(json.dumps(evidence,indent=2)+'\n')
+          first.unlink()
+          second.unlink()
+          print('RHC_REUSABLE_LINUX_DOUBLE_BUILD=PASS',json.dumps(evidence,sort_keys=True))
+          PY
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          git diff --exit-code
+      - name: Transfer only unapproved staging evidence to Windows runner
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
+          path: ${{ runner.temp }}/proof/
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+
+  windows:
+    name: Actual native Windows PS5.1 and unsigned EXE/ZIP safety verification
+    needs: linux
+    runs-on: windows-2025
+    timeout-minutes: 25
+    env:
+      GOPROXY: 'off'
+      GOSUMDB: 'off'
+      GOTOOLCHAIN: local
+      GOFLAGS: '-buildvcs=false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc-reusable-stage
+      - name: Validate exact main source, Razer safety and actual Windows Publisher status
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PowerShell 5.1 required' }
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Main SHA drift' }
+          $stage=Join-Path $env:RUNNER_TEMP 'rhc-reusable-stage'
+          $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
+          $current=(python -c "import sys;sys.path.insert(0,'tools');from rhc_release_contracts import version_from_model;print(version_from_model('.'))").Trim()
+          if ($LASTEXITCODE -ne 0 -or $e.version -ne $current -or $e.sourceSha -ne $env:GITHUB_SHA -or !$e.archiveReproducible) { throw 'Wrong release version/SHA' }
+          $zip=Join-Path $stage $e.archiveFile
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.archiveSha256) { throw 'ZIP digest mismatches Linux runner' }
+          $scripts=@(Get-ChildItem -Recurse -File -Filter '*.ps1')
+          if ($scripts.Count -lt 15) { throw 'Missing Razer PowerShell inventory' }
+          foreach ($file in $scripts) {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count -gt 0) { throw "PS5.1 parser error: $($file.FullName)" }
+          }
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Go tests failed' }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Go vet failed' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE -ne 0) { throw 'Repair safety failed' }
+          python -B tools/validate_v307_ps51_appengine_diagnostic.py
+          if ($LASTEXITCODE -ne 0) { throw 'Diagnostic safety failed' }
+          python -B tools/validate_v306_appengine_recovery.py
+          if ($LASTEXITCODE -ne 0) { throw 'Recovery safety failed' }
+          $out=Join-Path $env:RUNNER_TEMP 'rhc-reusable-verified-extract'
+          Expand-Archive -LiteralPath $zip -DestinationPath $out
+          $pe=Join-Path $out 'RazerHealthCenter.exe'
+          if ((Get-FileHash $pe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.exeSha256) { throw 'EXE digest drift' }
+          $sig=Get-AuthenticodeSignature $pe
+          if ($sig.Status -ne 'NotSigned') { throw 'Interim unsigned trust disclosure disagrees with real PE' }
+          $att=@{ sourceSha=$env:GITHUB_SHA; archiveSha256=$e.archiveSha256; exeSha256=$e.exeSha256; exeSignature='NotSigned'; nativeWindows='SUCCESS'; version=$e.version }
+          $att | ConvertTo-Json -Compress | Set-Content -Encoding Ascii (Join-Path $env:RUNNER_TEMP 'rhc-reusable-windows-evidence.json')
+          # Eligibility is composed on the stage runner from real Linux and
+          # native Windows evidence. No external Phase B claim is invented.
+          Write-Output 'RHC_REUSABLE_WINDOWS=PASS; actual PS5.1 + unsigned EXE + cross-OS qualification; physical Razer/rollback/Owner trust DEFERRED'
+      - name: Transfer real Windows proof after qualified native tests
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: RHC_REUSABLE-NATIVE-WINDOWS-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc-reusable-windows-evidence.json
+          retention-days: 1
+          if-no-files-found: error
+
+  stage:
+    name: Stage single immutable ZIP/catalog PR only after both OS success
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc-reusable-stage
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: RHC_REUSABLE-NATIVE-WINDOWS-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc-reusable-windows
+      - name: Validate frozen source, true release evidence and all deferred Phase B fields
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq '.state')" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq '.state')" = open
+          VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          test -z "$(git ls-remote origin "refs/tags/v$VERSION")"
+          test -z "$(git ls-remote origin "refs/heads/release/v$VERSION")"
+          test ! -e "downloads/RazerHealthCenter-Portable-v$VERSION.zip"
+          python3 - <<'PY'
+          import json,os,pathlib,sys,hashlib
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          import rhc_downloads as d,rhc_reusable_interim as i
+          from rhc_release_contracts import version_from_model
+          version=version_from_model('.')
+          t=pathlib.Path(os.environ['RUNNER_TEMP'])
+          stage=t/'rhc-reusable-stage'
+          linux=json.loads((stage/'linux-evidence.json').read_text())
+          win=json.loads((t/'rhc-reusable-windows/rhc-reusable-windows-evidence.json').read_text())
+          previous=d.verify('downloads')
+          policy=json.loads(Path('config/rhc-release-policy.json').read_text())
+          assert linux['sourceSha']==win['sourceSha']==os.environ['GITHUB_SHA']
+          assert linux['archiveSha256']==win['archiveSha256']
+          assert linux['exeSha256']==win['exeSha256']
+          archive=stage/linux['archiveFile']
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()==linux['archiveSha256']
+          assert len(d.portable_zip_check(archive))==7
+          assert linux['previousLatestVersion']==previous[0]['version']
+          assert linux['previousReleaseCount']==len(previous)
+          snapshot=dict(linux,mode='interim-unsigned',issue=43,
+              ownerProcessAuthorized=True,referenceVersion=version,
+              changelogVersion=version,releaseProfile='version-only',
+              mainSha=os.environ['GITHUB_SHA'],nativeWindows=win['nativeWindows'],
+              exeSignature=win['exeSignature'],policy=policy,phaseB=dict(i.PHASE_B),
+              existingTag=False,existingArchive=False)
+          proof=i.qualify(snapshot)
+          assert proof['status']=='ELIGIBLE_NOT_PUBLISHED'
+          for name in ['README.md','releases.json','latest.json',linux['archiveFile']]:
+              target=Path('downloads')/name
+              assert not target.exists() if name.endswith('.zip') else True
+              target.write_bytes((stage/name).read_bytes())
+          assert d.verify('downloads')==[json.loads((Path('downloads')/'latest.json').read_text()),*previous]
+          assert '## v'+version+' interim-release disclosure' in Path('downloads/README.md').read_text()
+          print('RHC_REUSABLE_RELEASE_STAGE=ELIGIBLE_NOT_PUBLISHED',json.dumps(proof,sort_keys=True))
+          PY
+          git diff --name-only > "$RUNNER_TEMP/changed.txt"
+          test "$(sort "$RUNNER_TEMP/changed.txt" | tr '\n' ' ')" = "downloads/README.md downloads/latest.json downloads/releases.json "
+          test -f downloads/RazerHealthCenter-Portable-v$VERSION.zip
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+      - name: Create exact-parent four-path release branch and PR (never force push)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c release/v$VERSION
+          git add downloads/README.md downloads/releases.json downloads/latest.json downloads/RazerHealthCenter-Portable-v$VERSION.zip
+          git diff --cached --name-only | sort > "$RUNNER_TEMP/staged-paths.txt"
+          printf '%s\n' downloads/README.md downloads/RazerHealthCenter-Portable-v$VERSION.zip downloads/latest.json downloads/releases.json > "$RUNNER_TEMP/expected-paths.txt"
+          diff -u "$RUNNER_TEMP/expected-paths.txt" "$RUNNER_TEMP/staged-paths.txt"
+          git commit -m "release(rhc-reusable): stage interim unsigned v$VERSION portable/catalog" -m "RHC-Issue: 34"
+          STAGED_SHA="$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
+          test -z "$(git ls-remote origin refs/heads/release/v$VERSION)"
+          git push origin HEAD:refs/heads/release/v$VERSION
+          test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
+          gh workflow run rhc-infrastructure-ci.yml --ref "release/v$VERSION"
+          gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head release/v$VERSION \
+            --title "[RHC-34] Interim unsigned v$VERSION release — exact source and 2OS verified" \
+            --body "RHC-33 temporary autonomous interim-release. Source main SHA $GITHUB_SHA, release SHA $STAGED_SHA. Four paths only; actual seven-file unsigned ZIP, exact SHA-256, immutable catalog and latest pointer. Real Linux double build and native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware acceptance, native rollback, publisher signature and SmartScreen Owner consent DEFERRED/NOT VERIFIED, NOT represented as passed. No production policy change. RHC-33 and RHC-22 remain OPEN."
+          echo "RHC_REUSABLE_INTERIM_STAGE=PR_CREATED stagedSha=$STAGED_SHA sourceSha=$GITHUB_SHA"
+
+  finalize:
+    name: Independently verify exact release PR CI then merge, tag, remote hash and cleanup
+    needs: stage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Wait for separate hosted exact-stage-SHA Infrastructure and Downloads CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE="$GITHUB_SHA"
+          VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE"
+          git fetch --no-tags origin release/v$VERSION
+          STAGED="$(git rev-parse FETCH_HEAD)"
+          test "$(git rev-parse "$STAGED^")" = "$SOURCE"
+          test "$(git diff --name-only "$SOURCE" "$STAGED" | sort | tr '\n' ' ')" = "downloads/README.md downloads/RazerHealthCenter-Portable-v$VERSION.zip downloads/latest.json downloads/releases.json "
+          gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=SaschaP1980:release/v$VERSION" > "$RUNNER_TEMP/pr.json"
+          PR="$(jq -r --arg stage "$STAGED" --arg source "$SOURCE" '[.[]|select(.head.sha==$stage and .base.sha==$source and .draft==false)] | if length == 1 then .[0].number else empty end' "$RUNNER_TEMP/pr.json")"
+          test -n "$PR"
+          echo "RHC_REUSABLE_FINISH_PR=$PR stageSha=$STAGED"
+          check_workflow() {
+            local WF="$1" RUN='' VAL='' STATUS='' CONC=''
+            for attempt in $(seq 1 90); do
+              RUN="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$WF/runs?branch=release/v$VERSION&per_page=30" \
+                --jq "[.workflow_runs[]|select(.head_sha==\"$STAGED\" and .event==\"workflow_dispatch\")][0] | if .==null then \"\" else \"\(.id) \(.status) \(.conclusion)\" end")"
+              read -r VAL STATUS CONC <<< "$RUN"
+              if [ -n "$VAL" ] && [ "$STATUS" = completed ]; then
+                test "$CONC" = success || { echo "FAILED hosted $WF run $VAL conclusion=$CONC"; return 1; }
+                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" \
+                  --jq '[.jobs[]|select(.conclusion=="failure" or .conclusion=="cancelled" or .conclusion=="skipped")] | length' | grep -qx 0
+                if [ "$WF" = rhc-infrastructure-ci.yml ]; then
+                  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" \
+                    --jq '[.jobs[]|select(.name=="rhc/infra/linux" or .name=="rhc/infra/windows")|.conclusion] | sort | join(",")' | grep -qx 'success,success'
+                fi
+                echo "RHC_REUSABLE_RELEASE_HOSTED_EXACT_SHA=$WF PASS runId=$VAL commit=$STAGED"
+                return 0
+              fi
+              sleep 10
+            done
+            echo "EXACT release workflow missing/timed out: $WF" >&2
+            return 1
+          }
+          check_workflow rhc-infrastructure-ci.yml
+          check_workflow rhc-downloads-verify.yml
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE"
+          test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED"
+          test -z "$(git ls-remote origin refs/tags/v$VERSION)"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "SOURCE_SHA=$SOURCE" >> "$GITHUB_ENV"
+          echo "STAGED_SHA=$STAGED" >> "$GITHUB_ENV"
+          echo "RELEASE_PR=$PR" >> "$GITHUB_ENV"
+      - name: Merge only proven four-path PR, create exact source tag, re-read public ZIP and safe cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE_SHA"
+          test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
+          RESULT="$(gh api -X PUT "repos/$GITHUB_REPOSITORY/pulls/$RELEASE_PR/merge" \
+            -f sha="$STAGED_SHA" -f merge_method=merge \
+            -f commit_title="Release RHC v$VERSION (interim unsigned, RHC-33)" \
+            -f commit_message="Exact Main-source, Linux/native Windows CI and archive verified. Hardware/rollback/publisher trust deferred; no fake Phase B approval.")"
+          MERGED="$(jq -r '.sha' <<< "$RESULT")"
+          test "$(jq -r '.merged' <<< "$RESULT")" = true
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED"
+          gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref=refs/tags/v$VERSION -f sha="$SOURCE_SHA" >/dev/null
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$MERGED"
+          test "$(git show -s --format=%P "$MERGED")" = "$SOURCE_SHA $STAGED_SHA"
+          git switch --detach "$MERGED"
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          python3 - <<'PY'
+          import json,hashlib,pathlib,sys,os
+          sys.path.insert(0,'tools')
+          from rhc_release_contracts import version_from_model
+          from rhc_downloads import portable_zip_check
+          assert version_from_model('.')==os.environ['VERSION']
+          d=pathlib.Path('downloads')
+          records=json.loads((d/'releases.json').read_text())['releases']
+          latest=json.loads((d/'latest.json').read_text())
+          assert len(records)>=2 and latest==records[0]
+          assert latest['version']==os.environ['VERSION'] and latest['sourceSha']==os.environ['SOURCE_SHA']
+          zip=d/latest['file']
+          assert len(portable_zip_check(zip))==7
+          assert hashlib.sha256(zip.read_bytes()).hexdigest()==latest['sha256']
+          readme=(d/'README.md').read_text()
+          assert 'UNSIGNED WINDOWS EXECUTABLE' in readme and 'SmartScreen' in readme
+          print('RHC_REUSABLE_REMOTE_MAIN_DOWNLOADS=VERIFIED',json.dumps(latest,sort_keys=True))
+          PY
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq '.state')" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq '.state')" = open
+          test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/release/v$VERSION"
+          test -z "$(git ls-remote origin refs/heads/release/v$VERSION)"
+          echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED source=$SOURCE_SHA tag=v$VERSION PhaseB=DEFERRED"

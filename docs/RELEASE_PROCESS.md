@@ -1,3 +1,10 @@
+## Active RHC-43 version-independent interim Publisher contract — 2026-10-09
+
+[Reusable Publisher workflow](../.github/workflows/rhc-reusable-interim-release.yml) triggers on a main model.go version change; [Postmerge remote verification/tag workflow](../.github/workflows/rhc-reusable-interim-postmerge.yml) binds actual merged download ZIP, catalog, tag and NotSigned PowerShell proof. Both retain source SHA and old release-history immutability; the separate standard production controller stays fail-closed.
+
+**A source-controlled workflow is not an executed release.** Require actual GitHub Actions write/PR/dispatch permission evidence, trusted hosted Linux/native Windows test results at correct source and staged SHA, real PR/merge, postpublish remote readback and safe cleanup before RELEASE VERIFIED. A denied GitHub-token createPullRequest or unverified tag triggers BLOCKED/NEEDS_ATTENTION; do not synthesize approvals, bypass negative checks or inherit the historical one-version exception. Release status must be read live from model.go and the main/downloads latest/releases ZIP, not inferred from this text.
+
+---
 # RHC-43 — Active reusable interim Release contract (English, owner decision 2026-10-09)
 
 **Publication is the terminal criterion for requested full-cycle work.** A Hotfix Work/Candidate is only *qualified source* until the official repo-downloads ZIP, source tag, release history, latest pointer, matching main model.go/CHANGELOG and independent remote readback are all proven. A blocked or unimplemented downstream step is a recorded release failure/incomplete result, not a reason to claim overall success.
