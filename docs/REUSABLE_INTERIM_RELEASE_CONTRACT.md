@@ -22,7 +22,7 @@ The separate **standard signed/certified production policy** stays fail-closed a
 
 - Authoritative inputs must be live GitHub main and issues plus real executable tools/tests: current model.go appVersion/referenceVersion and CHANGELOG; current downloads/latest.json and append-only downloads/releases.json; exact existing tags, refs, PR states and immutable ZIP hashes; current config/rhc-release-policy.json.
 - The original RHC-34 release mechanism was intentionally limited to **v3.0.8.1**. Source tag v3.0.8.1 and previously distributed ZIP are immutable historic evidence. Reusable mode is a new implementation owned by [RHC-43](https://github.com/SaschaP1980/RazerHealthCenter/issues/43).
-- The current issue-backed product hotfix is separately owned by [RHC-41](https://github.com/SaschaP1980/RazerHealthCenter/issues/41) and [PR #42](https://github.com/SaschaP1980/RazerHealthCenter/pull/42). It changes only two model.go version constants and the CHANGELOG; never hide infrastructure changes in its version-only two-path diff.
+- The completed v3.0.8.2 version-only hotfix was separately owned by [RHC-41](https://github.com/SaschaP1980/RazerHealthCenter/issues/41) and merged [PR #42](https://github.com/SaschaP1980/RazerHealthCenter/pull/42): only two version constants in `model.go` and `CHANGELOG.md`. Do not mix the product diff with reusable Publisher infrastructure.
 - The standard production controller remains fail-closed with productionEnabled=false, signingDecision=unknown and rollbackVerified=false. Phase B remains OPEN/PAUSED under RHC-22 and RHC-33; the explicit interim unsigned/uncertified mode is separate, not a disguised production approval. Future reinstatement of Phase B requires a fresh specific owner decision.
 
 ## Minimum real pipeline
@@ -43,17 +43,17 @@ The separate **standard signed/certified production policy** stays fail-closed a
 - [Work Linux/native Windows + Completion](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889269575) succeeded; [Candidate #37889390987](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889390987) showed 3/3 exact-SHA success and deliberately failed ordinary Promotion. Do not conflate the blocked standard production job with failed OS safety or a completed interim publication.
 - The new first RED test file was initially named outside the real test discovery glob; host CI did not execute it. It was renamed to match tests/test_rhc_*_contracts.py, and genuine 2-test RED against the old workflow triggers was then observed on hosted Linux run [#37890655272](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37890655272). Test discovery is part of evidence, not an administrative detail.
 
-## Implementation versus approval matrix
+## Implementation versus approval matrix — verified 2026-10-09 snapshot
 
 | Contract | Current status |
 | --- | --- |
-| Reusable interim-mode owner process direction | AUTHORIZED FOR IMPLEMENTATION |
+| Reusable interim-mode owner process direction | AUTHORIZED UNTIL EXPLICITLY REVOKED; not standard production approval |
 | Existing historical v3.0.8.1 public release | ALREADY PUBLISHED, IMMUTABLE |
-| Current v3.0.8.2 Work/Candidate technical gates | PASS, NONPUBLISHING |
-| RHC-43 focused regression and CI trigger hygiene | IN PROGRESS — verify final SHA |
-| Reusable real GitHub stage/PR/merge/postverify writer | **NOT YET QUALIFIED** |
-| Current v3.0.8.2 main/latest ZIP/source tag | **NOT PUBLISHED/VERIFIED** |
-| Physical Razer acceptance, publisher trust, rollback | DEFERRED / NOT VERIFIED |
-| Standard production policy | DISABLED, UNCHANGED |
+| Historical v3.0.8.2 Work/Candidate gates | PASS; source qualification alone was NONPUBLISHING |
+| RHC-43 regression and CI trigger hygiene | COMPLETED; [RHC-43](https://github.com/SaschaP1980/RazerHealthCenter/issues/43) CLOSED |
+| Reusable stage/PR/merge/postverify writer | IMPLEMENTED; real v3.0.8.2 published and [independent recovery #37899579163](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37899579163) SUCCESS |
+| Historical v3.0.8.2 public ZIP/source tag | VERIFIED; ZIP SHA-256 `f18d43cb0350ac9c20d9988ae2e0d8271e74086a807dfe53f4d2e92e7dcb86e0`, tag `v3.0.8.2` source `b43c8f25f1f4190c8bf709c2bbefe6550aa920cd` |
+| Physical Razer acceptance, trusted publisher, native rollback | DEFERRED / NOT VERIFIED; not interim release blockers |
+| Standard signed/certified production policy | DISABLED (`false/unknown/false`), UNCHANGED |
 
-Do not remove this explicit implementation-status distinction merely because documentation has been updated.
+**Separate later permissions proof:** Real `GITHUB_TOKEN` PR creation passed in [nonpublishing run #37903545748](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37903545748). It was **not** a second full product release with post-setting permissions. Earlier PR-denial and CI RED evidence remain historical facts. Historical RHC-34 branches were cleaned in [run #37907299939](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37907299939). A new version requires fresh exact-SHA source, native CI, merged ZIP/catalog, tag and remote outcome checks; do not inherit this dated matrix as current PASS.
