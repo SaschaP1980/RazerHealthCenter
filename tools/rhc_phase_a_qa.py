@@ -68,9 +68,9 @@ def verify_source_and_policy(root, source_sha):
             and policy.get("signingDecision") == "unknown"
             and policy.get("distribution") == "repo-downloads",
             "QA Phase A forbidden when actual production policy is enabled")
+    # Fully verify historic immutable public releases instead of assuming
+    # a prepublication repository. Test-only QA never publishes to downloads/.
     downloads.verify(root / "downloads")
-    require(not (root / "downloads/latest.json").exists(),
-            "Phase A cannot use live product release index")
     return version_from_model(root)
 
 

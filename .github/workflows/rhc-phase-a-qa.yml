@@ -52,13 +52,19 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_rhc_phase_a_qa_contracts.py' -v
           python3 -B tools/rhc_downloads.py --downloads downloads
           python3 - <<'PY'
-          import json,pathlib
+          import json,os,pathlib,sys
           p=json.loads(pathlib.Path("config/rhc-release-policy.json").read_text())
           assert p["productionEnabled"] is False
           assert p["rollbackVerified"] is False
           assert p["signingDecision"] == "unknown"
           assert p["distribution"] == "repo-downloads"
-          assert not pathlib.Path("downloads/latest.json").exists()
+          sys.path.insert(0, "tools")
+          from rhc_phase_a_qa import inventory
+          # Record every published/QA download byte outside the checkout.
+          baseline = inventory("downloads")
+          snapshot = pathlib.Path(os.environ["RUNNER_TEMP"]) / "rhc29-downloads-before.json"
+          snapshot.write_text(json.dumps(baseline, sort_keys=True), encoding="utf-8")
+          print("RHC29_LIVE_RELEASE_BASELINE=PASS files=" + str(len(baseline)))
           print("RHC29_PHASE_B_BLOCKED=PASS; NEVER released")
           PY
       - name: Produce two real identical Windows GUI builds and test-only ZIP
@@ -77,8 +83,16 @@ jobs:
             --root . --source-sha "$SOURCE_SHA" \
             --stage "$RUNNER_TEMP/rhc-phase-a-stage"
           python3 -B tools/rhc_downloads.py --downloads downloads
-          test ! -e downloads/latest.json
-          test "$(find downloads -maxdepth 1 -name '*.zip' | wc -l)" -eq 0
+          python3 - <<'PY'
+          import json,os,pathlib,sys
+          sys.path.insert(0, "tools")
+          from rhc_phase_a_qa import inventory
+          snapshot = pathlib.Path(os.environ["RUNNER_TEMP"]) / "rhc29-downloads-before.json"
+          before = json.loads(snapshot.read_text(encoding="utf-8"))
+          assert inventory("downloads") == before, "repository downloads mutated during Phase-A"
+          print("RHC29_PUBLISHED_DOWNLOADS_UNCHANGED=PASS files=" + str(len(before)))
+          PY
+          test -z "$(git status --porcelain --untracked-files=all -- downloads)"
           echo 'RHC29_LINUX_QA_STAGE=PASS_NONPUBLISHING_ONLY'
       - name: Transfer INTERNAL unapproved QA candidate to native Windows job
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -175,7 +189,10 @@ jobs:
             --root . --source-sha "$SOURCE_SHA" \
             --stage "$RUNNER_TEMP/rhc-phase-a-stage"
           python3 -B tools/rhc_downloads.py --downloads downloads
-          test ! -e downloads/latest.json
+          # Fresh exact-SHA checkout; QA evidence must not enter tracked or
+          # untracked repo downloads. Internal ZIP lives only in runner temp.
+          test -z "$(git status --porcelain --untracked-files=all -- downloads)"
+          echo 'RHC29_FINAL_REPO_DOWNLOADS=UNCHANGED'
           echo 'RHC29_QA_ARTIFACT=TECHNICALLY_TESTED_NOT_PRODUCTION_APPROVED'
       - name: Upload ephemeral TEST/UNSIGNED QA evidence, never repository downloads
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
