@@ -121,7 +121,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
       - name: Verify read-only release evidence again, create idempotent immutable source tag
         shell: bash
         run: |
@@ -133,15 +133,27 @@ jobs:
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           test "$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["sourceSha"])')" = "$SOURCE"
           python3 -B tools/rhc_downloads.py --downloads downloads
-          BEFORE="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha' 2>/dev/null || true)"
+          BEFORE="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
           if [ -n "$BEFORE" ]; then
             test "$BEFORE" = "$SOURCE" || { echo 'Wrong immutable source tag target' >&2; exit 1; }
           else
             gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$SOURCE" > "$RUNNER_TEMP/tag.json" || {
-              FOUND="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha' 2>/dev/null || true)"
+              FOUND="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
               test "$FOUND" = "$SOURCE" || { echo 'Ambiguous tag write, manual recovery' >&2; exit 1; }
             }
           fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE"
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_SHA"
+          # Work/import cleanup deliberately rejects release branches. Release
+          # cleanup belongs to the SHA-bound source-tag finalizer only.
+          REMOTE="$(git ls-remote origin "refs/heads/release/v$VERSION" | cut -f1)"
+          if [ -n "$REMOTE" ]; then
+            test "$REMOTE" = "$STAGED_SHA" || {
+              echo 'Release branch advanced after the verified merge' >&2; exit 1;
+            }
+            test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release/v$VERSION" --jq '.object.sha')" = "$STAGED_SHA"
+            git push --force-with-lease=refs/heads/release/v$VERSION:$STAGED_SHA origin ":refs/heads/release/v$VERSION"
+            test -z "$(git ls-remote origin "refs/heads/release/v$VERSION")"
+          fi
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE"
           echo "RHC_REUSABLE_POSTMERGE_SUCCESS=PASS version=$VERSION source=$SOURCE merged=$MERGED_SHA tag=v$VERSION PhaseB=DEFERRED"
