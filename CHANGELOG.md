@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.5 — 2026-10-09
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.4` to `3.0.8.5`. No functional, diagnostic, UI, Razer repair or PowerShell changes.
+- RHC-78: Owner-authorized complete Work-Branch Develop → Build → Candidate → qualified interim unsigned Release with independent verification. The source-only change does not itself constitute publication.
+
 ## 3.0.8.4 — 2026-10-09
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.3` to `3.0.8.4`. No functional, diagnostic, UI, Razer repair or PowerShell changes.
