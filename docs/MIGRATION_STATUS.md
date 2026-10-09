@@ -1,8 +1,28 @@
+## Final migration disposition — 2026-10-09
+
+**Current authority:** GitHub main, live model.go, downloads/catalog/tags and validated hosted runs. Dated records below remain historical, not current release policy.
+
+- **RHC-1: COMPLETED** — original 321-file byte-preserving source intake [PR #2](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), golden Windows EXE and native Windows PowerShell 5.1 safety [CI #37737410046](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37737410046), migration lessons/governance, actual GitHub Actions PR rights later [smoke #37903545748](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37903545748).
+- **RHC-3: SUPERSEDED** — nonpublishing Candidate/Work/Go/Windows infrastructure and current reusable interim publishing supersede the legacy GitHub Draft proposal. Preserve `work/RHC-3` unchanged: **four non-main commits** affecting QA artifact transport in the historical infrastructure workflow. Do not silently merge or discard those commits.
+- **RHC-34: COMPLETED after verified historical ref cleanup** — 3.0.8.1 public seven-file portable ZIP SHA-256 `c7a7ac150d236e85710454c61c806a6f3f4fb400d5309487ecbb88746f28c4c8`, immutable source tag `v3.0.8.1` = `75b9209a90a192dba5f22665720a048195dc6881`, downloads catalog. Four obsolete, already merged RHC-34 Work refs are reconciled only by [SHA-bound cleanup workflow](../.github/workflows/rhc34-historical-ref-cleanup.yml); close only after independent remote absence verification. Historical RHC-34 cleanup REDs are preserved.
+- Later release v3.0.8.2 was verified by [RHC-43 real postrelease recovery #37899579163](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37899579163); the default `GITHUB_TOKEN` bot-created a nonpublishing [PR #52](https://github.com/SaschaP1980/RazerHealthCenter/pull/52) in [run #37903545748](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37903545748), then closed it and deleted its scratch ref.
+- Owner-approved unsigned/uncertified interim releases remain allowed **until explicitly revoked**. Real hardware, native rollback and signing/publisher/SmartScreen acceptance are **DEFERRED / NOT_VERIFIED**, **not interim release blockers**. RHC-22 and RHC-33 remain OPEN; standard policy `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`. Rights/licensing RHC-6 and branding RHC-8 remain OPEN.
+
+### Current migration gate disposition
+
+| Gate | Current verified position |
+| --- | --- |
+| M0–M3 | **PASS** — source inventory, byte identity, golden EXE and hosted Linux/native Windows intake |
+| M4 | **PASS** — Candidate and tested interim technical release pipeline through v3.0.8.2, without enabling standard production |
+| M5 | **PARTIAL** — bot PR create, ruleset, releases and ref cleanup proven; external rollback/Windows publisher/administrative production conditions DEFERRED / NOT_VERIFIED |
+| M6 | **DEFERRED / NOT_VERIFIED** — physical Razer hardware and native rollback tracked under RHC-22/33 |
+
+---
 ## Live source, public download, standard policy and cleanup are separate
 
 **Current state: always resolve live.** App/reference from [`model.go`](../model.go), latest published version from [`downloads/latest.json`](../downloads/latest.json) and [`downloads/releases.json`](../downloads/releases.json) with real ZIP/Source-Tag proof, standard policy from [`config/rhc-release-policy.json`](../config/rhc-release-policy.json). The separately owner-authorized interim cycle is traced in [RHC-33](https://github.com/SaschaP1980/RazerHealthCenter/issues/33), [RHC-34](https://github.com/SaschaP1980/RazerHealthCenter/issues/34) and its [release retrospective](RHC_V3_0_8_1_RELEASE_RETROSPEKTIVE_2026-10-09.md). A published ZIP does not activate the standard production controller.
 
-**Verified at this documentation update:** an actual unsigned interim Portable ZIP is listed in the public releases catalog and has a matching original source tag. The standard policy remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`; physical Razer/rollback/publisher acceptance and administrative required-PR gates are `DEFERRED/NOT_VERIFIED`. The most recent postmerge run verified source/ZIP/tag evidence but **failed final branch cleanup**. Do not call that end-to-end workflow GREEN. The historical snapshots below are not current-version authority.
+**Verified at this documentation update:** an actual unsigned interim Portable ZIP is listed in the public releases catalog and has a matching original source tag. The standard policy remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`; physical Razer/rollback/publisher acceptance and administrative required-PR gates are `DEFERRED/NOT_VERIFIED`. The **historical** v3.0.8.1 postmerge cleanup did fail; later independent postrelease/tag/ref recovery succeeded for v3.0.8.2. Final cleanup of four merged legacy RHC-34 Work refs has its own specialist SHA-lease gate. The historical snapshots below are not current-version authority.
 
 ---
 
@@ -52,11 +72,11 @@ The supplied 3.0.8 package-validation report says 15/15 PASS, the regression-bac
 | M1 | Empty GitHub repository initialized with migration docs, Issue and reusable template | **PASS — GitHub commits and exact trees verified** |
 | M2 | 321-file source tree imported to `main` with exact original content-byte identity | **PASS — PR #2 merged, original source SHA inventory verified on both hosted OSes** |
 | M3 | GitHub-hosted source intake reproduces golden EXE; Linux and native Windows PS5.1 checks | **PASS — run #37737410046, Linux and Windows jobs both success on exact head** |
-| M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **PARTIAL PASS — reproducible Go/Windows build/Source+Portable and exact-SHA Development Completion merged in PR #4; Candidate gates staged nonpublishing; production Release Orchestrator still BLOCKED** |
-| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — `repo-downloads` selected, read-only catalog checks and Stage-1 no-delete/no-force-push verified; required PR/status permissions, artifact-specific Windows trust, release orchestration, rollback and hardware acceptance remain OPEN** |
-| M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **OPEN in provided handover** |
+| M4 | RHC-specific Candidate, Release, preactivation and postrelease machinery built, tested fail-closed | **PASS for owner-approved interim technical pipeline — real public releases v3.0.8.1/v3.0.8.2, reproducible Go/ZIP and exact source-tags; standard signed-production policy remains intentionally disabled** |
+| M5 | GitHub Actions permissions, branch policies, release-asset distribution, secrets, rollback verified | **PARTIAL — real GITHUB_TOKEN createPullRequest via PR #52, active main ruleset, immutable repo-downloads and verified tag/ref cleanup; separate external hardware/rollback/signing/production approvals DEFERRED / NOT_VERIFIED in RHC-22/33** |
+| M6 | Real native Windows/Razer acceptance for v3.0.8 false-positive fix | **DEFERRED / NOT_VERIFIED — physical Razer-device and native rollback acceptance remain parked in RHC-22/33** |
 
-**Release permission:** none. No synthetic production tag, no `downloads/latest.json` activation and no attempt to mark M2–M6 GREEN because M0 or M1 passed.
+**Current release permission:** standing owner approval for unsigned/uncertified interim publication until expressly revoked; actual v3.0.8.1/v3.0.8.2 public ZIP/catalog/source tags verified. Separate signed production authorization is NOT granted.
 
 ## Observed initial migration problems and responses
 
