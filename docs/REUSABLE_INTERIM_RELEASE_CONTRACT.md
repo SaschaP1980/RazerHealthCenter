@@ -8,6 +8,12 @@ The implementation operates on the **current** four-part application version (`M
 
 Diagnostics are read-only. Razer repairs require explicit in-app confirmation, allowlist/PID/payload checks, pre-mutation rechecks, least privilege and read-only postrepair verification. CI never performs a real Razer repair. Public download notices must disclose unsigned executable, unknown publisher and possible SmartScreen prompts. Never disable Windows security protections.
 
+## Standing default: new-version build requests imply a qualified interim release
+
+The owner's **post-bootstrap instruction to build/create/increment a new application version** also authorizes, by default, publishing that qualified version using this **full autonomous unsigned interim release transaction**; no explicit additional "release" wording, per-version approval or renewed standing authorization is required. If a Work-Branch Path was requested, obey its Issue/complete BOOTSTRAP Rolling Comment/Work/Development Completion/Candidate gates. Successful delivery means the immutable versioned public `main/downloads/` ZIP, updated `latest.json`, append-only `releases.json`, `README.md`, exact source tag, separate verified source/publication PRs and final cleanup **all actually pass**; Candidate or build GREEN alone is not release completion.
+
+This is **not** a trigger for a link-only `INITIAL_PROMPT.md` read-only bootstrap, unchanged-version build, docs-only work, internal QA/test artifacts or an express `build-only / no release` request. Explicit revocation, any failing or unverifiable hosted/native/safety/signature-state/catalog/tag/PR gate or unsupported GitHub permission means `BLOCKED/NEEDS_ATTENTION`, not inferred PASS or a partial distribution. Signed/certified standard production remains independently fail-closed, and external hardware/rollback/publisher trust remains `DEFERRED/NOT_VERIFIED` and openly disclosed for qualified unsigned interim releases.
+
 ## Mandatory repeatable transaction
 
 1. Read live `main`, app/reference version, previous `downloads/latest.json`, full `downloads/releases.json`, real older ZIPs and version source tags, relevant Issues, PRs, refs and active workflow contracts. Target must be a strictly new public version with no duplicated tag/ZIP or conflicting branch.
