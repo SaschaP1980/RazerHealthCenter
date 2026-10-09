@@ -76,9 +76,9 @@ An initial comment added *after* code commits does not retrospectively establish
 
 Before assigning Issue priority or a development path, **reconcile the target repository's Issue-label catalog**. Use the live canonical definitions in [LenovoBootSelector](https://github.com/SaschaP1980/LenovoBootSelector) (its [Issue-label taxonomy](https://github.com/SaschaP1980/LenovoBootSelector/blob/main/docs/GITHUB_HOWTO.md)). Copy each missing canonical label's **name, description and hexadecimal color**, not just its name. For target-specific text, replace only the source's `work/LBS-<issue>` reference with `work/<PROJECT_CODE>-<issue>`.
 
-The following nine labels were confirmed in LenovoBootSelector's actual labeled Issues and are the default migration set. The final provisioner fetches their live metadata again from the source repository; this table is an auditable reference, not a claim that the donor has no additional labels.
+The following nine labels were confirmed in LenovoBootSelector's actual labeled Issues and remain the donor-canonical migration baseline. The owner has additionally defined `dev-ops` as a tenth default label for new project migrations, with metadata verified in RazerHealthCenter; this **does not** assert that `dev-ops` exists in LenovoBootSelector. The final provisioner fetches the nine donor labels' live metadata and adds the separately owner-defined label from the verified values below. This table is an auditable reference, not a claim that the donor has no additional labels.
 
-| Name | Color (hex) | Source description |
+| Name | Color (hex) | Description (donor except owner-defined `dev-ops`) |
 | --- | --- | --- |
 | `bug` | `d73a4a` | Something isn't working |
 | `enhancement` | `a2eeef` | New feature or request |
@@ -89,6 +89,9 @@ The following nine labels were confirmed in LenovoBootSelector's actual labeled 
 | `dev-path: fast` | `2DA44E` | Branchless atomic path for small, well-bounded Patch/Hotfix work. |
 | `dev-path: work-branch` | `8250DF` | Uses `work/LBS-<issue>` for Major/Minor or complex Patch/Hotfix work. |
 | `wontfix` | `ffffff` | This will not be worked on |
+| `dev-ops` | `c4907e` | Development Operations or CI/CD related |
+
+`dev-ops` is an **optional supplementary work-area label** for CI/CD, GitHub Actions, build/release automation, developer tooling and development operations. It may coexist with the appropriate `bug` or `enhancement` type, exactly one `priority:*` on open Issues and, when applicable, a single `dev-path:*`. It never substitutes for those dimensions or grants production/release authorization. Including it in a new repository's label catalog does **not** automatically assign it to any Issue.
 
 **Executable bootstrap:** Authenticate GitHub CLI `gh` with read access to the donor and label-management write access to the target. Set `TARGET_REPO` and `PROJECT_CODE` for the **new project**, then run this block. It reads both catalogs completely before any write, creates **only missing** labels, and verifies the saved state. No issue labels are assigned automatically, no existing definitions are edited/deleted, and foreign labels are retained. Re-running it is a no-op when complete.
 
@@ -107,6 +110,10 @@ required = (
     "bug", "enhancement", "priority: critical", "priority: high",
     "priority: medium", "priority: low", "dev-path: fast",
     "dev-path: work-branch", "wontfix",
+)
+owner_defined = (
+    dict(name="dev-ops", color="c4907e",
+         description="Development Operations or CI/CD related"),
 )
 
 if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target):
@@ -165,6 +172,12 @@ for name in required:
         name=name, color=color, description=description
     )
 
+for row in owner_defined:
+    key = row["name"].casefold()
+    if key in wanted:
+        raise SystemExit("BLOCKED: duplicate owner-defined label name")
+    wanted[key] = row
+
 # Fail closed on ALL pre-existing name/metadata drift BEFORE the first POST.
 # This is deliberately earlier than the post-write verification below:
 # otherwise other missing labels might already have been created.
@@ -181,7 +194,7 @@ if drift:
         + ", ".join(drift)
     )
 
-missing = [wanted[n.casefold()] for n in required if n.casefold() not in existing]
+missing = [row for key, row in wanted.items() if key not in existing]
 print(json.dumps({"target": target, "missing": missing}, ensure_ascii=False, indent=2))
 for row in missing:
     gh("repos/" + target + "/labels", "--method", "POST",
@@ -206,7 +219,7 @@ if bad:
 PY
 ~~~
 
-**Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine canonical names exist, colors and descriptions match (with the one documented project-code substitution), and a second execution reports `created=0`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic `gh issue edit --add-label` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
+**Acceptance / safety gate:** Confirm the target label list with a fresh API read: all nine donor-canonical names **plus** owner-defined `dev-ops` exist (ten total), colors and descriptions match (with the one documented project-code substitution), and a second execution reports `created=0`. If an existing same-name label has different metadata, report its drift and require a separate decision; **never silently overwrite** it. If donor/target access, permission, pagination, POST or readback fails, record BLOCKED and do not claim migration completion. Do not use a generic `gh issue edit --add-label` action to manufacture a missing repository label, and do not grant a read-only CI workflow label-write privileges.
 
 ### If the GitHub connector cannot manage repository labels
 
@@ -220,7 +233,7 @@ For a one-time Actions fallback:
 2. Add a **temporary** `.github/workflows/<PROJECT_CODE-lowercase>-label-provision-once.yml` to the target with `permissions: contents: read, issues: write`, a specific one-time `workflow_dispatch` confirmation or SHA-scoped push trigger, `GH_TOKEN: ${{ github.token }}`, `TARGET_REPO` and `PROJECT_CODE` set to the intended target, and a short timeout. Execute the **same Python code shown above** in a runner step (copy its Python body into a `python3 - <<'PY'` heredoc); no repository checkout or artifact upload is needed if embedded inline. The `issues: write` scope is necessary for label creation, not for GitHub Releases.
 3. Verify the Actions job **completed successfully** and inspect its actual JSON summary: `created`, `present`, `mismatchedExistingOrPostwrite`. A queued/skipped workflow is not PASS. Check the exact labels and adapted descriptions using an independent fresh GitHub API read; if an existing label mismatches, the corrected script now blocks **before any POST**. An interrupted/ambiguous write must be reconciled by reading the catalog before retrying.
 4. When successful, **delete the temporary write-enabled workflow in a separate commit**, re-read `main`, and compare the final Git tree with the pre-bootstrap tree. The labels persist as GitHub repository metadata even though the short-lived workflow file is removed. No permanent CI write permission should remain.
-5. Re-running the provisioner should produce `created=0` with nine present labels; test this only if the same authorized execution access remains available. If not actually rerun, record idempotence as a **code contract**, not a tested historical fact.
+5. Re-running the provisioner should produce `created=0` with ten present labels; test this only if the same authorized execution access remains available. If not actually rerun, record idempotence as a **code contract**, not a tested historical fact.
 
 **Actual RHC evidence:** [one-time label workflow run #37757322836](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37757322836) completed successfully: six missing labels created, nine present, zero metadata deviations. The workflow was then removed in [cleanup commit `919592e`](https://github.com/SaschaP1980/RazerHealthCenter/commit/919592eac51b4a3946fa395e30c9dc175c792df6); final Git tree matched the pre-provisioning tree. A second provisioning execution was **not** claimed. This is a successful alternate transport with an observed documentation/safety improvement, not a label provisioning failure.
 
