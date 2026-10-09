@@ -147,8 +147,34 @@ def current_candidate():
             "tree identity mismatch")
     from rhc_release_contracts import version_from_model
     version = version_from_model(Path("."))
-    require(os.environ.get("GITHUB_REF_NAME") == "candidate/v" + version,
-            "ref/version mismatch")
+    branch = os.environ.get("GITHUB_REF_NAME")
+    canonical = "candidate/v" + version
+    if branch == canonical + "-retry1":
+        from rhc_candidate_from_work import recovery_trailers, validate_failed_publisher
+        retry = recovery_trailers(cand["message"])
+        original = gh("git/ref/heads/" + canonical)["object"]["sha"]
+        require(retry["originalSha"] == original and original != source,
+                "original frozen Candidate ref changed")
+        old = gh("git/commits/" + original)
+        require("RHC-Issue: 96" in old["message"],
+                "unrecognized frozen RHC-96 original")
+        from rhc_release_contracts import VERSION_PATTERN
+        old_version = dict(VERSION_PATTERN.findall(
+            __import__("base64").b64decode(
+                gh("contents/model.go?ref=" + original)["content"]).decode("utf-8")
+        )).get("appVersion")
+        require(old_version == version, "retry version differs from original")
+        run = gh("actions/runs/" + retry["runId"])
+        jobs = gh("actions/runs/" + retry["runId"] + "/jobs?per_page=100").get("jobs")
+        validate_failed_publisher(dict(run=run, jobs=jobs),
+                                  original, retry["runId"])
+        require(gh("git/ref/heads/" + branch)["object"]["sha"] == source,
+                "retry branch moved after immutable Candidate check")
+        proof["retryOriginalSha"] = original
+        proof["retryAttempt"] = 1
+    else:
+        require(branch == canonical and "Recovery-Attempt:" not in cand["message"],
+                "ref/version/recovery mismatch")
     return proof
 
 
