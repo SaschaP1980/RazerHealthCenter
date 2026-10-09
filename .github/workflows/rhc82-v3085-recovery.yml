@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: rhc82-v3085-frozen-source-publication
   cancel-in-progress: false
