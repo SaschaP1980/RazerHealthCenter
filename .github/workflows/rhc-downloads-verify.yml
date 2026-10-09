@@ -21,6 +21,12 @@ on:
       - 'config/rhc-release-policy.json'
       - '.github/workflows/rhc-downloads-verify.yml'
   workflow_dispatch:
+    inputs:
+      version:
+        description: Optional indexed public version (X.Y.Z.H); blank verifies latest
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -45,6 +51,7 @@ jobs:
           set -euo pipefail
           python3 -B tools/rhc_downloads.py --downloads downloads
           python3 -m unittest discover -s tests -p 'test_rhc_downloads_contracts.py' -v
+          python3 -m unittest discover -s tests -p 'test_rhc_remote_binary_verify_contracts.py' -v
           python3 -B tools/rhc_release_contracts.py --root .
           python3 - <<'PY'
           import json
@@ -57,6 +64,26 @@ jobs:
           print('RHC_DOWNLOADS_NONPUBLISHING_POLICY=PASS')
           PY
           git diff --exit-code
+      # GitHub chat connectors cannot reliably stream large ZIP binaries.
+      # Only verify the actual published main ref, not an unmerged PR checkout.
+      # HTTPS request is to immutable commit-addressed raw.githubusercontent.com,
+      # with no GitHub token and no repository/file mutation.
+      - name: Independently GET immutable published ZIP bytes via HTTPS
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          VERIFY_VERSION: ${{ inputs.version || '' }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/main'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          args=(--root . --repository "$GITHUB_REPOSITORY" --commit-sha "$GITHUB_SHA")
+          if [[ -n "$VERIFY_VERSION" ]]; then
+            args+=(--version "$VERIFY_VERSION")
+          fi
+          python3 -B tools/rhc_remote_binary_verify.py "${args[@]}"
+          test -z "$(git status --porcelain --untracked-files=all -- downloads)"
+          echo 'RHC_PUBLIC_BINARY_READBACK_SCOPE=READ_ONLY'
       - name: Reject modifications or deletions of already tracked ZIP archives
         shell: bash
         env:
