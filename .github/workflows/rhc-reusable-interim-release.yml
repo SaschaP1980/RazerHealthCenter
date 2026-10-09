@@ -225,6 +225,8 @@ jobs:
           SOURCE_PR_NUMBER="$(jq -er '.sourcePR' <<< "$SOURCE_EVIDENCE")"
           WORK_HEAD="$(jq -er '.workHead' <<< "$SOURCE_EVIDENCE")"
           test "$RHC_ISSUE_NUMBER" -gt 0
+          # GITHUB_ENV is visible only to *later* steps; Python below runs now.
+          export RHC_ISSUE_NUMBER
           printf 'RHC_ISSUE_NUMBER=%s\nSOURCE_PR_NUMBER=%s\nWORK_HEAD=%s\n' \
             "$RHC_ISSUE_NUMBER" "$SOURCE_PR_NUMBER" "$WORK_HEAD" >> "$GITHUB_ENV"
           echo "RHC76_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER sourcePR=$SOURCE_PR_NUMBER"
