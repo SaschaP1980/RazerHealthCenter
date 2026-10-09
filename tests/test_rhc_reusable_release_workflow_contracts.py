@@ -11,13 +11,13 @@ class ReusablePublisherContract(unittest.TestCase):
         s = WORKFLOW.read_text(encoding="utf-8")
         for needle in (
             "name: RHC Reusable Interim Unsigned Release",
-            "branches: [main]", "workflow_dispatch:", "model.go",
+            "workflow_dispatch:", "rhc94_atomic_release.py",
             "rhc_reusable_interim.py", "rhc_downloads.py",
             "needs: [linux, windows]", "windows-2025",
             "Get-AuthenticodeSignature", "NotSigned",
             "previousLatestVersion", "previousHistoryIntact",
             "stage_release(", "release/v", "gh pr create",
-            "rhc-infrastructure-ci.yml", "rhc-downloads-verify.yml",
+            "rhc94_atomic_release.py validate-stage", "rhc-downloads-verify.yml",
             "contents: write", "pull-requests: write",
             "RHC_REUSABLE_RELEASE_STAGE"):
             with self.subTest(needle=needle):

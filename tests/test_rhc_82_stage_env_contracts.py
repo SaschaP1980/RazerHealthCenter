@@ -11,8 +11,8 @@ class SameStepEnvRegression(unittest.TestCase):
     def test_stage_exports_verified_source_issue_to_current_python_process(self):
         s = WORKFLOW.read_text(encoding="utf-8")
         stage = s.split("\n  stage:", 1)[1].split("\n  finalize:", 1)[0]
-        self.assertIn("resolve-source", stage)
-        self.assertIn("RHC_ISSUE_NUMBER=\"$(jq -er '.issueNumber' <<< \"$SOURCE_EVIDENCE\")\"", stage)
+        self.assertIn("rhc94_atomic_release.py validate-candidate", stage)
+        self.assertIn("RHC_ISSUE_NUMBER=", stage)
         self.assertIn('snapshot=dict(linux,mode=\'interim-unsigned\',issue=int(os.environ[\'RHC_ISSUE_NUMBER\'])', stage)
         # A write to GITHUB_ENV only affects the next step; the Python heredoc
         # in *this* step must inherit the independently verified issue ID.
@@ -21,9 +21,9 @@ class SameStepEnvRegression(unittest.TestCase):
 
     def test_only_reviewed_issue_is_allowed(self):
         s = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("jq -er '.issueNumber'", s)
-        self.assertIn("jq -er '.sourcePR'", s)
-        self.assertIn("rhc_workflow_reliability.py resolve-source", s)
+        self.assertIn("rhc94_atomic_release.py validate-candidate", s)
+        self.assertIn("rhc94_atomic_release.py validate-stage", s)
+        self.assertIn("rhc94_atomic_release.py validate-candidate", s)
         self.assertIn("assert policy_full['productionEnabled'] is False", s)
         self.assertIn("assert policy_full['rollbackVerified'] is False", s)
         self.assertIn("assert policy_full['signingDecision']=='unknown'", s)

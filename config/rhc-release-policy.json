@@ -15,4 +15,4 @@
     "rhc/release/verification"
   ],
   "notes": "Owner-selected immutable seven-file Portable ZIPs in main/downloads with append-only releases.json, latest.json and README. Starting RHC-94, one Candidate-source+downloads PR and one main merge atomically activate the interim unsigned release. Older published ZIPs remain immutable. Source is retained under exact ZIP-free Git tag; GitHub Releases are not canonical. Standard signed/certified production remains blocked absent independently verified signing or unsigned consent, hardware/rollback, Candidate/Release CI and source/tag provenance. Owner-approved interim unsigned distribution does not imply productionEnabled, signingDecision or rollbackVerified are approved."
-}\n
+}
