@@ -171,7 +171,16 @@ class QAOnlyArchive(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.downloads = Path(self.temp.name) / "downloads"
-        shutil.copytree(ROOT / "downloads", self.downloads)
+        # QA-only regression fixture: never inherit the repository's live
+        # releases.json/latest.json, which may now contain real releases.
+        # Preserve the exact historical QA archive bytes and provenance.
+        self.downloads.mkdir()
+        shutil.copytree(ROOT / "downloads" / "qa", self.downloads / "qa")
+        (self.downloads / "README.md").write_text(
+            d.render_readme([]), encoding="utf-8")
+        (self.downloads / "releases.json").write_text(
+            json.dumps({"schemaVersion": 1, "releases": []}) + "\n",
+            encoding="utf-8")
 
     def test_pinned_original_qa_binary_validates(self):
         self.assertEqual(d.verify(self.downloads), [])
