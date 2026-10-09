@@ -166,6 +166,18 @@ class WorkflowContracts(unittest.TestCase):
         self.assertIn('"signingDecision": "unknown"',policy)
         self.assertIn('"rollbackVerified": false',policy)
 
+    def test_node24_action_sha_pins_and_cross_os_artifact_proof(self):
+        infra=(ROOT/".github/workflows/rhc-infrastructure-ci.yml").read_text()
+        pub=(ROOT/".github/workflows/rhc-reusable-interim-release.yml").read_text()
+        pins=("actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f",
+              "actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131")
+        for pin in pins:
+            self.assertIn(pin,infra)
+            self.assertIn(pin,pub)
+        self.assertIn("rhc/infra/artifact-node24",infra)
+        self.assertIn("needs: [linux-golden-package]",infra)
+        self.assertIn("RHC76_NODE24_LINUX_WINDOWS_ARTIFACT=PASS",infra)
+
     def test_rhc71_readback_is_preserved(self):
         y=(ROOT/".github/workflows/rhc-downloads-verify.yml").read_text()
         self.assertIn("tools/rhc_remote_binary_verify.py",y)
