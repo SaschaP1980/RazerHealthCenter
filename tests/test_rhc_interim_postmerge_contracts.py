@@ -28,5 +28,27 @@ class InterimPostmergeContract(unittest.TestCase):
         ):
             self.assertNotIn(forbidden,s)
 
+
+    def test_tag_recovery_requires_audited_merges_without_owner_phase_b(self):
+        script=(ROOT/".github/workflows/rhc-interim-postmerge-v3081.yml").read_text(encoding="utf-8")
+        for needle in (
+            "push:", "RHC34_TAG_RECOVERY_SUCCESS",
+            "d2509511ee913689e2d514dc72202d969ca60247",
+            "90fe14f47c826e89a26b9a7a1dde97eac7e02fac",
+            "gh api -X POST",
+            "RHC34_RECOVERY_PRETAG=PASS",
+            "work/RHC-34-fixture",
+            "sourceSha", "source=$SOURCE_SHA",
+        ):
+            self.assertIn(needle,script)
+        self.assertIn("github.event_name == 'push'",script)
+        self.assertIn("RHC34_RECOVERY_PRETAG=PASS",script)
+        self.assertIn("git merge-base --is-ancestor",script)
+        self.assertIn("grep -q '404'",script)
+        self.assertIn("gh api -X DELETE",script)
+        self.assertIn("RHC34_RECOVERY_TAG=PASS",script)
+        self.assertIn("RHC34_POSTMERGE_RELEASE_SUCCESS",script)
+        self.assertNotIn("EXPLICIT_OWNER_RHC22",script)
+
 if __name__=="__main__":
     unittest.main()
