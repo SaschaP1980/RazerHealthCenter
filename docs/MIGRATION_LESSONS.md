@@ -1,3 +1,16 @@
+## RHC-43 — observed cross-version release and discovery defects (2026-10-09)
+
+**New GitHub language policy:** English for all new engineering and documentation contributions; German with English technical terms for owner-facing chat. Historical non-English entries remain evidence, not new normative prose.
+
+| Finding | Primary evidence | Durable correction and current limit |
+| --- | --- | --- |
+| A single-version historical interim publisher was triggered by a future-version PR, where its exact-version check correctly FAILED | [RHC-41 run #37889334544](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889334544) | Limit the v3.0.8.1 writer to explicit historical dispatch/recovery; use a separate tested, future-version-aware interim process. Do not weaken the old exact-version gate. |
+| Prepublication real-byte rehearsal ran after a valid public latest.json already existed and failed its own empty-catalog assertion | [RHC-41 run #37889334478](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889334478) | Historic rehearsal is explicit-only; normal new-version PRs retain current infrastructure and downloads integrity checks. No false-GREEN change to the old prepublication fixture. |
+| Work and Candidate Linux/native Windows/aggregate statuses can be GREEN while the standard production promotion remains deliberately failed and no ZIP is published | [RHC-41 Work #37889269575](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889269575), [Candidate #37889390987](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37889390987) | Distinguish *qualified source*, *blocked ordinary promotion*, *interim release eligibility*, *publication*, and *independent postpublication verification*. A full-cycle user request must not be reported complete at Candidate GREEN. |
+| A test-first source file did not match the actual CI unittest discovery glob and hence first appeared GREEN without being executed | [RHC-43 RED run #37890655272](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/37890655272) | Match tests/test_rhc_*_contracts.py, check hosted discovered test names and counts, retain real 2/2 RED before corrective GREEN. Never claim a test passed because the runner passed without executing it. |
+| A proposed reusable eligibility gate is not itself a publisher | [RHC-43 issue](https://github.com/SaschaP1980/RazerHealthCenter/issues/43) | A read-only exact-version/SHA/OS/ZIP/history/Phase-B contract returns ELIGIBLE_NOT_PUBLISHED only; a tested GitHub write/PR/merge/tag/remote postverify flow must still be implemented. Current lack of actual publication is an OPEN blocker. |
+
+---
 # RHC migration lessons ledger
 
 **Historical observed-event ledger** for [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1). Preserve failures and corrections as evidence, but do not mistake the old three-part 3.0.8, 12-empty-directory ZIP, early branch-policy or GitHub-Draft decisions for current operating policy. RHC-16 active `3.0.8.0` and RHC-12 `repo-downloads` are governed by [release process](RELEASE_PROCESS.md), [status](MIGRATION_STATUS.md) and live contracts. Generalized rules belong in [migration template](templates/PROJECT_MIGRATION_TEMPLATE.md).

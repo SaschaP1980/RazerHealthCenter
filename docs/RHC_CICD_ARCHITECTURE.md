@@ -1,3 +1,10 @@
+## Current RHC-43 lifecycle boundary and language rule
+
+All **new** GitHub engineering, Issues, PR text and documentation are in **English**. Historical LBS/RHC migration snapshots below are not proof of the current live GitHub version. Read current model.go, downloads/latest.json, releases.json, repository policy and issue/branch/run SHA.
+
+The [RHC-43 reusable interim contract](REUSABLE_INTERIM_RELEASE_CONTRACT.md) covers owner-directed cross-version interim unsigned publication with genuine Go double builds, hosted native Windows PS5.1/repair-safety, immutable repo-downloads and remote source-tag/catalog verification. The version-specific v3.0.8.1 workflow remains historical and manual-dispatch-only; the separate standard production controller remains fail-closed and the actual generic publisher remains **NOT YET QUALIFIED**. Do not report a qualified RHC-41 Candidate as a public release.
+
+---
 # RHC-3 — Candidate, Build, Deployment and Release architecture
 
 **Current:** Nonpublishing Infrastructure PR #4 and RHC-5 read-only simulation [PR #9](https://github.com/SaschaP1980/RazerHealthCenter/pull/9) merged; **original v3.0.8** source/EXE is historical. Active `model.go` is **3.0.8.0** (RHC-16); RHC-12 **`repo-downloads`** is authoritative. Production promotion/Release Orchestrator remain **blocked/unimplemented**.
