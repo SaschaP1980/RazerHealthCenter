@@ -33,6 +33,9 @@ class AtomicOrchestrationWiring(unittest.TestCase):
                   ".github/workflows/rhc-source-intake.yml",
                   ".github/workflows/rhc-phase-a-qa.yml"):
             self.assertNotIn("      - 'model.go'",read(p),p)
+    def test_legacy_import_go_glob_excludes_model_go(self):
+        y=read(".github/workflows/rhc-source-intake.yml")
+        self.assertIn("      - '!model.go'", y)
     def test_production_policy_remains_fail_closed(self):
         import json
         p=json.loads(read("config/rhc-release-policy.json"))
