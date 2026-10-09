@@ -149,7 +149,7 @@ def render_readme(rows):
     for row in rows:
         head.append(
             f"| {row['version']} | [{row['file']}]({row['file']}) "
-            f"| {row['size']} | \`{row['sha256']}\` | \`{row['sourceSha']}\` |"
+            f"| {row['size']} | `{row['sha256']}` | `{row['sourceSha']}` |"
         )
     if not rows:
         head.append("| No authorized published build yet | — | — | — | — |")
