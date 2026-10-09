@@ -1,14 +1,14 @@
-## Current v3.0.8.1 special-cycle transition (2026-10-09; status is implementation, NOT a release proof)
+## Live source, public download, standard policy and cleanup are separate
 
-The owner specifically chose [RHC-33](https://github.com/SaschaP1980/RazerHealthCenter/issues/33) as the long-lived list of temporarily parked external/administrative release conditions, and [RHC-34](https://github.com/SaschaP1980/RazerHealthCenter/issues/34) as the implementation Work-Path. The new bounded release mode advances `main/model.go` app/reference to `3.0.8.1` ahead of the public download, keeps legacy `candidate/v3.0.8.1` immutable but excludes its stale ancestry as release source, and requires exact SHA Linux/native Windows, reproducible seven-file ZIP, four-file `downloads` PR, source tag and independent postmerge readback.
+**Current state: always resolve live.** App/reference from [`model.go`](../model.go), latest published version from [`downloads/latest.json`](../downloads/latest.json) and [`downloads/releases.json`](../downloads/releases.json) with real ZIP/Source-Tag proof, standard policy from [`config/rhc-release-policy.json`](../config/rhc-release-policy.json). The separately owner-authorized interim cycle is traced in [RHC-33](https://github.com/SaschaP1980/RazerHealthCenter/issues/33), [RHC-34](https://github.com/SaschaP1980/RazerHealthCenter/issues/34) and its [release retrospective](RHC_V3_0_8_1_RELEASE_RETROSPEKTIVE_2026-10-09.md). A published ZIP does not activate the standard production controller.
 
-Phase B hardware/rollback/Publisher/trust and admin-rule requirements are **DEFERRED/NOT VERIFIED** — not approved or passed. Standard RHC20 production policy remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`, and the old standard release engine is still blocked. Until a genuine GitHub Actions run, public ZIP and tag actually pass full independent postrelease checks, do **not** report `RELEASE SUCCESS`. Historical M0–M6 and RHC-20 snapshot paragraphs below are dated technical context rather than current owner instructions.
+**Verified at this documentation update:** an actual unsigned interim Portable ZIP is listed in the public releases catalog and has a matching original source tag. The standard policy remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`; physical Razer/rollback/publisher acceptance and administrative required-PR gates are `DEFERRED/NOT_VERIFIED`. The most recent postmerge run verified source/ZIP/tag evidence but **failed final branch cleanup**. Do not call that end-to-end workflow GREEN. The historical snapshots below are not current-version authority.
 
 ---
 
-# RHC migration — current v3.0.8.0 and historical v3.0.8 evidence
+# RHC migration — historical source import and version-transition evidence
 
-**Current authority:** Original 321-file v3.0.8 source imported and hosted-tested via PR #2 is historical Golden evidence. Current app/reference is **`3.0.8.0`** (RHC-16), distribution is **`repo-downloads`** (RHC-12), and the archived v3.0.8 **TEST / UNSIGNED** artifact remains nonproduction. Die **technische, nichtpublizierende** Candidate-/Release-Automatisierung ist mit [RHC-20 PR #28](https://github.com/SaschaP1980/RazerHealthCenter/pull/28) CI-qualifiziert und auf `main` gemergt. **Tatsächliche Produktionsaktivierung und Veröffentlichung**, wirksame verpflichtende Main-PR-/Status-Regeln, native Razer-Hardwareabnahme, Rollback und Signing beziehungsweise konkret artefaktgebundene Unsigned-Freigabe bleiben separat unter [Issue #22](https://github.com/SaschaP1980/RazerHealthCenter/issues/22) **OPEN/BLOCKED**. Stage-1 no-delete/no-force-push is active. The dated interim sections below are historical snapshots, not instructions for new work.
+**Historische Momentaufnahme, nicht aktuelle Versionsautorität:** Originalquelle/Golden-Prüfungen via PR #2, Entscheidung `repo-downloads` in RHC-12, vierteiliges Versionsschema durch RHC-16, nichtpublizierender Standardcontroller über RHC-20 PR #28. Die spätere eng autorisierte Interim-Veröffentlichung sowie offen gebliebener Cleanup stehen in RHC-33/RHC-34. Für gegenwärtige Quellen, Downloads und Freigaben die Live-Verweise oben verwenden.
 
 ## Authority transition
 
@@ -16,11 +16,11 @@ Phase B hardware/rollback/Publisher/trust and admin-rule requirements are **DEFE
 - Migration tracking Issue: [RHC-1](https://github.com/SaschaP1980/RazerHealthCenter/issues/1).
 - Historical **v3.0.8 source-intake** [PR #2](https://github.com/SaschaP1980/RazerHealthCenter/pull/2), head `2a28a08ba75ecb404df03847cdf1e5eaba941acd`, merge `daf3e4994f108299c9ed9aa47bbaf48b2ae720d9`. Current build authority is **live `main` plus `model.go`**, not the old ZIP/EXE hash.
 - Prior Lenovo Boot Selector process is a **pattern**, never the runtime/build authority for RHC. Use the generic migration template in `docs/templates/PROJECT_MIGRATION_TEMPLATE.md`.
-- The complete source and hosted reproducibility checks are recoverable from GitHub. **The technical nonpublishing release controller has been merged in RHC-20 PR #28; actual owner-authorized production execution and acceptance remain separate under RHC-22.** Do not infer a published RHC release from source or pipeline verification.
+Historical source and reproducibility gates remain traceable in GitHub. RHC-20 PR #28 is the standard **nonpublishing** controller; later owner-authorized interim publication and remaining cleanup are tracked separately in RHC-33/RHC-34. Actual ZIP/catalog/tag, CI and postmerge cleanup require individual proof.
 
 ### Later decisions governing new operations
 
-RHC-12 superseded GitHub Releases/Draft with `repo-downloads`; RHC-16 moved **current** app/Candidate versions from v3.0.8 to **3.0.8.0**, preserving all old Source/QA SHA-256 Golden evidence. RHC-5's nonpublishing code was merged in [PR #9](https://github.com/SaschaP1980/RazerHealthCenter/pull/9), so its former unmerged Work checkpoint is only history. Current [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), policy and machine contracts prevail.
+RHC-12 replaced GitHub Releases/Draft with `repo-downloads`; RHC-16 established the four-component app version schema while Golden Source/QA remains frozen. RHC-5's old Work checkpoint became history after [PR #9](https://github.com/SaschaP1980/RazerHealthCenter/pull/9). Later actual distributions and owner exceptions must be obtained from the live catalog and issues. Current [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md), policy and machine contracts prevail.
 
 ## Verified input identity (2026-10-08)
 

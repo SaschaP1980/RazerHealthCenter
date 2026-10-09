@@ -8,13 +8,13 @@ Exactly for 3.0.8.1, `main/model.go` and `CHANGELOG.md` are updated and qualifie
 
 # RHC — Development guidelines
 
-> **Variante B / 2026-10-08:** [RHC-20](https://github.com/SaschaP1980/RazerHealthCenter/issues/20) umfasst die vollständig geprüfte **technische, bis zur gesonderten Freigabe nichtpublizierende** Candidate-/Release-Automatisierung. Native Razer-Geräteabnahme, Rollback-/First-Release-Recovery, konkrete Source-/ZIP-gebundene Signatur-/Unsigned-Owner-Zustimmung und tatsächliche Produktionsaktivierung/Erstveröffentlichung liegen **ausschließlich in [Issue #22](https://github.com/SaschaP1980/RazerHealthCenter/issues/22)**. Die GitHub-Schließreferenz darf erst im letzten vollständig technisch GREEN geprüften PR aktiviert werden und ausschließlich #20, **niemals #22**, schließen oder die reale Produktionspolicy automatisch freigeben. Der Owner führt keine manuellen GitHub Reviews für normale, technisch qualifizierte PRs durch; Merge und Cleanup sind autonom nach tatsächlichen Gates. `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false` bleiben bis zu getrennten externen Belegen gültig.
+> **Historischer Standardcontroller (RHC-20):** Nichtpublizierende Candidate-/Release-Qualifikation und reguläre Policy von der späteren echten, aber versionsgebunden autorisierten Interim-Veröffentlichung unterscheiden. Die aktuelle App-Version aus [`model.go`](../model.go), öffentliche Latest-Version aus [`downloads/latest.json`](../downloads/latest.json) und regulären Freigabestand aus [`config/rhc-release-policy.json`](../config/rhc-release-policy.json) live lesen. Ownerentscheidung [RHC-33](https://github.com/SaschaP1980/RazerHealthCenter/issues/33), Release und offene Cleanup-Befunde [RHC-34](https://github.com/SaschaP1980/RazerHealthCenter/issues/34), physische Hardware-/Trust-/Rollback-Gates [RHC-22](https://github.com/SaschaP1980/RazerHealthCenter/issues/22). Ein veröffentlichter Download aktiviert den regulären Controller nicht.
 
-> **Target operating contract; production release automation is not ready until the migration acceptance gates are met.**
+> **Betriebsregel:** Download-Veröffentlichung, Standardpolicy, native Razer-Hardwareprüfung und Postmerge-Branch-Cleanup sind voneinander unabhängige Nachweiskategorien.
 
 ## Authority
 
-Use current GitHub `main` plus Issues as the canonical working record: **source import and hosted baseline verification completed in PR #2**. The separate production Candidate/Release infrastructure is still unimplemented; `docs/MIGRATION_STATUS.md` records those open gates. Never use another project's main branch or private conversation memory as RHC runtime authority.
+Use live GitHub `main` plus current Issues as authority. The original source was imported and hosted-verified in PR #2; later RHC-20 implemented a nonpublishing standard controller, and RHC-33/RHC-34 record the owner-authorized interim release and unresolved cleanup. Neither product publication nor runner tests prove physical Razer/rollback approval or activation of the standard production controller.
 
 ## Preserve product invariants
 
@@ -22,7 +22,7 @@ The Go Razer Health Center includes PowerShell diagnostic and repair scripts. Fu
 
 ## Version and development path
 
-**RHC-16 is complete:** `model.go` app/reference is `3.0.8.0`, and current/new app, Candidate and Release versions use strict `MAJOR.MINOR.PATCH.HOTFIX`. Original three-part v3.0.8 Source/QA stays historical; Engine/History/Razer version domains remain separate. The earlier instruction not to use four components is superseded.
+**RHC-16 four-part app versioning is implemented:** get the **current** `appVersion` and `referenceVersion` from [`model.go`](../model.go) and the latest public download independently from [`downloads/latest.json`](../downloads/latest.json)/[`downloads/releases.json`](../downloads/releases.json). App/Candidate/Release versions follow `MAJOR.MINOR.PATCH.HOTFIX`; historical Golden Source/QA and independent Engine/Razer version domains are not changed. Do not freeze the current app version in this guideline.
 
 - Documentation-only Markdown/Issue metadata with no machine-enforced changes: one atomic lease-guarded reviewed `main` commit; **no** Work branch, `dev-path` label, version, Candidate or Release. The topic of a document does not change its scope.
 - Narrow Patch/Hotfix: branchless Fast-Path by default; test a confirmed failure RED where applicable, fix, run relevant focused GREEN/syntax/determinism checks, create **one exact release-ready candidate** on current `main`, inspect complete diff, then hosted Candidate Preflight.
@@ -32,7 +32,7 @@ The Go Razer Health Center includes PowerShell diagnostic and repair scripts. Fu
 
 ### Candidate, Issue and test-first requirements (implemented RHC contracts)
 
-Today `tools/rhc_candidate_entry.py` requires exact current-`main` parentage, a single atomic Candidate commit, one actual `RHC-Issue: N` trailer (**also for Hotfix**) and one `Release-Profile: version-only|patch|hotfix` trailer. Both `model.go` and `CHANGELOG.md` must change; `version-only` changes **exactly** those two paths, and `hotfix` increases only the fourth number by one. `CHANGELOG.md` does not yet exist on `main`; a future authorized Candidate must add it in scope. Do not import LBS' different Issue/profile semantics.
+Before new Candidates, read the current `tools/rhc_candidate_entry.py` and tests: exact-main ancestry, one atomic Candidate, real `RHC-Issue: N` and valid `Release-Profile: version-only|patch|hotfix` trailers. The standard version-only path modifies `model.go` and `CHANGELOG.md`; hotfix increments the fourth component. [`CHANGELOG.md`](../CHANGELOG.md) already exists at this revision and must still be checked live. Scope-limited owner exceptions cannot silently redefine standard Candidate rules.
 
 A confirmed defect gets a **permanent focused RED test against the exact unfixed SHA**, then a fix and the same test GREEN; a deliberately failing Candidate is never the RED test. For changed validators, Python tools and workflows, select a non-destructive real CLI/consumer smoke, not just syntax. Preserve Go, PowerShell 5.1, repair-safety, PE/ZIP reproducibility and four distinct evidence categories (local, hosted Linux, hosted native Windows, physical Razer). Issue closure follows its verified acceptance gates; unresolved parent RHC-1/RHC-3 remain open.
 
