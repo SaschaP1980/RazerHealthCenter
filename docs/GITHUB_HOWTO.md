@@ -14,6 +14,18 @@ This guide specifies **reusable GitHub procedures**, not a pinned repository ver
 
 A **repository administrator** opens **Settings > Actions > General**, finds **Workflow permissions**, selects **Read and write permissions** and **Allow GitHub Actions to create and approve pull requests** only where that architecture is required, then clicks **Save** and independently rereads the setting. A screenshot or saved control is **not proof of effective permission**. Independently verify a scoped actual `GITHUB_TOKEN` PR creation with a nonpublishing test, and clean up only the test's verified refs. Do not enable broad write permissions for repositories that do not need them.
 
+## Issue label taxonomy
+
+Use independent dimensions for **type**, **priority**, **development path**, and optional **work area**. Do not substitute one for another or silently relabel historical closed Issues.
+
+- **Type:** `bug` for a defect in existing behavior; `enhancement` for new capabilities, refactoring and planned process or infrastructure improvements. Select the type that describes the actual issue; `dev-ops` is **not** a type replacement.
+- **Priority:** Every open Issue should have exactly one current `priority: critical`, `priority: high`, `priority: medium`, or `priority: low`. Reassess as impact changes; priority is independent of type and other labels.
+- **Development path:** `dev-path: fast` and `dev-path: work-branch` are mutually exclusive. Select at most one when an executable change's path is decided; documentation-only changes do not require either.
+- **Special disposition:** `wontfix` denotes deliberately not planned work; GitHub open/closed state and closure reason remain separate.
+- **Optional work area — `dev-ops`:** Use for CI/CD, GitHub Actions, build/release automation, developer tooling, workflow reliability, infrastructure, and development operations. This label can coexist with `bug`/`enhancement`, one `priority:*`, and an applicable `dev-path:*`; it is not a severity, implementation path, approval, or safety/production-release gate. Do not require it for unrelated product or UI Issues.
+
+The owner-added RHC label's exact GitHub metadata is **name `dev-ops`**, **hex color `c4907e`**, **description `Development Operations or CI/CD related`**. The other nine standard labels originate from the [LenovoBootSelector Issue-label taxonomy](https://github.com/SaschaP1980/LenovoBootSelector/blob/main/docs/GITHUB_HOWTO.md); `dev-ops` is a separately owner-defined, tenth **migration default**, not an invented LenovoBootSelector donor label. The [project migration template](templates/PROJECT_MIGRATION_TEMPLATE.md) documents the full reference catalog and the idempotent provisioning procedure. Documentation alone does not create, delete or reassign any GitHub Issue label.
+
 ## Live source, public version and permissions
 
 Read current main head and `model.go` for source version; independently check `downloads/latest.json`/`downloads/releases.json`, actual ZIP/hash and immutable source tag/`sourceSha` for latest public version. These can differ. Don't use old Markdown versions, tags by themselves or green Candidate checks as proof of a new release.
