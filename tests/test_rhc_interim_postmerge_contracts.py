@@ -42,6 +42,11 @@ class InterimPostmergeContract(unittest.TestCase):
         ):
             self.assertIn(needle,script)
         self.assertIn("github.event_name == 'push'",script)
+        self.assertIn("RHC34_RECOVERY_ARCHIVE",script) if "RHC34_RECOVERY_ARCHIVE" in script else self.assertIn("RHC34_RECOVERY_PRETAG=PASS",script)
+        self.assertIn("git merge-base --is-ancestor",script)
+        self.assertIn("grep -q '404'",script)
+        self.assertIn("gh api -X DELETE",script)
+        self.assertIn("RHC34_RECOVERY_TAG=PASS",script)
         self.assertIn("RHC34_POSTMERGE_RELEASE_SUCCESS",script)
         self.assertNotIn("EXPLICIT_OWNER_RHC22",script)
 
