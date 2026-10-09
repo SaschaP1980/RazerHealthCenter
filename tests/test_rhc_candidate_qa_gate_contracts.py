@@ -94,9 +94,10 @@ class CandidateQABinding(unittest.TestCase):
                     gate.qualify(fixture)
 
     def test_workflow_pins_real_candidate_and_never_publishes(self):
+        self.assertEqual(gate.CANDIDATE_REF, "candidate/v3.0.8.1")
         yml = (ROOT / ".github/workflows/rhc-candidate-qa-v3081.yml").read_text(
             encoding="utf-8")
-        for expected in (SHA, "candidate/v3.0.8.1", "ubuntu-24.04",
+        for expected in (SHA, "ubuntu-24.04",
                          "windows-2025", "Get-AuthenticodeSignature",
                          "rhc_candidate_qa_gate.py", "rhc_phase_a_qa.py",
                          "needs: windows", "upload-artifact", "contents: read",
