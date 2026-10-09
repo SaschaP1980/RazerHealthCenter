@@ -3,11 +3,7 @@ name: RHC Reusable Interim Unsigned Release
 # Technical interim release remains unsigned/uncertified; Phase B deferred.
 # rhc_reusable_interim.py performs the read-only eligibility contract.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'model.go'
-  workflow_dispatch:
+  workflow_dispatch:  # Only an authorized exact Candidate preflight dispatch publishes
 permissions:
   contents: read
 concurrency:
@@ -16,7 +12,7 @@ concurrency:
 
 jobs:
   linux:
-    name: Exact-main double Linux PE/ZIP and isolated catalog verification
+    name: Exact-candidate double Linux PE/ZIP and isolated catalog verification
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -37,6 +33,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          python3 -B tools/rhc94_atomic_release.py validate-candidate
           python3 - <<'PY'
           import json,sys
           from pathlib import Path
@@ -140,7 +138,7 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PowerShell 5.1 required' }
-          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Main SHA drift' }
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Candidate source SHA drift' }
           $stage=Join-Path $env:RUNNER_TEMP 'rhc-reusable-stage'
           $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
           $current=(python -c "import sys;sys.path.insert(0,'tools');from rhc_release_contracts import version_from_model;print(version_from_model('.'))").Trim()
@@ -185,7 +183,7 @@ jobs:
 
   stage:
     name: Stage single immutable ZIP/catalog PR only after both OS success
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: startsWith(github.ref, 'refs/heads/candidate/v') && github.event_name == 'workflow_dispatch'
     needs: [linux, windows]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -213,23 +211,23 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD^)" = "$(git rev-parse origin/main)"
+          python3 -B tools/rhc94_atomic_release.py validate-candidate
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq '.state')" = open
 
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq '.state')" = open
-          # RHC-76: independently bind actual merged source PR, Work HEAD
-          # trailer and responsible live Issue before release branch writes.
-          SOURCE_EVIDENCE="$(python3 -B tools/rhc_workflow_reliability.py resolve-source \
-            --source-sha "$GITHUB_SHA" --work-sha "$(git rev-parse "$GITHUB_SHA^2")")"
-          RHC_ISSUE_NUMBER="$(jq -er '.issueNumber' <<< "$SOURCE_EVIDENCE")"
-          SOURCE_PR_NUMBER="$(jq -er '.sourcePR' <<< "$SOURCE_EVIDENCE")"
-          WORK_HEAD="$(jq -er '.workHead' <<< "$SOURCE_EVIDENCE")"
+          # RHC-94: qualified Candidate commit replaces the separate source PR.
+          # The Candidate parent MUST equal the unchanged public main commit.
+          CANDIDATE_MSG="$(git show -s --format=%B "$GITHUB_SHA")"
+          RHC_ISSUE_NUMBER="$(sed -n 's/^RHC-Issue: \([0-9][0-9]*\)$/\1/p' <<< "$CANDIDATE_MSG")"
+          WORK_HEAD="$(sed -n 's/^Work-SHA: \([0-9a-f]\{40\}\)$/\1/p' <<< "$CANDIDATE_MSG")"
           test "$RHC_ISSUE_NUMBER" -gt 0
-          # GITHUB_ENV is visible only to *later* steps; Python below runs now.
+          [[ "$WORK_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/$RHC_ISSUE_NUMBER" --jq '.state')" = open
           export RHC_ISSUE_NUMBER
-          printf 'RHC_ISSUE_NUMBER=%s\nSOURCE_PR_NUMBER=%s\nWORK_HEAD=%s\n' \
-            "$RHC_ISSUE_NUMBER" "$SOURCE_PR_NUMBER" "$WORK_HEAD" >> "$GITHUB_ENV"
-          echo "RHC76_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER sourcePR=$SOURCE_PR_NUMBER"
+          printf 'RHC_ISSUE_NUMBER=%s\nWORK_HEAD=%s\n' "$RHC_ISSUE_NUMBER" "$WORK_HEAD" >> "$GITHUB_ENV"
+          echo "RHC94_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER candidate=$GITHUB_SHA work=$WORK_HEAD"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           test -z "$(git ls-remote origin "refs/tags/v$VERSION")"
@@ -300,11 +298,10 @@ jobs:
           test -z "$(git ls-remote origin refs/heads/release/v$VERSION)"
           git push origin HEAD:refs/heads/release/v$VERSION
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
-          gh workflow run rhc-infrastructure-ci.yml --ref "release/v$VERSION"
           gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head release/v$VERSION \
             --title "[RHC-$RHC_ISSUE_NUMBER] Interim unsigned v$VERSION release — exact source and 2OS verified" \
-            --body "Refs #$RHC_ISSUE_NUMBER; source PR #$SOURCE_PR_NUMBER; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, source Work $WORK_HEAD. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
+            --body "Refs #$RHC_ISSUE_NUMBER; single atomic Source+Downloads PR; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, Work-SHA $WORK_HEAD. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
           echo "RHC_REUSABLE_INTERIM_STAGE=PR_CREATED stagedSha=$STAGED_SHA sourceSha=$GITHUB_SHA"
 
   finalize:
@@ -323,68 +320,57 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-      - name: Wait for separate hosted exact-stage-SHA Infrastructure and Downloads CI
+      - name: Verify exact Candidate, single combined PR and genuine hosted downloads CI
         shell: bash
         run: |
           set -euo pipefail
           SOURCE="$GITHUB_SHA"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
-          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE"
-          git fetch --no-tags origin release/v$VERSION
-          STAGED="$(git rev-parse FETCH_HEAD)"
+          BASE="$(git rev-parse "$SOURCE^")"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$BASE"
+          git fetch --no-tags origin main release/v$VERSION
+          STAGED="$(git rev-parse "refs/remotes/origin/release/v$VERSION")"
           test "$(git rev-parse "$STAGED^")" = "$SOURCE"
           test "$(git diff --name-only "$SOURCE" "$STAGED" | sort | tr '\n' ' ')" = "downloads/README.md downloads/RazerHealthCenter-Portable-v$VERSION.zip downloads/latest.json downloads/releases.json "
           gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=SaschaP1980:release/v$VERSION" > "$RUNNER_TEMP/pr.json"
-          PR="$(jq -r --arg stage "$STAGED" --arg source "$SOURCE" '[.[]|select(.head.sha==$stage and .base.sha==$source and .draft==false)] | if length == 1 then .[0].number else empty end' "$RUNNER_TEMP/pr.json")"
+          PR="$(jq -r --arg stage "$STAGED" --arg base "$BASE" '[.[]|select(.head.sha==$stage and .base.sha==$base and .draft==false)] | if length == 1 then .[0].number else empty end' "$RUNNER_TEMP/pr.json")"
           test -n "$PR"
-          python3 -B tools/rhc_workflow_reliability.py verify-stage \
-            --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" \
-            --stage-sha "$STAGED" --pr "$PR"
-          echo "RHC_REUSABLE_FINISH_PR=$PR stageSha=$STAGED"
-          check_workflow() {
-            local WF="$1" RUN='' VAL='' STATUS='' CONC=''
-            for attempt in $(seq 1 90); do
-              RUN="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$WF/runs?branch=release/v$VERSION&per_page=30" \
-                --jq "[.workflow_runs[]|select(.head_sha==\"$STAGED\" and .event==\"workflow_dispatch\")][0] | if .==null then \"\" else \"\(.id) \(.status) \(.conclusion)\" end")"
-              read -r VAL STATUS CONC <<< "$RUN"
-              if [ -n "$VAL" ] && [ "$STATUS" = completed ]; then
-                test "$CONC" = success || { echo "FAILED hosted $WF run $VAL conclusion=$CONC"; return 1; }
-                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL" > "$RUNNER_TEMP/$WF-run.json"
-                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" > "$RUNNER_TEMP/$WF-jobs.json"
-                python3 -B tools/rhc_workflow_reliability.py verify-hosted \
-                  --sha "$STAGED" --workflow "$WF" \
-                  --run-json "$RUNNER_TEMP/$WF-run.json" --jobs-json "$RUNNER_TEMP/$WF-jobs.json"
-                # PR-bot action_required/zero-job events are not CI PASS.
-                echo "RHC_REUSABLE_RELEASE_HOSTED_EXACT_SHA=$WF PASS runId=$VAL commit=$STAGED"
-                return 0
-              fi
-              sleep 10
-            done
-            echo "EXACT release workflow missing/timed out: $WF" >&2
-            return 1
-          }
-          check_workflow rhc-infrastructure-ci.yml
-          check_workflow rhc-downloads-verify.yml
-          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE"
+          python3 -B tools/rhc94_atomic_release.py validate-stage --stage-sha "$STAGED" --pr "$PR"
+          RUN='' VAL='' STATUS='' CONC=''
+          for attempt in $(seq 1 90); do
+            RUN="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/rhc-downloads-verify.yml/runs?branch=release/v$VERSION&per_page=30" --jq "[.workflow_runs[]|select(.head_sha==\"$STAGED\" and .event==\"workflow_dispatch\")][0] | if .==null then \"\" else \"\\(.id) \\(.status) \\(.conclusion)\" end")"
+            read -r VAL STATUS CONC <<< "$RUN"
+            if [ -n "$VAL" ] && [ "$STATUS" = completed ]; then
+              test "$CONC" = success
+              gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL" > "$RUNNER_TEMP/download-run.json"
+              gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" > "$RUNNER_TEMP/download-jobs.json"
+              python3 -B tools/rhc_workflow_reliability.py verify-hosted --sha "$STAGED" --workflow rhc-downloads-verify.yml --run-json "$RUNNER_TEMP/download-run.json" --jobs-json "$RUNNER_TEMP/download-jobs.json"
+              break
+            fi
+            sleep 10
+          done
+          test -n "$VAL" && test "$STATUS" = completed && test "$CONC" = success
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$BASE"
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED"
           test -z "$(git ls-remote origin refs/tags/v$VERSION)"
-          RHC_ISSUE_NUMBER="$(python3 -B tools/rhc_workflow_reliability.py resolve-source \
-            --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" | jq -er '.issueNumber')"
+          RHC_ISSUE_NUMBER="$(git show -s --format=%B "$SOURCE" | sed -n 's/^RHC-Issue: \([0-9][0-9]*\)$/\1/p')"
           echo "RHC_ISSUE_NUMBER=$RHC_ISSUE_NUMBER" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "SOURCE_SHA=$SOURCE" >> "$GITHUB_ENV"
+          echo "BASE_MAIN_SHA=$BASE" >> "$GITHUB_ENV"
           echo "STAGED_SHA=$STAGED" >> "$GITHUB_ENV"
           echo "RELEASE_PR=$PR" >> "$GITHUB_ENV"
+          echo "RHC94_SINGLE_PR_PREACTIVATION=PASS base=$BASE source=$SOURCE stage=$STAGED PR=$PR"
       - name: Merge only proven four-path PR, create exact source tag, re-read public ZIP and safe cleanup
         shell: bash
         run: |
           set -euo pipefail
-          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$BASE_MAIN_SHA"
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
           RESULT="$(gh api -X PUT "repos/$GITHUB_REPOSITORY/pulls/$RELEASE_PR/merge" \
             -f sha="$STAGED_SHA" -f merge_method=merge \
             -f commit_title="Release RHC v$VERSION (interim unsigned, RHC-Issue $RHC_ISSUE_NUMBER)" \
-            -f commit_message="Exact Main-source, Linux/native Windows CI and archive verified. Hardware/rollback/publisher trust deferred; no fake Phase B approval.")"
+            -f commit_message="Exact Candidate Work-source, Linux/native Windows CI and archive verified. Hardware/rollback/publisher trust deferred; no fake Phase B approval.")"
           MERGED="$(jq -r '.sha' <<< "$RESULT")"
           test "$(jq -r '.merged' <<< "$RESULT")" = true
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED"
@@ -393,7 +379,7 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
           git fetch --no-tags origin main
           test "$(git rev-parse origin/main)" = "$MERGED"
-          test "$(git show -s --format=%P "$MERGED")" = "$SOURCE_SHA $STAGED_SHA"
+          test "$(git show -s --format=%P "$MERGED")" = "$BASE_MAIN_SHA $STAGED_SHA"
           git switch --detach "$MERGED"
           python3 -B tools/rhc_downloads.py --downloads downloads
           python3 - <<'PY'

@@ -5,7 +5,6 @@ on:
       - main
       - 'work/RHC-29'
     paths:
-      - 'model.go'
       - 'tools/rhc_phase_a_qa.py'
       - 'tools/rhc_downloads.py'
       - '.github/workflows/rhc-phase-a-qa.yml'

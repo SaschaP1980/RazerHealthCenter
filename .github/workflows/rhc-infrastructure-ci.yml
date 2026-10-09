@@ -5,6 +5,13 @@ on:
   push:
     branches:
       - 'work/RHC-*'
+    paths:
+      - 'model.go'
+      - 'CHANGELOG.md'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+      - 'docs/RHC_CICD_ARCHITECTURE.md'
   pull_request:
     branches:
       - main

@@ -22,7 +22,6 @@ on:
       - 'tools/import_source_archive.py'
       - 'docs/migration/RHC-v3.0.8-source-file-manifest.json'
       - 'go.mod'
-      - 'model.go'
       - 'tools/rhc_release_contracts.py'  # historical audit also runs when version contracts evolve
       - 'build.sh'
       - '**/*.go'
