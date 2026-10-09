@@ -21,7 +21,7 @@ Never assume that a single successful, specifically versioned interim publisher 
 
 Preserve production policy and hardware/rollback/signing evidence as separately observed states; a specific interim unsigned mode may defer only external approval categories, and must disclose unsigned/SmartScreen trust limitations. Never fake owner approval, disable repair safety or claim missing GitHub PR creation/branch cleanup permissions are present. Keep old release-workflow historical RED evidence and isolate old prepublication fixtures from future-version PR CI. Prefer scoped test-first counterexamples plus exact SHA hosted readback.
 
-See [RHC-43 contract](../REUSABLE_INTERIM_RELEASE_CONTRACT.md), [canonical Development Guidelines](../DEVELOPMENT_GUIDELINES.md), [canonical Release Process](../RELEASE_PROCESS.md). For RHC the historical v3.0.8.1 tag/ZIP are immutable and the next source-only HOTFIX belongs to RHC-41.
+See [Git provenance](../GIT_PROVENANCE_CONTRACT.md), [Interim Contract](../REUSABLE_INTERIM_RELEASE_CONTRACT.md), [Development Guidelines](../DEVELOPMENT_GUIDELINES.md) and [Release Process](../RELEASE_PROCESS.md). For RHC and any adopting repository, future changed-file work—including documentation-only changes—must use a responsible Issue plus an explicit Issue-linked PR, verified exact-merge readback and Issue completion evidence. No routine direct-main edits; do not presume branch ruleset enforcement. Historical version-specific source and release proof belongs in the responsible Issues/Rolling Comments, not this reusable template.
 
 ---
 # Reusable GitHub project migration template (v0.1)
