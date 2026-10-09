@@ -11,9 +11,20 @@ Unreleased/unsigned QA artifacts from GitHub Actions are **not** official entrie
 
 | Version | Portable ZIP | Size (bytes) | SHA-256 | Source commit |
 | --- | --- | ---: | --- | --- |
-| No authorized published build yet | — | — | — | — |
+| 3.0.8.1 | [RazerHealthCenter-Portable-v3.0.8.1.zip](RazerHealthCenter-Portable-v3.0.8.1.zip) | 8619984 | `c7a7ac150d236e85710454c61c806a6f3f4fb400d5309487ecbb88746f28c4c8` | `75b9209a90a192dba5f22665720a048195dc6881` |
 
 ## Unsigned test builds (not official releases)
 
 An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).
 QA archives are excluded from releases.json and latest.json and are not production releases.
+
+## v3.0.8.1 interim-release disclosure (RHC-33)
+
+**UNSIGNED WINDOWS EXECUTABLE. PUBLISHER NOT VERIFIED.**
+This version is published under a documented temporary autonomous
+release path with Razer physical-device acceptance, native rollback,
+and Windows signing/SmartScreen owner approval deferred, NOT passed.
+Windows Defender SmartScreen may warn about an unknown publisher.
+Do not disable Windows security protection; verify the exact source
+commit, ZIP SHA-256 and internal SHA256SUMS before using this build.
+This disclosure does not mean Razer hardware behavior has been certified.
