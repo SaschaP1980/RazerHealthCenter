@@ -160,6 +160,20 @@ def render_readme(rows):
         "An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).",
         "QA archives are excluded from releases.json and latest.json and are not production releases.",
     ])
+    if any(row["version"] == "3.0.8.1" for row in rows):
+        head.extend([
+            "",
+            "## v3.0.8.1 interim-release disclosure (RHC-33)",
+            "",
+            "**UNSIGNED WINDOWS EXECUTABLE. PUBLISHER NOT VERIFIED.**",
+            "This version is published under a documented temporary autonomous",
+            "release path with Razer physical-device acceptance, native rollback,",
+            "and Windows signing/SmartScreen owner approval deferred, NOT passed.",
+            "Windows Defender SmartScreen may warn about an unknown publisher.",
+            "Do not disable Windows security protection; verify the exact source",
+            "commit, ZIP SHA-256 and internal SHA256SUMS before using this build.",
+            "This disclosure does not mean Razer hardware behavior has been certified.",
+        ])
     return "\n".join(head) + "\n"
 
 
