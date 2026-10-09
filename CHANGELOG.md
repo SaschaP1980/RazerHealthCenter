@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.8 — 2026-10-09
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` 3.0.8.7 → 3.0.8.8, with no runtime/repair/device/security-policy code changes.
+- RHC-99 / RHC-98: immutable `candidate/v3.0.8.8-retry1` on new verified main, following failed RHC-96 original Candidate and publisher; full Work-Path, real Linux/native Windows/unsigned safety and one atomic Source+Downloads PR, postmerge verification required before claiming release.
+
 ## 3.0.8.7 — 2026-10-09
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.6` to `3.0.8.7`. No functional, diagnostic, UI, PowerShell, Razer repair, security/privilege, i18n, workflow or release-policy changes.
