@@ -319,7 +319,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      actions: read
+      actions: write
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -421,5 +421,59 @@ jobs:
           test "$(git ls-remote origin "refs/heads/$WORK_REF" | cut -f1)" = "$WORK_SHA"
           gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$WORK_REF"
           test -z "$(git ls-remote origin "refs/heads/$WORK_REF")"
-          echo "RHC94_SINGLE_ATOMIC_PR_RELEASE_SUCCESS=PASS main=$MERGED source=$SOURCE_SHA tag=v$VERSION WorkDeleted=$WORK_REF PhaseB=DEFERRED"
-          echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED source=$SOURCE_SHA tag=v$VERSION PhaseB=DEFERRED"
+          echo "MERGED_MAIN_SHA=$MERGED" >> "$GITHUB_ENV"
+          echo "RHC_PUBLICATION=PASS_POSTRELEASE_PENDING main=$MERGED source=$SOURCE_SHA tag=v$VERSION"
+      - name: Dispatch exact public immutable postrelease checks and require two OS + HTTPS GREEN
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_MAIN_SHA"
+          STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run rhc-postrelease-verification.yml --ref main \
+            -f expected_main_sha="$MERGED_MAIN_SHA" \
+            -f expected_source_sha="$SOURCE_SHA" \
+            -f version="$VERSION" \
+            -f expected_release_pr="$RELEASE_PR"
+          TITLE="RHC POSTRELEASE v$VERSION main:$MERGED_MAIN_SHA"
+          VERIFIED=''
+          for attempt in $(seq 1 90); do
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/rhc-postrelease-verification.yml/runs?branch=main&per_page=50" > "$RUNNER_TEMP/postruns.json"
+            VERIFIED="$(jq -r --arg sha "$MERGED_MAIN_SHA" --arg title "$TITLE" --arg since "$STARTED" '
+              [.workflow_runs[] | select(.event=="workflow_dispatch" and
+                 .head_sha==$sha and .display_title==$title and .created_at >= $since)]
+              | if length==1 then .[0].id else empty end' "$RUNNER_TEMP/postruns.json")"
+            if [ -n "$VERIFIED" ]; then
+              gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VERIFIED" > "$RUNNER_TEMP/postrun.json"
+              STATUS="$(jq -r '.status' "$RUNNER_TEMP/postrun.json")"
+              if [ "$STATUS" = completed ]; then
+                jq -e --arg sha "$MERGED_MAIN_SHA" \
+                  '.conclusion=="success" and .head_sha==$sha and
+                   .event=="workflow_dispatch" and .actor.login=="github-actions[bot]"' \
+                  "$RUNNER_TEMP/postrun.json" >/dev/null
+                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VERIFIED/jobs?per_page=100" > "$RUNNER_TEMP/postjobs.json"
+                python3 - "$RUNNER_TEMP/postjobs.json" <<'PY'
+          import json,sys
+          rows=json.load(open(sys.argv[1]))['jobs']
+          names=(
+           'Independently GET HTTPS public ZIP and exact release graph',
+           'Independently reverify released EXE and native PS5.1 Razer safety',
+           'Conclude only after independent HTTPS AND native Windows success',
+          )
+          assert len(rows)==3, 'postrelease has missing/extra hosted jobs'
+          for name in names:
+              jobs=[j for j in rows if j['name']==name]
+              assert len(jobs)==1 and jobs[0]['status']=='completed' and jobs[0]['conclusion']=='success', name
+          print('RHC102_HOSTED_POSTRELEASE_THREE_JOB_GATE=PASS')
+          PY
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test -n "$VERIFIED"
+          test "$(jq -r '.status' "$RUNNER_TEMP/postrun.json")" = completed
+          test "$(jq -r '.conclusion' "$RUNNER_TEMP/postrun.json")" = success
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_MAIN_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
+          echo "RHC94_SINGLE_ATOMIC_PR_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION postrelease=$VERIFIED linux_https=PASS native_windows=PASS hardware=NOT_APPLICABLE"
+          echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION independentPostrelease=$VERIFIED PhaseB=DEFERRED"
