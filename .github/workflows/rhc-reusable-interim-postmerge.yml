@@ -48,9 +48,9 @@ jobs:
           if [ "$SOURCE" != "$FIRST" ]; then
             git diff --quiet "$SOURCE" "$FIRST" -- model.go CHANGELOG.md config/rhc-release-policy.json
             git diff --name-only "$SOURCE" "$FIRST" | sort > "$RUNNER_TEMP/source-recovery-diff.txt"
-            printf '%s\\n' .github/workflows/rhc-reusable-interim-postmerge.yml .github/workflows/rhc-reusable-interim-release.yml .github/workflows/rhc82-v3085-recovery.yml tests/test_rhc_82_stage_env_contracts.py > "$RUNNER_TEMP/allowed-recovery-diff.txt"
+            printf '%s\n' .github/workflows/rhc-reusable-interim-postmerge.yml .github/workflows/rhc-reusable-interim-release.yml .github/workflows/rhc82-v3085-recovery.yml tests/test_rhc_82_stage_env_contracts.py > "$RUNNER_TEMP/allowed-recovery-diff.txt"
             diff -u "$RUNNER_TEMP/allowed-recovery-diff.txt" "$RUNNER_TEMP/source-recovery-diff.txt"
-            python3 -B tools/rhc_workflow_reliability.py resolve-source \\
+            python3 -B tools/rhc_workflow_reliability.py resolve-source \
               --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" > "$RUNNER_TEMP/source.json"
             test "$(jq -r '.issueNumber' "$RUNNER_TEMP/source.json")" = 78
             test "$(jq -r '.sourcePR' "$RUNNER_TEMP/source.json")" = 79
