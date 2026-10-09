@@ -146,6 +146,17 @@ class ReadOnlyTransport(unittest.TestCase):
 
 
 class WorkflowContracts(unittest.TestCase):
+    def test_candidate_qualification_checks_out_exact_policy_before_read(self):
+        """RHC-80: aggregation must have its own real checkout, not depend on other jobs."""
+        y=(ROOT/".github/workflows/rhc-candidate-preflight.yml").read_text()
+        qualification=y.split("\n  qualification:\n",1)[1]
+        checkout="actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        self.assertIn(checkout,qualification, "qualifier omitted checkout and policy file was absent in real hosted run")
+        self.assertLess(qualification.index(checkout),
+                        qualification.index("config/rhc-release-policy.json"))
+        self.assertIn("needs: [linux, windows]",qualification)
+        self.assertIn("rhc/preflight/candidate",qualification)
+
     def test_reusable_publisher_has_no_hardcoded_owner_issue(self):
         y=(ROOT/".github/workflows/rhc-reusable-interim-release.yml").read_text()
         self.assertNotIn('RHC-Issue: 34',y)
