@@ -20,6 +20,12 @@ on:
       - 'tests/test_rhc_downloads_contracts.py'
       - 'config/rhc-release-policy.json'
       - '.github/workflows/rhc-downloads-verify.yml'
+  # GITHUB_TOKEN-created release merges do NOT emit new push workflow runs.
+  # Completion of the already-running authorized publisher is an independent
+  # GitHub event. Keep this read-only and bound to the original source SHA.
+  workflow_run:
+    workflows: [RHC Reusable Interim Unsigned Release]
+    types: [completed]
   workflow_dispatch:
     inputs:
       version:
@@ -38,6 +44,13 @@ concurrency:
 jobs:
   validate-immutable-downloads:
     name: Validate ZIP manifest and unmodified release history
+    # Never run for failed, skipped, fork, pull-request or non-main publishers.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
@@ -64,6 +77,31 @@ jobs:
           print('RHC_DOWNLOADS_NONPUBLISHING_POLICY=PASS')
           PY
           git diff --exit-code
+      - name: Bind independent completed publisher to exact original public source
+        if: github.event_name == 'workflow_run'
+        shell: bash
+        env:
+          GITHUB_EVENT: ${{ github.event_name }}
+          PUBLISHER_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || '' }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT" = workflow_run
+          test "$GITHUB_REF" = 'refs/heads/main'
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+          python3 - <<'PY'
+          import json,os,re,sys
+          from pathlib import Path
+          sys.path.insert(0,'tools')
+          from rhc_release_contracts import version_from_model
+          source=os.environ['PUBLISHER_SOURCE_SHA']
+          assert re.fullmatch(r'[0-9a-f]{40}', source), 'untrusted original publisher SHA'
+          latest=json.loads(Path('downloads/latest.json').read_text())
+          assert latest['sourceSha']==os.environ['PUBLISHER_SOURCE_SHA'], 'publisher source no longer matches current published release'
+          assert latest['version']==version_from_model('.'), 'public catalog differs from immutable product version'
+          assert latest['tag']=='v'+latest['version'], 'immutable release tag mismatch'
+          print('RHC_POSTRELEASE_ORIGINAL_PUBLISHER=PASS source='+source+' publicVersion='+latest['version'])
+          PY
       # GitHub chat connectors cannot reliably stream large ZIP binaries.
       # Only verify the actual published main ref, not an unmerged PR checkout.
       # HTTPS request is to immutable commit-addressed raw.githubusercontent.com,
