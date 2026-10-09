@@ -177,7 +177,26 @@ jobs:
           if ($sig.Status -ne 'NotSigned') { throw 'Interim unsigned trust disclosure disagrees with real PE' }
           $att=@{ sourceSha=$env:GITHUB_SHA; archiveSha256=$e.archiveSha256; exeSha256=$e.exeSha256; exeSignature='NotSigned'; nativeWindows='SUCCESS'; version='3.0.8.1' }
           $att | ConvertTo-Json -Compress | Set-Content -Encoding Ascii (Join-Path $env:RUNNER_TEMP 'rhc34-windows-evidence.json')
-          Write-Output 'RHC34_WINDOWS=PASS; actual PS5.1 + unsigned EXE; physical Razer/rollback/Owner trust DEFERRED'
+          # Execute the production-facing pure decision engine on actual Linux/Windows
+          # evidence in this READ-ONLY PR rehearsal, before any public main merge.
+          $policy=Get-Content 'config/rhc-release-policy.json' -Raw | ConvertFrom-Json
+          $snap=@{
+            version='3.0.8.1'; sourceSha=$env:GITHUB_SHA; mainSha=$env:GITHUB_SHA
+            changelogVersion='3.0.8.1'; archiveSha256=$e.archiveSha256
+            archiveFile=$e.archiveFile; archiveFiles=7; archiveReproducible=$true
+            nativeWindows='SUCCESS'; linux='SUCCESS'; exeSignature='NotSigned'
+            policy=@{ productionEnabled=$policy.productionEnabled
+              rollbackVerified=$policy.rollbackVerified
+              signingDecision=$policy.signingDecision; distribution=$policy.distribution }
+            phaseB=@{ hardware='DEFERRED'; rollback='DEFERRED'
+              publisherTrust='NOT_VERIFIED'; rulesetAdmin='DEFERRED' }
+            existingTag=$false; existingArchive=$false; previousReleases=0
+          }
+          $snapshot=Join-Path $env:RUNNER_TEMP 'rhc34-real-cross-os-snapshot.json'
+          $snap | ConvertTo-Json -Depth 6 | Set-Content -Encoding Ascii $snapshot
+          python -B tools/rhc_interim_release.py --snapshot $snapshot
+          if ($LASTEXITCODE -ne 0) { throw 'Cross-OS exact interim release qualification blocked' }
+          Write-Output 'RHC34_WINDOWS=PASS; actual PS5.1 + unsigned EXE + cross-OS qualification; physical Razer/rollback/Owner trust DEFERRED'
       - name: Transfer real Windows proof after qualified native tests
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
