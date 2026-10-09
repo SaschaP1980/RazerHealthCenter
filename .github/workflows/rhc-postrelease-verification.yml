@@ -1,0 +1,158 @@
+name: RHC Independent Public Postrelease Verification
+# Exact public commit, real HTTPS raw download, separate native Windows.
+run-name: RHC POSTRELEASE v${{ inputs.version || 'latest' }} main:${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha || github.sha }}
+on:
+  workflow_dispatch:
+    inputs:
+      expected_main_sha:
+        description: Exact public main SHA
+        required: true
+        type: string
+      expected_source_sha:
+        description: Exact published ZIP-free Candidate SHA
+        required: true
+        type: string
+      version:
+        description: Exact four-part public version
+        required: true
+        type: string
+      expected_release_pr:
+        description: Merged combined release PR
+        required: true
+        type: string
+  pull_request:
+    types: [closed]
+    branches: [main]
+    paths:
+      - '.github/workflows/rhc-postrelease-verification.yml'
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: rhc-postrelease-${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha || github.sha }}
+  cancel-in-progress: false
+jobs:
+  linux:
+    name: Independently GET HTTPS public ZIP and exact release graph
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'main' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.head.ref == 'work/RHC-102')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EXPECTED_MAIN_SHA: ${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha }}
+      EXPECTED_SOURCE_SHA: ${{ inputs.expected_source_sha || '' }}
+      EXPECTED_VERSION: ${{ inputs.version || '' }}
+      EXPECTED_RELEASE_PR: ${{ inputs.expected_release_pr || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Independent Git/catalog/archive provenance and negative contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_MAIN_SHA"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$EXPECTED_MAIN_SHA"
+          python3 -m unittest discover -s tests -p 'test_rhc102_*_contracts.py' -v
+          python3 -m unittest discover -s tests -p 'test_rhc_remote_binary_verify_contracts.py' -v
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          python3 -B tools/rhc102_postrelease_provenance.py --root . \
+            --expected-main "$EXPECTED_MAIN_SHA" \
+            --expected-source "$EXPECTED_SOURCE_SHA" \
+            --expected-version "$EXPECTED_VERSION" | tee "$RUNNER_TEMP/provenance.txt"
+          PROOF="$(sed -n 's/^RHC102_POSTRELEASE_PROVENANCE=//p' "$RUNNER_TEMP/provenance.txt")"
+          test -n "$PROOF"
+          if [ -n "$EXPECTED_RELEASE_PR" ]; then
+            gh api "repos/$GITHUB_REPOSITORY/pulls/$EXPECTED_RELEASE_PR" > "$RUNNER_TEMP/pr.json"
+            jq -e --arg merged "$(jq -r '.releaseMergeSha' <<< "$PROOF")" \
+              '.merged==true and .state=="closed" and .merge_commit_sha==$merged and
+               (.head.ref|startswith("release/v"))' "$RUNNER_TEMP/pr.json" >/dev/null
+            test "$(jq -r '.sourceSha' <<< "$PROOF")" = "$EXPECTED_SOURCE_SHA"
+          fi
+      - name: Independently fetch the real public ZIP over HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["version"])')"
+          python3 -B tools/rhc_remote_binary_verify.py --root . \
+            --repository "$GITHUB_REPOSITORY" --commit-sha "$EXPECTED_MAIN_SHA" \
+            --version "$VERSION"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$EXPECTED_MAIN_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          echo "RHC102_INDEPENDENT_HTTPS=PASS publicMain=$EXPECTED_MAIN_SHA"
+  windows:
+    name: Independently reverify released EXE and native PS5.1 Razer safety
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'main' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.head.ref == 'work/RHC-102')
+    runs-on: windows-2025
+    timeout-minutes: 15
+    env:
+      EXPECTED_MAIN_SHA: ${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha }}
+      EXPECTED_SOURCE_SHA: ${{ inputs.expected_source_sha || '' }}
+      EXPECTED_VERSION: ${{ inputs.version || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Native Git graph, actual NotSigned EXE, PS5.1 parser and repair-safety
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PowerShell 5.1 required' }
+          if ((git rev-parse HEAD).Trim() -ne $env:EXPECTED_MAIN_SHA) { throw 'public main checkout drift' }
+          $proofArgs=@("--root",".","--expected-main",$env:EXPECTED_MAIN_SHA)
+          if ($env:EXPECTED_SOURCE_SHA) { $proofArgs+=@("--expected-source",$env:EXPECTED_SOURCE_SHA) }
+          if ($env:EXPECTED_VERSION) { $proofArgs+=@("--expected-version",$env:EXPECTED_VERSION) }
+          python -B tools/rhc102_postrelease_provenance.py @proofArgs
+          if ($LASTEXITCODE -ne 0) { throw 'Independent Windows release graph failed' }
+          python -B tools/rhc_downloads.py --downloads downloads
+          if ($LASTEXITCODE -ne 0) { throw 'Native package catalog mismatch' }
+          $latest=Get-Content 'downloads/latest.json' -Raw | ConvertFrom-Json
+          $archive=Join-Path 'downloads' $latest.file
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $latest.sha256) { throw 'ZIP hash mismatch' }
+          $target=Join-Path $env:RUNNER_TEMP 'rhc102-windows'
+          Expand-Archive -LiteralPath $archive -DestinationPath $target
+          $exe=Join-Path $target 'RazerHealthCenter.exe'
+          if ((Get-AuthenticodeSignature -FilePath $exe).Status -ne 'NotSigned') { throw 'Unsigned disclosure incorrect' }
+          $scripts=@(Get-ChildItem -File -Recurse -Filter '*.ps1')
+          if ($scripts.Count -lt 15) { throw 'Incomplete PowerShell scripts' }
+          foreach ($script in $scripts) {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($script.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count -ne 0) { throw "PS5.1 syntax error: $($script.FullName)" }
+          }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE -ne 0) { throw 'Razer repair safety failed' }
+          Write-Output "RHC102_INDEPENDENT_WINDOWS=PASS version=$($latest.version) NotSigned scripts=$($scripts.Count) hardware=NOT_APPLICABLE"
+  verified:
+    name: Conclude only after independent HTTPS AND native Windows success
+    if: always() && (needs.linux.result != 'skipped' || needs.windows.result != 'skipped')
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fail closed for every missing, skipped or failed hosted OS
+        shell: bash
+        env:
+          LINUX_RESULT: ${{ needs.linux.result }}
+          WINDOWS_RESULT: ${{ needs.windows.result }}
+          EXPECTED_MAIN_SHA: ${{ inputs.expected_main_sha || github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+          test "$LINUX_RESULT" = success
+          test "$WINDOWS_RESULT" = success
+          echo "RHC102_INDEPENDENT_POSTRELEASE=PASS main=$EXPECTED_MAIN_SHA linux_https=PASS native_windows=PASS physical_praxis=NOT_APPLICABLE"
