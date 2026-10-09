@@ -160,10 +160,14 @@ def render_readme(rows):
         "An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).",
         "QA archives are excluded from releases.json and latest.json and are not production releases.",
     ])
-    if any(row["version"] == "3.0.8.1" for row in rows):
+    for row in rows:
+        # All post-v3.0.8.0 interim distributions are unsigned and uncertified.
+        # Retain the original v3.0.8.1 README byte-for-byte for historic verification.
+        if norm_version(row["version"]) < norm_version("3.0.8.1"):
+            continue
         head.extend([
             "",
-            "## v3.0.8.1 interim-release disclosure (RHC-33)",
+            "## v" + row["version"] + " interim-release disclosure (RHC-33)",
             "",
             "**UNSIGNED WINDOWS EXECUTABLE. PUBLISHER NOT VERIFIED.**",
             "This version is published under a documented temporary autonomous",
