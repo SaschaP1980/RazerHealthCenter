@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.8 — 2026-10-09
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.7` to `3.0.8.8`; no runtime, device, UI, diagnostics, Razer repair, privilege, signing, security or release-policy changes.
+- RHC-96 / RHC-94: validate the new Candidate-qualified **single atomic Source+Downloads PR** publisher on a real Work-Path, with genuine hosted Linux/native Windows and postrelease public HTTPS-byte proof. The workflow change itself was separately merged in RHC-94 PR #95.
+
 ## 3.0.8.7 — 2026-10-09
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.6` to `3.0.8.7`. No functional, diagnostic, UI, PowerShell, Razer repair, security/privilege, i18n, workflow or release-policy changes.
