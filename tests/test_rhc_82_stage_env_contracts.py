@@ -92,7 +92,7 @@ class FrozenSourceRecoveryContract(unittest.TestCase):
             "test \"$(jq -r '.issueNumber'", " = 78",
             'echo "RHC_REAL_SOURCE_SHA=$SOURCE"',
             "source=latest['sourceSha']",
-            "test \"$(gh api \"$TAG_ENDPOINT\" --jq '.object.sha')\" = \"$SOURCE\"",
+            "test \"$(gh api \"repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION\" --jq '.object.sha')\" = \"$SOURCE\"",
         ):
             with self.subTest(needle=needle):
                 self.assertIn(needle, self.postmerge)
