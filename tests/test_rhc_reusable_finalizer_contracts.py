@@ -11,12 +11,24 @@ GENERIC = ROOT / ".github/workflows/rhc-branch-cleanup.yml"
 class ReusableFinalizerContract(unittest.TestCase):
     def test_future_postmerge_handles_missing_tag_and_fails_closed_on_mismatch(self):
         script = POST.read_text(encoding="utf-8")
-        self.assertIn("'.object.sha // empty'", script)
+        self.assertIn('gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json"', script)
+        self.assertIn("tag-existing.err", script)
+        self.assertIn('jq -er \'\x2eobject.sha | select(type=="string")\'', script)
         self.assertIn('test "$BEFORE" = "$SOURCE"', script)
         self.assertIn('test "$FOUND" = "$SOURCE"', script)
         self.assertIn('refs/tags/v$VERSION', script)
         self.assertIn("needs.linux.result == 'success'", script)
         self.assertIn("needs.windows.result == 'success'", script)
+
+    def test_raw_tag_lookup_rejects_wrong_existing_sha_and_non404_api_failures(self):
+        for path in (POST, RECOVERY):
+            with self.subTest(path=path):
+                script = path.read_text(encoding="utf-8")
+                self.assertIn('gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json"', script)
+                self.assertIn("tag-existing.err", script)
+                self.assertIn("Tag lookup API failure", script)
+                self.assertIn("Existing immutable source tag", script)
+                self.assertIn("Tag write ambiguous or denied", script)
 
     def test_future_postmerge_owns_exclusively_verified_release_cleanup(self):
         script = POST.read_text(encoding="utf-8")
@@ -52,7 +64,7 @@ class ReusableFinalizerContract(unittest.TestCase):
             "sourceSha",
             "releases.json",
             "latest.json",
-            "'.object.sha // empty'",
+            'gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json"',
             "refs/tags/v$VERSION",
             "git push --force-with-lease=refs/heads/release/v$VERSION:$STAGED_SHA",
             "RHC_REUSABLE_RECOVERY_VERIFIED",

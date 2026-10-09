@@ -160,12 +160,28 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr-detail.json"
           jq -e --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY" \
             '.merged==true and .state=="closed" and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo' "$RUNNER_TEMP/pr-detail.json" | grep -qx true
-          BEFORE="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
+          TAG_ENDPOINT="repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION"
+          BEFORE=''
+          if gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json" 2>"$RUNNER_TEMP/tag-existing.err"; then
+            BEFORE="$(jq -er '.object.sha | select(type=="string")' "$RUNNER_TEMP/tag-existing.json")" || {
+              echo 'Malformed existing tag API response' >&2; exit 1;
+            }
+          elif ! grep -Eq 'HTTP 404|Not Found' "$RUNNER_TEMP/tag-existing.err"; then
+            echo 'Tag lookup API failure (not an HTTP 404)' >&2
+            cat "$RUNNER_TEMP/tag-existing.err" >&2
+            exit 1
+          fi
           if [ -n "$BEFORE" ]; then
             test "$BEFORE" = "$SOURCE" || { echo "Existing immutable source tag points to different SHA" >&2; exit 1; }
           else
             gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$SOURCE" > "$RUNNER_TEMP/created-tag.json" || {
-              FOUND="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
+              FOUND=''
+              gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-after.json" 2>/dev/null || {
+                echo 'Tag write ambiguous or denied' >&2; exit 1;
+              }
+              FOUND="$(jq -er '.object.sha | select(type=="string")' "$RUNNER_TEMP/tag-after.json")" || {
+                echo 'Tag write ambiguous or denied' >&2; exit 1;
+              }
               test "$FOUND" = "$SOURCE" || { echo "Tag write ambiguous or denied" >&2; exit 1; }
             }
           fi
