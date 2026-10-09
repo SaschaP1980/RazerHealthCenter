@@ -50,5 +50,14 @@ class InterimPostmergeContract(unittest.TestCase):
         self.assertIn("RHC34_POSTMERGE_RELEASE_SUCCESS",script)
         self.assertNotIn("EXPLICIT_OWNER_RHC22",script)
 
+    def test_null_safe_postdelete_cleanup_handles_already_removed_ref(self):
+        workflow=(ROOT/".github/workflows/rhc-interim-postmerge-v3081.yml").read_text(encoding="utf-8")
+        self.assertIn("--jq '.object.sha // empty'",workflow)
+        self.assertIn("delete_safe release/v3.0.8.1",workflow)
+        self.assertIn("work/RHC-34-fixture",workflow)
+        self.assertIn("work/RHC-34-tagfix",workflow)
+        self.assertIn("work/RHC-34-cleanup",workflow)
+        self.assertIn("git merge-base --is-ancestor",workflow)
+
 if __name__=="__main__":
     unittest.main()
