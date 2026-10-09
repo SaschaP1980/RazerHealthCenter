@@ -1,3 +1,14 @@
+## Reusable interim release and English GitHub documentation pattern (RHC-43)
+
+For all future GitHub development tasks, use **English** in Issues, comments, commits, source code comments, tests, workflow names, documentation and release notes; owner-facing chat may remain German with English technical terms.
+
+Never assume that a single successful, specifically versioned interim publisher automatically extends to a following HOTFIX. A user request for a *complete* Development → Build → Release cycle must be treated as end-to-end: version/source/main consistency, exact native Linux+Windows evidence, two independent deterministic PE/ZIP builds, bounded PR/merge/source tag, immutable prior ZIP/history, public latest pointer, independently reread remote results, and verifiable cleanup. A Work/Candidate GREEN is **not** a released artifact. A mode that is approved conceptually but not implemented is **NOT READY**, not PASS.
+
+Preserve production policy and hardware/rollback/signing evidence as separately observed states; a specific interim unsigned mode may defer only external approval categories, and must disclose unsigned/SmartScreen trust limitations. Never fake owner approval, disable repair safety or claim missing GitHub PR creation/branch cleanup permissions are present. Keep old release-workflow historical RED evidence and isolate old prepublication fixtures from future-version PR CI. Prefer scoped test-first counterexamples plus exact SHA hosted readback.
+
+See [RHC-43 contract](../REUSABLE_INTERIM_RELEASE_CONTRACT.md), [canonical Development Guidelines](../DEVELOPMENT_GUIDELINES.md), [canonical Release Process](../RELEASE_PROCESS.md). For RHC the historical v3.0.8.1 tag/ZIP are immutable and the next source-only HOTFIX belongs to RHC-41.
+
+---
 # Reusable GitHub project migration template (v0.1)
 
 **Purpose:** establish product source/build/safety/release authority on GitHub **without silent publication**. Product-neutral template; the [RHC migration ledger](../MIGRATION_STATUS.md) is the **historical** first case. Its original v3.0.8 ZIP with 12 empty directories, three-part source version and Draft-release proposal do **not** override RHC-16 `3.0.8.0` or RHC-12 `repo-downloads` (new lean seven-file ZIP, GitHub source, no separate Source ZIP). Check [current release rules](../RELEASE_PROCESS.md).

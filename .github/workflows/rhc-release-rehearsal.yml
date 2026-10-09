@@ -1,24 +1,8 @@
 name: RHC-20 Isolated Real-Byte Release Rehearsal (nonpublishing)
+# Historical PRE-publication rehearsal: read-only and explicit invocation only.
+# The published downloads/latest.json makes its old empty-catalog fixture
+# intentionally invalid. Do not run it on normal new-version PRs.
 on:
-  push:
-    branches:
-      - 'work/RHC-*'
-    paths:
-      - 'tools/rhc_release_rehearsal.py'
-      - 'tests/test_rhc_release_rehearsal_contracts.py'
-      - '.github/workflows/rhc-release-rehearsal.yml'
-  pull_request:
-    branches: [main]
-    # Historical PRE-publication rehearsal requires absent latest.json.
-    # Once downloads are published, downloads-only release PRs must instead
-    # qualify with actual downloads integrity + real source Linux/Windows gates.
-    paths:
-      - 'model.go'
-      - 'tools/rhc_release_rehearsal.py'
-      - 'tests/test_rhc_release_rehearsal_contracts.py'
-      - 'tools/rhc_interim_release.py'
-      - '.github/workflows/rhc-interim-release-v3081.yml'
-      - '.github/workflows/rhc-release-rehearsal.yml'
   workflow_dispatch:
 permissions:
   contents: read

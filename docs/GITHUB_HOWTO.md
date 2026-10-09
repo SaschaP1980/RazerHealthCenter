@@ -1,3 +1,12 @@
+## Active operating status — RHC-43 / English GitHub policy (October 2026)
+
+All new GitHub development communication and normative project documentation are written in **English**; owner-facing conversation remains **German with English engineering terminology**. Read actual current app/reference version from model.go, last public version from downloads/latest.json/releases.json, current main SHA and exact GitHub refs rather than relying on an old frozen version in this guide.
+
+The owner requests a **repeatable technical interim-unsigned Development → Build → Release cycle**, not a one-off v3.0.8.1 publisher. Its implementation, real CI/PR-permission proof and GitHub remote postrelease verification are tracked in [RHC-43](https://github.com/SaschaP1980/RazerHealthCenter/issues/43). RHC-41 is the separate v3.0.8.2 product version-only Work/qualified Candidate. Historical v3.0.8.1 writer/prepublication rehearsal are archived for explicit invocation only; they must not cause ordinary later hotfix PRs to fail. Do not call a Candidate or QA artifact a release, and never override unverified safety/owner/external acceptance as PASS.
+
+See [DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md), [RELEASE_PROCESS.md](RELEASE_PROCESS.md) and [REUSABLE_INTERIM_RELEASE_CONTRACT.md](REUSABLE_INTERIM_RELEASE_CONTRACT.md). The old version snapshot in the guide below is historical, not current operating state.
+
+---
 # RHC — GitHub operating guide
 
 ## Current limitation

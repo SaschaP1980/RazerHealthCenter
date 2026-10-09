@@ -1,23 +1,10 @@
 name: RHC-34 v3.0.8.1 interim release (unsigned and uncertified)
 # ONLY this version. RHC-22 Phase B is PAUSED, not falsely passed.
 # INTERIM_UNSIGNED_UNCERTIFIED_RELEASE: actual unsigned/uncertified state, not Owner-approved production.
+# Historical single-version release orchestrator is retained for audit/recovery.
+# Never auto-trigger this old 3.0.8.1 writer on future main/work PRs.
+# Future versions require their own verified reusable interim release mode.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'model.go'
-      - 'CHANGELOG.md'
-      - 'tools/rhc_interim_release.py'
-      - 'tools/rhc_downloads.py'
-      - '.github/workflows/rhc-interim-release-v3081.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'model.go'
-      - 'CHANGELOG.md'
-      - 'tools/rhc_interim_release.py'
-      - 'tools/rhc_downloads.py'
-      - '.github/workflows/rhc-interim-release-v3081.yml'
   workflow_dispatch:
 permissions:
   contents: read
