@@ -1,0 +1,148 @@
+name: RHC-34 Verified Interim v3.0.8.1 Postmerge Tag and Downloads
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+permissions:
+  contents: read
+
+jobs:
+  finalize:
+    name: Release postmerge independent remote verification and exact source tag
+    if: >-
+      github.repository == 'SaschaP1980/RazerHealthCenter' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'release/v3.0.8.1' &&
+      github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: 75b9209a90a192dba5f22665720a048195dc6881
+      EXPECTED_ZIP_SHA256: c7a7ac150d236e85710454c61c806a6f3f4fb400d5309487ecbb88746f28c4c8
+      STAGED_SHA: ${{ github.event.pull_request.head.sha }}
+      MERGED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+      RELEASE_PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify actual immutable ZIP, exact merge ancestry, QA history and CI provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$MERGED_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$RELEASE_PR" > "$RUNNER_TEMP/pr.json"
+          jq -e --arg source "$STAGED_SHA" --arg merged "$MERGED_SHA" \
+            '.state=="closed" and .merged==true and .head.sha==$source and .merge_commit_sha==$merged and .base.ref=="main"' \
+            "$RUNNER_TEMP/pr.json" >/dev/null
+          read -r COMMIT FIRST SECOND EXTRA <<< "$(git rev-list --parents -n 1 "$MERGED_SHA")"
+          test "$COMMIT" = "$MERGED_SHA" && test "$SECOND" = "$STAGED_SHA" && test -z "$EXTRA"
+          test "$(git rev-parse "$STAGED_SHA^")" = "$FIRST"
+          test "$(git rev-parse "$SOURCE_SHA:model.go")" = "$(git rev-parse "$FIRST:model.go")"
+          test "$(git rev-parse "$SOURCE_SHA:CHANGELOG.md")" = "$(git rev-parse "$FIRST:CHANGELOG.md")"
+          # Exactly the four narrowly reviewed technical files were added since
+          # this immutable 3.0.8.1 build source; no app, assets or safety changes.
+          git diff --name-only "$SOURCE_SHA" "$FIRST" | sort > "$RUNNER_TEMP/intervening.txt"
+          printf '%s\n' \
+            '.github/workflows/rhc-interim-postmerge-v3081.yml' \
+            '.github/workflows/rhc-release-rehearsal.yml' \
+            'tests/test_rhc_downloads_contracts.py' \
+            'tests/test_rhc_interim_postmerge_contracts.py' > "$RUNNER_TEMP/allowed-intervening.txt"
+          diff -u "$RUNNER_TEMP/allowed-intervening.txt" "$RUNNER_TEMP/intervening.txt"
+          git diff --name-only "$FIRST" "$STAGED_SHA" | sort > "$RUNNER_TEMP/release.txt"
+          printf '%s\n' downloads/README.md \
+            downloads/RazerHealthCenter-Portable-v3.0.8.1.zip \
+            downloads/latest.json downloads/releases.json > "$RUNNER_TEMP/expected-release.txt"
+          diff -u "$RUNNER_TEMP/expected-release.txt" "$RUNNER_TEMP/release.txt"
+          git diff --name-only "$FIRST" "$MERGED_SHA" | sort | diff -u "$RUNNER_TEMP/expected-release.txt" -
+          test "$(git rev-parse "$STAGED_SHA:downloads/RazerHealthCenter-Portable-v3.0.8.1.zip")" = \
+            "$(git rev-parse "$MERGED_SHA:downloads/RazerHealthCenter-Portable-v3.0.8.1.zip")"
+          python3 -B tools/rhc_downloads.py --downloads downloads
+          python3 -m unittest discover -s tests -p 'test_rhc_downloads_contracts.py' -v
+          python3 -m unittest discover -s tests -p 'test_rhc_interim_postmerge_contracts.py' -v
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,sys
+          sys.path.insert(0,'tools')
+          from rhc_downloads import portable_zip_check
+          from rhc_release_contracts import version_from_model
+          root=pathlib.Path('downloads')
+          rows=json.loads((root/'releases.json').read_text())['releases']
+          latest=json.loads((root/'latest.json').read_text())
+          assert len(rows)==1 and latest==rows[0], 'single immutable release/pointer required'
+          assert latest['version']=='3.0.8.1' and latest['tag']=='v3.0.8.1'
+          assert latest['sourceSha']==os.environ['SOURCE_SHA']
+          assert latest['file']=='RazerHealthCenter-Portable-v3.0.8.1.zip'
+          zipfile=root/latest['file']
+          assert zipfile.stat().st_size==8619984
+          assert hashlib.sha256(zipfile.read_bytes()).hexdigest()==os.environ['EXPECTED_ZIP_SHA256']
+          assert latest['sha256']==os.environ['EXPECTED_ZIP_SHA256']
+          assert len(portable_zip_check(zipfile))==7
+          assert version_from_model('.')=='3.0.8.1'
+          readme=(root/'README.md').read_text()
+          for phrase in ('UNSIGNED WINDOWS EXECUTABLE','PUBLISHER NOT VERIFIED','SmartScreen'):
+              assert phrase in readme, 'missing unsigned/uncertified warning '+phrase
+          assert (root/'qa'/'manifest.json').is_file()
+          print('RHC34_REMOTE_CATALOG_ARCHIVE=VERIFIED 7 files, old QA immutable, Phase B deferred')
+          PY
+          # The real source build was hosted and passed both Linux/native
+          # Windows, despite the *overall* stage run failing on Actions
+          # createPullRequest permissions. Do not change that historical truth.
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37879861534" \
+            --jq '.head_sha' | grep -qx "$SOURCE_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/37879861534/jobs?per_page=100" \
+            --jq '[.jobs[] | select(.name=="Exact-main double Linux PE/ZIP and isolated catalog verification" or .name=="Actual native Windows PS5.1 and unsigned EXE/ZIP safety verification") | .conclusion] | sort | join(",")' \
+            | grep -qx 'success,success'
+          # Verify actual PR-specific latest release/downloads integrity for the
+          # exact STAGED_SHA instead of borrowing a prior RED context.
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/rhc-downloads-verify.yml/runs?per_page=100" \
+            --jq "[.workflow_runs[] | select(.head_sha==\"$STAGED_SHA\" and .event==\"pull_request\" and .status==\"completed\" and .conclusion==\"success\")] | length" \
+            | grep -Eq '^[1-9][0-9]*$'
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq .state)" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq .state)" = open
+          echo "RHC34_PRETAG_RELEASE_PROVENANCE=PASS source=$SOURCE_SHA merge=$MERGED_SHA staged=$STAGED_SHA"
+
+      - name: Create or independently validate immutable v3.0.8.1 SOURCE tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' 2>/dev/null || true)"
+          if [ -z "$CURRENT" ]; then
+            gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref=refs/tags/v3.0.8.1 -f sha="$SOURCE_SHA" > "$RUNNER_TEMP/tag-post.json" || {
+                echo 'Tag create response ambiguous; inspect remote tag before any retry' >&2
+                test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' 2>/dev/null)" = "$SOURCE_SHA"
+              }
+          else
+            test "$CURRENT" = "$SOURCE_SHA"
+          fi
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha')" = "$SOURCE_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_SHA"
+          echo 'RHC34_SOURCE_TAG=PASS exact release source and immutable version identity'
+
+      - name: Safe exact-release-branch cleanup and final published readback
+        shell: bash
+        run: |
+          set -euo pipefail
+          REF="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release/v3.0.8.1" --jq '.object.sha' 2>/dev/null || true)"
+          if [ -n "$REF" ]; then
+            test "$REF" = "$STAGED_SHA" || { echo 'Release branch changed; cannot delete' >&2; exit 1; }
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/release/v3.0.8.1"
+          fi
+          test -z "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release/v3.0.8.1" --jq '.object.sha' 2>/dev/null || true)"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha')" = "$SOURCE_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/contents/downloads/latest.json?ref=main" \
+            --jq '.sha' | grep -Eq '^[0-9a-f]{40}$'
+          gh api "repos/$GITHUB_REPOSITORY/contents/downloads/RazerHealthCenter-Portable-v3.0.8.1.zip?ref=main" \
+            --jq '.sha' | grep -qx "$(git rev-parse "$MERGED_SHA:downloads/RazerHealthCenter-Portable-v3.0.8.1.zip")"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq .state)" = open
+          test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq .state)" = open
+          echo "RHC34_POSTMERGE_RELEASE_SUCCESS=PASS; source=$SOURCE_SHA main=$MERGED_SHA, tag=v3.0.8.1; unsigned uncertified; PhaseB DEFERRED"

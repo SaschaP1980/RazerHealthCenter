@@ -9,6 +9,16 @@ on:
       - '.github/workflows/rhc-release-rehearsal.yml'
   pull_request:
     branches: [main]
+    # Historical PRE-publication rehearsal requires absent latest.json.
+    # Once downloads are published, downloads-only release PRs must instead
+    # qualify with actual downloads integrity + real source Linux/Windows gates.
+    paths:
+      - 'model.go'
+      - 'tools/rhc_release_rehearsal.py'
+      - 'tests/test_rhc_release_rehearsal_contracts.py'
+      - 'tools/rhc_interim_release.py'
+      - '.github/workflows/rhc-interim-release-v3081.yml'
+      - '.github/workflows/rhc-release-rehearsal.yml'
   workflow_dispatch:
 permissions:
   contents: read
