@@ -57,7 +57,12 @@ jobs:
           diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
           git diff --name-only "$SOURCE" "$RELEASE_MERGE" | sort | diff -u "$RUNNER_TEMP/expected.txt" -
           gh api "repos/$GITHUB_REPOSITORY/pulls?state=closed&per_page=100" > "$RUNNER_TEMP/pulls.json"
-          jq -e --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY"             '[.[] | select(.merged==true and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo)] | length==1' "$RUNNER_TEMP/pulls.json" | grep -qx true
+          PR_NUMBER="$(jq -r --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY"
+            '[.[] | select(.state=="closed" and .merged_at!=null and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo)] | if length==1 then .[0].number else empty end' "$RUNNER_TEMP/pulls.json")"
+          test -n "$PR_NUMBER" || { echo 'Cannot identify unique merged release PR' >&2; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr-detail.json"
+          jq -e --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY" \
+            '.merged==true and .state=="closed" and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo' "$RUNNER_TEMP/pr-detail.json" | grep -qx true
           git show "$SOURCE:downloads/latest.json" > "$RUNNER_TEMP/old-latest.json"
           python3 - <<'PY'
           import hashlib,json,pathlib,os,sys
@@ -149,7 +154,12 @@ jobs:
           printf '%s\n' downloads/README.md "downloads/RazerHealthCenter-Portable-v$VERSION.zip" downloads/latest.json downloads/releases.json > "$RUNNER_TEMP/expected.txt"
           diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
           gh api "repos/$GITHUB_REPOSITORY/pulls?state=closed&per_page=100" > "$RUNNER_TEMP/pulls.json"
-          jq -e --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY"             '[.[] | select(.merged==true and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo)] | length==1' "$RUNNER_TEMP/pulls.json" | grep -qx true
+          PR_NUMBER="$(jq -r --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY"
+            '[.[] | select(.state=="closed" and .merged_at!=null and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo)] | if length==1 then .[0].number else empty end' "$RUNNER_TEMP/pulls.json")"
+          test -n "$PR_NUMBER" || { echo 'Cannot identify unique merged release PR' >&2; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr-detail.json"
+          jq -e --arg merge "$RELEASE_MERGE" --arg staged "$STAGED_SHA" --arg source "$SOURCE" --arg ref "release/v$VERSION" --arg repo "$GITHUB_REPOSITORY" \
+            '.merged==true and .state=="closed" and .merge_commit_sha==$merge and .head.sha==$staged and .base.sha==$source and .base.ref=="main" and .head.ref==$ref and .head.repo.full_name==$repo' "$RUNNER_TEMP/pr-detail.json" | grep -qx true
           BEFORE="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha // empty' 2>/dev/null || true)"
           if [ -n "$BEFORE" ]; then
             test "$BEFORE" = "$SOURCE" || { echo "Existing immutable source tag points to different SHA" >&2; exit 1; }
