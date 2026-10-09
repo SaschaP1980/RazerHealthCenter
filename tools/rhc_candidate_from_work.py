@@ -45,6 +45,47 @@ def enforce_version_only_model_edit(original, updated):
     return True
 
 
+
+def recovery_trailers(message):
+    """A single explicit retry never mutates or erases the frozen original."""
+    found = {}
+    for key, pattern in (
+        ("originalSha", r"^Recovery-Original-Candidate: ([0-9a-f]{40})$"),
+        ("runId", r"^Recovery-Original-Run: ([1-9][0-9]*)$"),
+        ("attempt", r"^Recovery-Attempt: ([1-9][0-9]*)$"),
+    ):
+        hits = re.findall(pattern, message or "", re.M)
+        require(len(hits) == 1, "missing or ambiguous recovery marker: " + key)
+        found[key] = hits[0]
+    require(found["attempt"] == "1", "only first immutable retry permitted")
+    return found
+
+
+def validate_failed_publisher(evidence, original_sha, run_id):
+    """Never infer FAILED from a skipped run or from missing hosted jobs."""
+    run, jobs = evidence.get("run"), evidence.get("jobs")
+    require(isinstance(run, dict) and run.get("head_sha") == original_sha
+            and run.get("event") == "workflow_dispatch"
+            and run.get("status") == "completed" and run.get("conclusion") == "failure"
+            and str(run.get("id")) == run_id
+            and run.get("name") == "RHC Reusable Interim Unsigned Release",
+            "original publisher must be exact-SHA completed FAILED")
+    require(isinstance(jobs, list) and len(jobs) >= 4,
+            "real original hosted jobs missing")
+    for prefix, expected in (
+        ("Exact-candidate double Linux PE/ZIP", "success"),
+        ("Actual native Windows PS5.1", "success"),
+        ("Stage single immutable ZIP/catalog", "failure"),
+        ("Independently verify exact release PR", "skipped"),
+    ):
+        items = [j for j in jobs if isinstance(j, dict) and
+                 (j.get("name") or "").startswith(prefix)]
+        require(len(items) == 1 and items[0].get("status") == "completed"
+                and items[0].get("conclusion") == expected,
+                "original failed publisher job mismatch: " + prefix)
+    return True
+
+
 def validate_plan(s):
     branch = s.get("workBranch", "")
     match = WORK.fullmatch(branch)
@@ -61,7 +102,12 @@ def validate_plan(s):
     require(p.get("productionEnabled") is False and p.get("distribution") == "repo-downloads"
             and p.get("signingDecision") == "unknown"
             and p.get("rollbackVerified") is False, "release policy unexpectedly altered")
-    require(s.get("candidateExists") is False, "candidate exists: no blind retry")
+    retry = s.get("retry")
+    if s.get("candidateExists"):
+        require(isinstance(retry, dict) and retry.get("allowed") is True,
+                "candidate exists: no blind retry")
+    else:
+        require(retry is None, "unexpected recovery without original Candidate")
     message = s.get("message", "")
     for trailer in ("RHC-Issue: " + issue, "Release-Profile: version-only",
                     "Development-Completion: requested"):
@@ -88,8 +134,27 @@ def validate_plan(s):
     require(a[:3] == b[:3] and a[3] == b[3] + 1, "not next HOTFIX")
     validate_candidate(previous=before, version=after, changed_paths=names,
                        release_profile="version-only", current_main_parent=True)
-    return dict(branch="candidate/v" + after, version=after, issue=issue,
-                baseMainSha=main, workSha=work, workTreeSha=tree)
+    if retry is not None:
+        trailers = recovery_trailers(message)
+        require(trailers["originalSha"] == retry.get("originalSha")
+                and trailers["runId"] == retry.get("runId"),
+                "Work recovery trailers differ from failed hosted publisher")
+        require(retry.get("version") == after and retry.get("originalVersion") == after
+                and retry.get("publicPreviousVersion") == before
+                and retry.get("retryRefExists") is False
+                and retry.get("originalRefUnchanged") is True
+                and retry.get("tagExists") is False
+                and retry.get("archiveExists") is False
+                and retry.get("releaseRefExists") is False,
+                "retry ref/public immutable scope mismatch")
+        validate_failed_publisher(retry, trailers["originalSha"], trailers["runId"])
+        target = "candidate/v" + after + "-retry1"
+    else:
+        target = "candidate/v" + after
+    return dict(branch=target, version=after, issue=issue,
+                baseMainSha=main, workSha=work, workTreeSha=tree,
+                retryOriginalSha=retry.get("originalSha") if retry else None,
+                retryRunId=retry.get("runId") if retry else None)
 
 
 def gh(method, path, payload=None, optional404=False):
@@ -180,6 +245,34 @@ def main():
     version = model_version(work_model)
     candidate_ref = "candidate/v" + version
     existing = gh("GET", "/git/ref/heads/" + candidate_ref, optional404=True)
+    retry = None
+    if "Recovery-Attempt:" in commit["message"]:
+        trailers = recovery_trailers(commit["message"])
+        require(existing and existing.get("object", {}).get("sha") == trailers["originalSha"],
+                "original canonical Candidate missing or changed")
+        old_commit = gh("GET", "/git/commits/" + trailers["originalSha"])
+        require(re.findall(r"^RHC-Issue: ([1-9][0-9]*)$", old_commit["message"], re.M) == ["96"],
+                "original frozen Candidate is not RHC-96")
+        require(remote_version(trailers["originalSha"]) == version,
+                "original frozen Candidate version mismatch")
+        old_run = gh("GET", "/actions/runs/" + trailers["runId"])
+        old_jobs = gh("GET", "/actions/runs/" + trailers["runId"] + "/jobs?per_page=100").get("jobs")
+        validate_failed_publisher(dict(run=old_run, jobs=old_jobs),
+                                  trailers["originalSha"], trailers["runId"])
+        last = gh("GET", "/contents/downloads/latest.json?ref=" + main_sha)
+        public_version = json.loads(base64.b64decode(last["content"]))["version"]
+        retry = dict(allowed=True, originalSha=trailers["originalSha"],
+                     runId=trailers["runId"], run=old_run, jobs=old_jobs,
+                     version=version, originalVersion=remote_version(trailers["originalSha"]),
+                     publicPreviousVersion=public_version, originalRefUnchanged=True,
+                     retryRefExists=gh("GET", "/git/ref/heads/" + candidate_ref + "-retry1",
+                                       optional404=True) is not None,
+                     tagExists=gh("GET", "/git/ref/tags/v" + version,
+                                  optional404=True) is not None,
+                     archiveExists=gh("GET", "/contents/downloads/RazerHealthCenter-Portable-v" +
+                                      version + ".zip?ref=" + main_sha, optional404=True) is not None,
+                     releaseRefExists=gh("GET", "/git/ref/heads/release/v" + version,
+                                         optional404=True) is not None)
     policy_obj = gh("GET", "/contents/config/rhc-release-policy.json?ref=" + main_sha)
     require(policy_obj.get("encoding") == "base64", "policy unreadable")
     policy = json.loads(base64.b64decode(policy_obj["content"]))
@@ -189,15 +282,24 @@ def main():
         aheadBy=comparison["ahead_by"], files=comparison["files"],
         mainVersion=model_version(main_model), workVersion=version,
         statuses=statuses, policy=policy,
-        candidateExists=existing is not None))
+        candidateExists=existing is not None, retry=retry))
+    candidate_ref = plan['branch']
     # Exclusive mutation boundary; verify live refs again before any write.
     require(gh("GET", "/branches/main")["commit"]["sha"] == main_sha, "main moved")
     require(gh("GET", "/git/ref/heads/" + branch)["object"]["sha"] == work_sha,
             "Work changed before candidate creation")
+    if retry is not None:
+        require(gh("GET", "/git/ref/heads/candidate/v" + version)["object"]["sha"] ==
+                retry["originalSha"], "original Candidate changed at mutation boundary")
+        require(gh("GET", "/git/ref/heads/" + candidate_ref, optional404=True) is None,
+                "new retry Candidate appeared at mutation boundary")
     message = ("chore(RHC-" + plan["issue"] + "): candidate v" + version +
                " from exact verified Work\n\nWork-SHA: " + work_sha +
                "\nMain-SHA: " + main_sha + "\n\nRHC-Issue: " + plan["issue"] +
-               "\nRelease-Profile: version-only")
+               "\nRelease-Profile: version-only" +
+               (("\nRecovery-Original-Candidate: " + retry["originalSha"] +
+                 "\nRecovery-Original-Run: " + retry["runId"] +
+                 "\nRecovery-Attempt: 1") if retry else ""))
     new = gh("POST", "/git/commits", dict(message=message,
                 tree=plan["workTreeSha"], parents=[main_sha]))
     sha = new.get("sha", "")

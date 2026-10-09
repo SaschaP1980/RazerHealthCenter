@@ -83,19 +83,23 @@ class FrozenSourceRecoveryContract(unittest.TestCase):
         self.assertLess(self.recovery.index("check_gate rhc-downloads-verify.yml"),
                         self.recovery.index("pulls/$RHC82_RELEASE_PR/merge"))
 
-    def test_postmerge_verifies_historical_source_ancestor_and_infra_only_delta(self):
+    def test_postmerge_verifies_atomic_candidate_parent_and_history(self):
+        # RHC-98 current general postmerge verifier is single-PR Candidate-first;
+        # the RHC-82 v3.0.8.5 source-first recovery remains a distinct frozen workflow.
         for needle in (
-            "git merge-base --is-ancestor \"$SOURCE\" \"$FIRST\"",
-            "git diff --quiet \"$SOURCE\" \"$FIRST\" -- model.go CHANGELOG.md config/rhc-release-policy.json",
-            "rhc82-v3085-recovery.yml",
-            "rhc_workflow_reliability.py resolve-source",
-            "test \"$(jq -r '.issueNumber'", " = 78",
+            'test "$SOURCE" = "$(git rev-parse "$STAGED_SHA^")"',
+            'test "$FIRST" = "$(git rev-parse "$SOURCE^")"',
+            'test "$(git show -s --format=%P "$SOURCE")" = "$FIRST"',
+            "CHANGELOG.md",
+            "model.go",
+            "downloads/latest.json",
             'echo "RHC_REAL_SOURCE_SHA=$SOURCE"',
             "source=latest['sourceSha']",
-            "test \"$(gh api \"repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION\" --jq '.object.sha')\" = \"$SOURCE\"",
         ):
             with self.subTest(needle=needle):
                 self.assertIn(needle, self.postmerge)
+        self.assertIn("rhc82-v3085-recovery.yml",self.recovery)
+        self.assertIn("rhc_workflow_reliability.py resolve-source",self.recovery)
 
     def test_recovery_is_one_time_main_only_and_does_not_relax_production(self):
         for needle in (

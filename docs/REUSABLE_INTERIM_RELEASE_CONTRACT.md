@@ -26,3 +26,36 @@ This is **not** a trigger for a link-only `INITIAL_PROMPT.md` read-only bootstra
 Every source/release PR links responsible Issues. Historical version-specific owner decisions, failures, CI/ZIP SHAs, mitigation and final outcomes live in those Issues' Rolling Comments, merged PRs and immutable Git history; this normative document stores **no** duplicated historical evidence.
 
 Project process requires PRs, but current GitHub ruleset may not technically enforce required PRs: always read live effective protections. No unapproved admin permissions/policy modifications, self-approval or direct main bypass.
+
+## RHC-98: Immutable retry after a failed unpublished Candidate
+
+An existing Candidate source commit and branch remain immutable forensic evidence,
+even after a failed publisher. A same-version retry is allowed only while the public
+latest version remains unchanged, with no target tag, published ZIP, release branch
+or prior retry branch and an actually completed FAILURE of the original publisher.
+The previous exact publisher SHA and hosted job readback MUST prove Linux and native
+Windows succeeded, staging failed, and finalization was skipped. A synthetic or
+zero-job failure is insufficient. All checks fail closed before the first write.
+
+A fresh Issue-backed full Work-Path on the current main must change only model.go
+version literals and the truthful CHANGELOG.md. Its final message must contain
+RHC-Issue, Release-Profile: version-only, Development-Completion: requested,
+Recovery-Attempt: 1, Recovery-Original-Candidate: <SHA>, and
+Recovery-Original-Run: <ID> with exact unique values. The hosted Development
+Completion gate must cover precisely this new Work source and its current main.
+
+A separate candidate/v<version>-retry1 commit has a single current-main parent and
+the exact new Work tree. It is created once by the usual GitHub Candidate transfer,
+and dispatched to the ordinary Linux/native Windows Candidate preflight and publisher.
+Neither the original Candidate nor its Work ref may be overwritten or deleted.
+The new publisher must revalidate the original failed run and the new real exact-SHA
+statuses; prior successful hosted jobs are history, not transferable release approval.
+
+The single-PR postmerge verifier checks two merge parents: previous public main
+and staged PR. Staged PR has the ZIP-free Candidate as its sole parent; Candidate
+has previous main as its sole parent. The combined public diff is exactly
+model.go, CHANGELOG.md and the four canonical downloads paths. Tag points to
+the ZIP-free Candidate, older ZIPs and catalogs stay append-only, and remote
+public HTTPS ZIP hashing remains mandatory. Interim unsigned disclaimers, native
+hardware/rollback/publisher trust NOT VERIFIED and standard production policy
+false/unknown/false remain unchanged.
