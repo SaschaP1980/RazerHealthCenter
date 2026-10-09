@@ -61,3 +61,58 @@ Never pin this normative workflow to a current app version, last CI ID or catalo
 - After an uncertain GitHub write, reread real remote ref/PR/run before retry; protect divergent/unmerged historical branches and never rewrite an immutable public ZIP or tag. The Work and release branch cleaners have distinct scopes.
 
 Historical details and version-specific test outcomes are found by following **Issue → PR → merged Git commit → manifest/tag** as defined in [Git provenance](GIT_PROVENANCE_CONTRACT.md), not in this manual.
+
+## RHC-76 — process hardening and DevOps incident handling
+
+Owner implementation request: [RHC-76](https://github.com/SaschaP1980/RazerHealthCenter/issues/76).
+This maintenance Work-Path is **nonpublishing** and preserves unchanged public
+ZIPs, source tags, product version, Razer repair consent/UAC and the standard
+signed-production guard.
+
+- **F1 / source→release provenance:** Resolve the responsible Issue solely
+  from the real merged source PR on the exact source merge SHA, verified
+  original Work-head `RHC-Issue: N` and `Release-Profile: version-only`
+  commit trailer, linked PR body and live Issue. Carry the validated identity
+  through staged commit, release PR title/body and final merge title; fail
+  closed before any release branch push if inconsistent. No static RHC-34.
+- **F2 / actual hosted gates:** Bot-created PR workflows can show
+  `action_required` and zero jobs. That is **not PASS**. The publisher
+  independently dispatches real Infrastructure and Downloads CI and verifies
+  exact stage SHA, `workflow_dispatch`, completed success and required real
+  hosted jobs, including native Windows. Incomplete/skipped/missing jobs
+  are not accepted. Never weaken policy or invent PR webhook green status.
+- **F3 / already resolved:** RHC-71, PR #74 independently implemented
+  version-neutral read-only HTTPS retrieval of actual public ZIP bytes at an
+  immutable Git SHA with SHA256, size, archive and manifest validation. Keep
+  this authoritative fallback and its tests; do not rebuild it.
+- **F4 / independent Candidate qualification:** Candidate preflight contains
+  only nonpublishing Linux/Windows and exact-SHA qualification. Its status
+  can be GREEN without an intentionally failing `promotion` job, while
+  standard signed production remains separately blocked under
+  `productionEnabled=false`, `signingDecision=unknown`,
+  `rollbackVerified=false`. No Candidate workflow may publish.
+- **F5 / Issue initialization:** Create Issue with neutral temporary title;
+  independently fetch the newly allocated GitHub Issue number and rename
+  to `[RHC-N]`. Discover installed tool schemas before mutation. The
+  supported GitHub connector uses `add_comment_to_issue` for comments.
+  Read back saved Issue and full Rolling Comment BEFORE making a Work branch.
+  After unknown mutation status, reconcile first rather than retry writes.
+- **F6 / null CI steps:** Missing/null `steps` or `jobs` means evidence
+  unavailable, not green. `normalize_job_steps` yields an empty evidence
+  array; `verify_hosted_jobs` fails closed on a missing or empty job set.
+- **F7 / transient logs:** Only read-only GitHub operations may use bounded
+  retries on transport/timeouts/rate-limits. Three attempts with bounded
+  backoff; persistent errors become `LOGS_UNAVAILABLE`/NOT VERIFIED and
+  no log-derived assertion is marked PASS. Never retry uncertain writes.
+- **F8 / Node 24 pins:** Reusable publisher artifact upload is pinned to
+  upstream `actions/upload-artifact` v6 SHA
+  `b7c566a772e6b6bfb58ed0dc250532a479d7789f` and download to
+  `actions/download-artifact` v7 SHA
+  `37930b1c2abaa49bbe596cd826c3c89aef350131`.
+  Upstream exact tags and both `action.yml` files declare
+  `runs.using: node24`. Test the real hosted Linux→Windows→stage artifact
+  handoffs before claiming the warning remediated. Other action warnings
+  require per-workflow inventory; never unpin to `@main`.
+
+Current change does not authorize any new version, Candidate promotion,
+artifact publication, release tag or production-policy relaxation.

@@ -7,7 +7,6 @@ on:
     branches: [main]
     paths:
       - 'model.go'
-      - '.github/workflows/rhc-reusable-interim-release.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -106,7 +105,7 @@ jobs:
           python3 -B tools/rhc_downloads.py --downloads downloads
           git diff --exit-code
       - name: Transfer only unapproved staging evidence to Windows runner
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
           path: ${{ runner.temp }}/proof/
@@ -132,7 +131,7 @@ jobs:
         with:
           go-version: '1.23.2'
           cache: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
           path: ${{ runner.temp }}/rhc-reusable-stage
@@ -177,7 +176,7 @@ jobs:
           # native Windows evidence. No external Phase B claim is invented.
           Write-Output 'RHC_REUSABLE_WINDOWS=PASS; actual PS5.1 + unsigned EXE + cross-OS qualification; physical Razer/rollback/Owner trust DEFERRED'
       - name: Transfer real Windows proof after qualified native tests
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: RHC_REUSABLE-NATIVE-WINDOWS-${{ github.sha }}
           path: ${{ runner.temp }}/rhc-reusable-windows-evidence.json
@@ -201,11 +200,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
           path: ${{ runner.temp }}/rhc-reusable-stage
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: RHC_REUSABLE-NATIVE-WINDOWS-${{ github.sha }}
           path: ${{ runner.temp }}/rhc-reusable-windows
@@ -216,7 +215,19 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/33" --jq '.state')" = open
+
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/22" --jq '.state')" = open
+          # RHC-76: independently bind actual merged source PR, Work HEAD
+          # trailer and responsible live Issue before release branch writes.
+          SOURCE_EVIDENCE="$(python3 -B tools/rhc_workflow_reliability.py resolve-source \
+            --source-sha "$GITHUB_SHA" --work-sha "$(git rev-parse "$GITHUB_SHA^2")")"
+          RHC_ISSUE_NUMBER="$(jq -er '.issueNumber' <<< "$SOURCE_EVIDENCE")"
+          SOURCE_PR_NUMBER="$(jq -er '.sourcePR' <<< "$SOURCE_EVIDENCE")"
+          WORK_HEAD="$(jq -er '.workHead' <<< "$SOURCE_EVIDENCE")"
+          test "$RHC_ISSUE_NUMBER" -gt 0
+          printf 'RHC_ISSUE_NUMBER=%s\nSOURCE_PR_NUMBER=%s\nWORK_HEAD=%s\n' \
+            "$RHC_ISSUE_NUMBER" "$SOURCE_PR_NUMBER" "$WORK_HEAD" >> "$GITHUB_ENV"
+          echo "RHC76_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER sourcePR=$SOURCE_PR_NUMBER"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           test -z "$(git ls-remote origin "refs/tags/v$VERSION")"
@@ -250,7 +261,7 @@ jobs:
           assert len(d.portable_zip_check(archive))==7
           assert linux['previousLatestVersion']==previous[0]['version']
           assert linux['previousReleaseCount']==len(previous)
-          snapshot=dict(linux,mode='interim-unsigned',issue=43,
+          snapshot=dict(linux,mode='interim-unsigned',issue=int(os.environ['RHC_ISSUE_NUMBER']),
               ownerProcessAuthorized=True,referenceVersion=version,
               changelogVersion=version,releaseProfile='version-only',
               mainSha=os.environ['GITHUB_SHA'],nativeWindows=win['nativeWindows'],
@@ -281,7 +292,7 @@ jobs:
           git diff --cached --name-only | sort > "$RUNNER_TEMP/staged-paths.txt"
           printf '%s\n' downloads/README.md downloads/RazerHealthCenter-Portable-v$VERSION.zip downloads/latest.json downloads/releases.json > "$RUNNER_TEMP/expected-paths.txt"
           diff -u "$RUNNER_TEMP/expected-paths.txt" "$RUNNER_TEMP/staged-paths.txt"
-          git commit -m "release(rhc-reusable): stage interim unsigned v$VERSION portable/catalog" -m "RHC-Issue: 34"
+          git commit -m "release(rhc-reusable): stage interim unsigned v$VERSION portable/catalog" -m "RHC-Issue: $RHC_ISSUE_NUMBER"
           STAGED_SHA="$(git rev-parse HEAD)"
           test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
           test -z "$(git ls-remote origin refs/heads/release/v$VERSION)"
@@ -290,8 +301,8 @@ jobs:
           gh workflow run rhc-infrastructure-ci.yml --ref "release/v$VERSION"
           gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head release/v$VERSION \
-            --title "[RHC-34] Interim unsigned v$VERSION release — exact source and 2OS verified" \
-            --body "RHC-33 temporary autonomous interim-release. Source main SHA $GITHUB_SHA, release SHA $STAGED_SHA. Four paths only; actual seven-file unsigned ZIP, exact SHA-256, immutable catalog and latest pointer. Real Linux double build and native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware acceptance, native rollback, publisher signature and SmartScreen Owner consent DEFERRED/NOT VERIFIED, NOT represented as passed. No production policy change. RHC-33 and RHC-22 remain OPEN."
+            --title "[RHC-$RHC_ISSUE_NUMBER] Interim unsigned v$VERSION release — exact source and 2OS verified" \
+            --body "Refs #$RHC_ISSUE_NUMBER; source PR #$SOURCE_PR_NUMBER; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, source Work $WORK_HEAD. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
           echo "RHC_REUSABLE_INTERIM_STAGE=PR_CREATED stagedSha=$STAGED_SHA sourceSha=$GITHUB_SHA"
 
   finalize:
@@ -324,6 +335,9 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=SaschaP1980:release/v$VERSION" > "$RUNNER_TEMP/pr.json"
           PR="$(jq -r --arg stage "$STAGED" --arg source "$SOURCE" '[.[]|select(.head.sha==$stage and .base.sha==$source and .draft==false)] | if length == 1 then .[0].number else empty end' "$RUNNER_TEMP/pr.json")"
           test -n "$PR"
+          python3 -B tools/rhc_workflow_reliability.py verify-stage \
+            --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" \
+            --stage-sha "$STAGED" --pr "$PR"
           echo "RHC_REUSABLE_FINISH_PR=$PR stageSha=$STAGED"
           check_workflow() {
             local WF="$1" RUN='' VAL='' STATUS='' CONC=''
@@ -333,12 +347,12 @@ jobs:
               read -r VAL STATUS CONC <<< "$RUN"
               if [ -n "$VAL" ] && [ "$STATUS" = completed ]; then
                 test "$CONC" = success || { echo "FAILED hosted $WF run $VAL conclusion=$CONC"; return 1; }
-                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" \
-                  --jq '[.jobs[]|select(.conclusion=="failure" or .conclusion=="cancelled" or .conclusion=="skipped")] | length' | grep -qx 0
-                if [ "$WF" = rhc-infrastructure-ci.yml ]; then
-                  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" \
-                    --jq '[.jobs[]|select(.name=="rhc/infra/linux" or .name=="rhc/infra/windows")|.conclusion] | sort | join(",")' | grep -qx 'success,success'
-                fi
+                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL" > "$RUNNER_TEMP/$WF-run.json"
+                gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VAL/jobs?per_page=100" > "$RUNNER_TEMP/$WF-jobs.json"
+                python3 -B tools/rhc_workflow_reliability.py verify-hosted \
+                  --sha "$STAGED" --workflow "$WF" \
+                  --run-json "$RUNNER_TEMP/$WF-run.json" --jobs-json "$RUNNER_TEMP/$WF-jobs.json"
+                # PR-bot action_required/zero-job events are not CI PASS.
                 echo "RHC_REUSABLE_RELEASE_HOSTED_EXACT_SHA=$WF PASS runId=$VAL commit=$STAGED"
                 return 0
               fi
@@ -352,6 +366,9 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$SOURCE"
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED"
           test -z "$(git ls-remote origin refs/tags/v$VERSION)"
+          RHC_ISSUE_NUMBER="$(python3 -B tools/rhc_workflow_reliability.py resolve-source \
+            --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" | jq -er '.issueNumber')"
+          echo "RHC_ISSUE_NUMBER=$RHC_ISSUE_NUMBER" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "SOURCE_SHA=$SOURCE" >> "$GITHUB_ENV"
           echo "STAGED_SHA=$STAGED" >> "$GITHUB_ENV"
@@ -364,7 +381,7 @@ jobs:
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
           RESULT="$(gh api -X PUT "repos/$GITHUB_REPOSITORY/pulls/$RELEASE_PR/merge" \
             -f sha="$STAGED_SHA" -f merge_method=merge \
-            -f commit_title="Release RHC v$VERSION (interim unsigned, RHC-33)" \
+            -f commit_title="Release RHC v$VERSION (interim unsigned, RHC-Issue $RHC_ISSUE_NUMBER)" \
             -f commit_message="Exact Main-source, Linux/native Windows CI and archive verified. Hardware/rollback/publisher trust deferred; no fake Phase B approval.")"
           MERGED="$(jq -r '.sha' <<< "$RESULT")"
           test "$(jq -r '.merged' <<< "$RESULT")" = true

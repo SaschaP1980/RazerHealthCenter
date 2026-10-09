@@ -132,17 +132,16 @@ jobs:
           set -euo pipefail
           test "$LINUX_RESULT" = success
           test "$WINDOWS_RESULT" = success
+          # Nonpublishing Candidate qualification is independently GREEN.
+          # Production remains a separate fail-closed policy controller.
+          python3 - <<'PY'
+          import json
+          p=json.load(open('config/rhc-release-policy.json',encoding='utf-8'))
+          assert p['productionEnabled'] is False and p['rollbackVerified'] is False
+          assert p['signingDecision']=='unknown' and p['distribution']=='repo-downloads'
+          print('RHC_STANDARD_PRODUCTION=BLOCKED_BY_POLICY; no production promotion')
+          PY
           gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
             -f state=success -f context='rhc/preflight/candidate' \
-            -f description='Linux and native Windows Candidate gates passed' > /dev/null
-          echo 'RHC_CANDIDATE_GATE=PASS; production remains blocked'
-  promotion:
-    name: Promotion deliberately BLOCKED until RHC release activation
-    needs: [linux, windows]
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Prevent publication
-        run: |
-          echo 'RHC_CANDIDATE_PROMOTION=BLOCKED (release policy / distribution not approved)'
-          exit 1
+            -f description='Linux and native Windows Candidate gates passed; no production promotion' > /dev/null
+          echo 'RHC_CANDIDATE_GATE=PASS; no production promotion; standard production remains blocked'
