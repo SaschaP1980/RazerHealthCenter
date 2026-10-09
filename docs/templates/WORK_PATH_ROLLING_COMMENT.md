@@ -124,7 +124,7 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 ### Release
 
 - Release run/status: <id, status, exact candidate SHA>
-- Reproducibility, GitHub source provenance, lean binary package, signing/distribution: <verifications or NOT IMPLEMENTED>; original v3.0.8 Source ZIP is historical, not a new-version download
+- Reproducibility, GitHub source provenance, lean binary package, signing/distribution: <verifications or NOT IMPLEMENTED>; historical Source ZIP tests are not a new-version public download
 - Public version pointer contract: <verified RHC-specific pointer or NOT CONFIGURED>
 - Pre-activation proof: <exact pass summary, prior public version>
 - Single PR/merge: <PR, head, merge main SHA>
@@ -168,4 +168,4 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 - Next owner/action or final completion: <details>
 ~~~
 
-For genuinely scoped **nonpublishing** work, `COMPLETED` requires verified PR/main/CI/cleanup with release/native fields honestly OPEN/not applicable; parent RHC-1/RHC-3 stay open while their gates remain. A **real product release** requires actual final Release Verification before `COMPLETED`. Update the same comment and correct stale singleton fields before any eligible Issue closure. Do not conceal a missing mandatory RHC-specific gate behind an LBS-green reference.
+For genuinely scoped **nonpublishing** work, `COMPLETED` requires verified PR/main/CI/cleanup with release/native fields honestly OPEN/not applicable; unfulfilled separate parent/external Issues remain open until their real gates pass. A **real product release** requires actual final Release Verification before `COMPLETED`. Update the same comment and correct stale singleton fields before any eligible Issue closure. Do not conceal a missing mandatory RHC-specific gate behind an LBS-green reference.
