@@ -66,5 +66,32 @@ class HistoricalIssueFinalizationContract(unittest.TestCase):
         self.assertIn("gh api", s)
         self.assertIn('test -z "$(git ls-remote origin "refs/heads/$BRANCH"', s)
 
+
+class GitProvenanceDocumentationContract(unittest.TestCase):
+    def test_live_provenance_and_issue_linked_pr_rule_is_not_only_a_snapshot(self):
+        provenance = (ROOT / "docs/GIT_PROVENANCE_CONTRACT.md").read_text(encoding="utf-8")
+        for required in (
+            "sourceSha",
+            "downloads/latest.json",
+            "downloads/releases.json",
+            "Rolling Comments",
+            "Issue",
+            "PR",
+            "documentation",
+            "No routine direct-to-main commit",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, provenance)
+        for name in ("INITIAL_PROMPT.md", "DEVELOPMENT_GUIDELINES.md",
+                     "RELEASE_PROCESS.md", "MIGRATION_STATUS.md"):
+            with self.subTest(guide=name):
+                source = (ROOT / "docs" / name).read_text(encoding="utf-8")
+                self.assertIn("GIT_PROVENANCE_CONTRACT.md", source)
+        entry = (ROOT / "docs/INITIAL_PROMPT.md").read_text(encoding="utf-8")
+        import re
+        self.assertIsNone(re.search(r"\bv\d+\.\d+\.\d+", entry))
+        self.assertIsNone(re.search(r"\b[0-9a-f]{40}\b", entry))
+
+
 if __name__ == "__main__":
     unittest.main()
