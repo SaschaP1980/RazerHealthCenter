@@ -1,3 +1,18 @@
+## Manual one-time GitHub Actions repository setup — project bootstrap checklist
+
+Complete this **manually when creating a new GitHub repository that will use Actions to create pull requests**. It is **not** automatically transferred by a repository template, migration script, checkout or workflow YAML.
+
+- [ ] Have a repository administrator open **Settings > Actions > General** in the **new target repository**, then scroll to **Workflow permissions**.
+- [ ] For an explicitly owner-authorized PR-writing Actions pipeline, select **Read and write permissions**.
+- [ ] Check **Allow GitHub Actions to create and approve pull requests** (this permits PR creation; automation must not self-approve PRs).
+- [ ] Click **Save**, reopen the settings page and confirm both choices persisted.
+- [ ] Verify required per-job least-privilege `GITHUB_TOKEN` YAML scopes separately, and respect any restrictive organization policy.
+- [ ] Execute a real, scoped **nonpublishing** GitHub Actions PR-creation smoke test; independently verify the PR's actor/base/head and clean up only test-owned refs. A screenshot and Save alone are not an effective-permission test.
+- [ ] Record administrator confirmation and exact successful CI/PR evidence in the new project's setup Issue. On denial, stop and choose a narrowly authorized GitHub App rather than bypassing protections.
+
+This checklist applies **only for repositories requiring GitHub Actions to create PRs**; normal read-only repositories should keep minimal permissions. See [the operator guide](../GITHUB_HOWTO.md) for steps, security constraints and the RHC-43 real permission finding.
+
+---
 ## Reusable interim release and English GitHub documentation pattern (RHC-43)
 
 For all future GitHub development tasks, use **English** in Issues, comments, commits, source code comments, tests, workflow names, documentation and release notes; owner-facing chat may remain German with English technical terms.
