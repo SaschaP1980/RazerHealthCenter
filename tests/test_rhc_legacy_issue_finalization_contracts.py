@@ -1,0 +1,64 @@
+"""RHC-1/3/34 closure: current migration gate truth and SHA-bound historical cleanup."""
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+LEDGER = ROOT / "docs/MIGRATION_STATUS.md"
+CLEAN = ROOT / ".github/workflows/rhc34-historical-ref-cleanup.yml"
+EXPECTED = {
+    "work/RHC-34-fixture": "36b7112d140a591bc74cd67e54e48f51142c84a1",
+    "work/RHC-34-tagfix": "fd9dd2750069929b5e049d51736c870613d7b037",
+    "work/RHC-34-cleanup": "0da3af767fdd3ef79b851bad5ae96a10d3f681f4",
+    "work/RHC-34-cleanup-final": "55e0a19a43236429a78ef60e4311cc29091be83b",
+}
+
+class HistoricalIssueFinalizationContract(unittest.TestCase):
+    def test_migration_status_has_authoritative_current_scope(self):
+        s = LEDGER.read_text(encoding="utf-8")
+        self.assertIn("## Final migration disposition — 2026-10-09", s)
+        self.assertIn("RHC-1: COMPLETED", s)
+        self.assertIn("RHC-3: SUPERSEDED", s)
+        self.assertIn("RHC-34: COMPLETED after verified historical ref cleanup", s)
+        self.assertIn("M4 |", s)
+        self.assertIn("M5 |", s)
+        self.assertIn("M6 |", s)
+        self.assertIn("DEFERRED / NOT_VERIFIED", s)
+        self.assertIn("work/RHC-3", s)
+        self.assertIn("four non-main commits", s)
+        self.assertIn("37737410046", s)
+        self.assertIn("37903545748", s)
+        self.assertIn("37899579163", s)
+        self.assertIn("RHC-22", s)
+        self.assertIn("RHC-33", s)
+        self.assertIn("M4 | RHC-specific Candidate", s)
+        self.assertNotIn("most recent postmerge run verified source/ZIP/tag evidence but **failed final branch cleanup**", s)
+
+    def test_cleanup_only_exact_four_historical_ancestor_refs(self):
+        s = CLEAN.read_text(encoding="utf-8")
+        self.assertIn("name: RHC-34 Verified Historical Branch Cleanup", s)
+        self.assertIn("workflow_dispatch:", s)
+        self.assertIn("branches: [main]", s)
+        self.assertIn("rhc34-historical-ref-cleanup.yml", s)
+        self.assertIn("contents: write", s)
+        self.assertIn("persist-credentials: true", s)
+        self.assertIn("git merge-base --is-ancestor", s)
+        self.assertIn("--force-with-lease=refs/heads/$BRANCH:$EXPECTED", s)
+        self.assertIn("RHC34_LEGACY_CLEANUP=PASS", s)
+        for branch, sha in EXPECTED.items():
+            with self.subTest(branch=branch):
+                self.assertIn(branch, s)
+                self.assertIn(sha, s)
+        self.assertNotIn("work/RHC-3", s)
+        self.assertNotIn("candidate/v3.0.8.1", s)
+        self.assertNotIn("downloads/latest.json", s)
+        self.assertNotIn("model.go", s)
+
+    def test_cleanup_requires_main_ref_and_independent_ref_absence(self):
+        s = CLEAN.read_text(encoding="utf-8")
+        self.assertIn("github.ref == 'refs/heads/main'", s)
+        self.assertIn('test "$(git rev-parse HEAD)" = "$GITHUB_SHA"', s)
+        self.assertIn("gh api", s)
+        self.assertIn('test -z "$(git ls-remote origin "refs/heads/$BRANCH"', s)
+
+if __name__ == "__main__":
+    unittest.main()
