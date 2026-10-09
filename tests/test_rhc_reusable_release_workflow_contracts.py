@@ -37,7 +37,8 @@ class ReusablePublisherContract(unittest.TestCase):
         self.assertIn("policy={k:policy_full[k] for k in i.POLICY}", script)
         self.assertIn("proof=i.qualify(snapshot)", script)
         self.assertIn("assert policy_full['productionEnabled'] is False", script)
-        self.assertIn("- '.github/workflows/rhc-reusable-interim-release.yml'", script)
+        # Workflow maintenance must not trigger an unrelated version publication.
+        self.assertNotIn("- '.github/workflows/rhc-reusable-interim-release.yml'", script)
 
     def test_postmerge_tag_and_remote_verification_present(self):
         p = ROOT / ".github/workflows/rhc-reusable-interim-postmerge.yml"
