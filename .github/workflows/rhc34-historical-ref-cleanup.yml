@@ -1,0 +1,69 @@
+name: RHC-34 Verified Historical Branch Cleanup
+# One-shot exact-SHA, ancestor-checked cleanup of four merged legacy refs.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rhc34-historical-ref-cleanup.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rhc34-historical-ref-cleanup
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Delete only pinned, merged and unchanged historical RHC-34 refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+          EXPECTED_REFS=(
+            'work/RHC-34-fixture:36b7112d140a591bc74cd67e54e48f51142c84a1'
+            'work/RHC-34-tagfix:fd9dd2750069929b5e049d51736c870613d7b037'
+            'work/RHC-34-cleanup:0da3af767fdd3ef79b851bad5ae96a10d3f681f4'
+            'work/RHC-34-cleanup-final:55e0a19a43236429a78ef60e4311cc29091be83b'
+          )
+          # Preflight all four before touching any ref.
+          for PAIR in "${EXPECTED_REFS[@]}"; do
+            BRANCH="${PAIR%%:*}"
+            EXPECTED="${PAIR#*:}"
+            [[ "$BRANCH" =~ ^work/RHC-34-[a-z-]+$ ]]
+            [[ "$EXPECTED" =~ ^[0-9a-f]{40}$ ]]
+            test "$(git cat-file -t "$EXPECTED")" = commit
+            git merge-base --is-ancestor "$EXPECTED" "$GITHUB_SHA"
+            REMOTE="$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)"
+            if [ -n "$REMOTE" ]; then
+              test "$REMOTE" = "$EXPECTED" || {
+                echo "RHC34_LEGACY_CLEANUP=BLOCKED branch=$BRANCH current=$REMOTE" >&2
+                exit 1
+              }
+            fi
+          done
+          # Explicit SHA-lease: a changed ref is never deleted.
+          for PAIR in "${EXPECTED_REFS[@]}"; do
+            BRANCH="${PAIR%%:*}"
+            EXPECTED="${PAIR#*:}"
+            REMOTE="$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)"
+            if [ -n "$REMOTE" ]; then
+              test "$REMOTE" = "$EXPECTED"
+              git push --force-with-lease=refs/heads/$BRANCH:$EXPECTED origin ":refs/heads/$BRANCH"
+            fi
+            test -z "$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)"
+            echo "RHC34_REF_ABSENT=PASS $BRANCH"
+          done
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
+          echo "RHC34_LEGACY_CLEANUP=PASS all_four_absent=true exact_sha_lease=true"
