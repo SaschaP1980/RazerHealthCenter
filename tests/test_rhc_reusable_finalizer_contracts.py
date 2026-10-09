@@ -62,6 +62,17 @@ class ReusableFinalizerContract(unittest.TestCase):
         self.assertNotIn("productionEnabled=true", script)
         self.assertNotIn("rollbackVerified=true", script)
 
+    def test_recovery_verifies_actual_merged_pr_detail_not_missing_list_boolean(self):
+        # Real recovery #37898054100: GitHub REST list /pulls omits merged.
+        # The list identifies exactly one merged_at PR by hashes and repo;
+        # authoritative /pulls/{number} must then prove merged=true.
+        script = RECOVERY.read_text(encoding="utf-8")
+        self.assertIn(".merged_at!=null", script)
+        self.assertIn('PR_NUMBER="$(jq -r', script)
+        self.assertIn('gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER"', script)
+        self.assertIn(".merged==true", script)
+        self.assertNotIn(".merged==true and .merge_commit_sha==$merge", script)
+
     def test_standing_owner_unsigned_release_acceptance_is_nonnormative_for_standard_production(self):
         docs = (ROOT / "docs/REUSABLE_INTERIM_RELEASE_CONTRACT.md").read_text(encoding="utf-8")
         self.assertIn("UNTIL EXPLICITLY REVOKED", docs)
