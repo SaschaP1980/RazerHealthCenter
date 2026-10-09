@@ -1,3 +1,20 @@
+## Manual first-time setup for new repositories — GitHub Actions PR creation
+
+**Required prerequisite for repositories using an autonomous GitHub Actions workflow that creates pull requests** (such as the RHC reusable interim release publisher). This setting belongs to the repository's initial manual administrator checklist: it is **not enabled automatically** by a workflow, importing source code, cloning a template, creating a branch, or writing `permissions:` into YAML.
+
+1. Sign in to GitHub as a **repository administrator** (or an organization administrator authorized to change Actions settings) and open the new repository.
+2. Navigate to **Settings > Actions > General**. Scroll to **Workflow permissions**.
+3. Select **Read and write permissions**.
+4. Enable **Allow GitHub Actions to create and approve pull requests**.
+5. Click **Save**. Reopen the page and confirm that both selected values persisted. If either control is unavailable or disallowed by an organization/enterprise policy, do not claim successful setup: obtain the appropriate administrator decision or configure an explicitly approved, least-privilege GitHub App.
+6. Keep individual workflows' `permissions:` blocks as narrow as the job needs (for example, `contents: write` and `pull-requests: write` for the authorized PR writer; `actions: write` only when dispatch is required). The checkbox authorizes PR creation but **does not require, imply, or justify bot approval** of its own PRs.
+7. **Verify effective rights separately:** perform a bounded, **nonpublishing** `GITHUB_TOKEN` PR-creation test from a real GitHub Actions job against an expendable, specifically named test branch; read back the actual PR actor, head/base SHA and run result; safely close/delete only verified test refs. A saved UI selection or successful branch push is **not proof of effective permission**. Do not trigger a new product release merely to test this setting.
+
+**Security scope:** These broad default rights are **only for repositories requiring GitHub Actions to create PRs** under the chosen architecture. **Do not enable broad write permissions for repositories that do not need them**; prefer read-only defaults and narrowly scoped job permissions or a dedicated GitHub App instead. Required organization policies take precedence.
+
+**RHC-43 evidence (2026-10-09):** **Owner-confirmed Save on 2026-10-09** — the owner displayed both selected controls and explicitly confirmed clicking Save. **Effective PR creation: NOT YET VERIFIED** after that change. The earlier real `GITHUB_TOKEN` `createPullRequest` denial (release Stage job 113702589715) remains a genuine historical finding, not a currently proven ongoing denial. The v3.0.8.2 release was completed safely using a separately authorized GitHub App for PR creation. Keep [RHC-43](https://github.com/SaschaP1980/RazerHealthCenter/issues/43) open until the new setting's effective write behavior is independently demonstrated.
+
+---
 ## Active operating status — RHC-43 / English GitHub policy (October 2026)
 
 All new GitHub development communication and normative project documentation are written in **English**; owner-facing conversation remains **German with English engineering terminology**. Read actual current app/reference version from model.go, last public version from downloads/latest.json/releases.json, current main SHA and exact GitHub refs rather than relying on an old frozen version in this guide.
