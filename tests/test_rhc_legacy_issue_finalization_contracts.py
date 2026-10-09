@@ -48,7 +48,7 @@ class HistoricalIssueFinalizationContract(unittest.TestCase):
             with self.subTest(branch=branch):
                 self.assertIn(branch, s)
                 self.assertIn(sha, s)
-        self.assertNotIn("work/RHC-3", s)
+        self.assertNotIn("work/RHC-3:", s)  # Do not conflate RHC-3 with RHC-34 prefix
         self.assertNotIn("candidate/v3.0.8.1", s)
         self.assertNotIn("downloads/latest.json", s)
         self.assertNotIn("model.go", s)
