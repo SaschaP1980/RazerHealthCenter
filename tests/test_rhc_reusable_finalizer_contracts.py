@@ -52,7 +52,7 @@ class ReusableFinalizerContract(unittest.TestCase):
             "sourceSha",
             "releases.json",
             "latest.json",
-            "' .object.sha // empty'".strip(),
+            "'.object.sha // empty'",
             "refs/tags/v$VERSION",
             "git push --force-with-lease=refs/heads/release/v$VERSION:$STAGED_SHA",
             "RHC_REUSABLE_RECOVERY_VERIFIED",
