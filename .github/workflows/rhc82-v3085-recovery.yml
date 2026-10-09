@@ -235,7 +235,7 @@ jobs:
           gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "release/v$VERSION" \
             --title "[RHC-78] Interim unsigned v$VERSION — recovered verified original source" \
-            --body "Refs #78; fixes #82; source PR #79; sourceSha $SOURCE_SHA; frozen original publisher run #37947690011, native Windows PS5.1 and Linux immutable artifact SHA256 $ORIGINAL_ZIP_SHA, current-main infrastructure-only parent $GITHUB_SHA, stage SHA $STAGED; four downloads files only. Unsigned/uncertified, hardware/rollback/publisher/SmartScreen NOT VERIFIED; standard signed production remains BLOCKED."
+            --body "Refs #78; recovery Issue #82; source PR #79; sourceSha $SOURCE_SHA; frozen original publisher run #37947690011, native Windows PS5.1 and Linux immutable artifact SHA256 $ORIGINAL_ZIP_SHA, current-main infrastructure-only parent $GITHUB_SHA, stage SHA $STAGED; four downloads files only. Unsigned/uncertified, hardware/rollback/publisher/SmartScreen NOT VERIFIED; standard signed production remains BLOCKED."
           echo "RHC82_RELEASE_STAGE=PR_CREATED source=$SOURCE_SHA mainParent=$GITHUB_SHA staged=$STAGED"
 
   finalize:
@@ -282,7 +282,7 @@ jobs:
           msg=subprocess.check_output(['git','show','-s','--format=%B',sha],text=True)
           assert p['number']==number and p['head']['sha']==sha and p['base']['sha']==os.environ['GITHUB_SHA']
           assert r.verify_release_metadata(78,79,'6132120bc54ed0941c5a92dc2567e2ef405b46fc',os.environ['SOURCE_SHA'],msg,p['title'],p['body'])
-          assert 'fixes #82' in p['body']
+          assert 'recovery Issue #82' in p['body']
           print('RHC82_PR_PROVENANCE=PASS',number)
           PY
           check_gate() {
