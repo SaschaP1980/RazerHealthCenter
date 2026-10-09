@@ -146,11 +146,13 @@ class RemoteByteReadback(unittest.TestCase):
     def test_workflow_public_readback_is_readonly_and_main_only(self):
         content = (ROOT / ".github/workflows/rhc-downloads-verify.yml"
                    ).read_text(encoding="utf-8")
-        for token in ("workflow_dispatch:", "RHC_PUBLIC_BINARY_READBACK=",
+        for token in ("workflow_dispatch:", "RHC_PUBLIC_BINARY_READBACK_SCOPE=READ_ONLY",
                       "tools/rhc_remote_binary_verify.py",
                       "github.ref == 'refs/heads/main'",
                       "contents: read", "rhc_remote_binary_verify_contracts.py"):
             self.assertIn(token, content)
+        self.assertIn("RHC_PUBLIC_BINARY_READBACK=", (
+            ROOT / "tools/rhc_remote_binary_verify.py").read_text(encoding="utf-8"))
         for forbidden in ("contents: write", "gh release create", "git push"):
             self.assertNotIn(forbidden, content)
 
