@@ -120,6 +120,8 @@ jobs:
             args+=(--version "$VERIFY_VERSION")
           fi
           python3 -B tools/rhc_remote_binary_verify.py "${args[@]}"
+          # Reject a successful result for a checkout superseded during HTTP GET.
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
           test -z "$(git status --porcelain --untracked-files=all -- downloads)"
           echo 'RHC_PUBLIC_BINARY_READBACK_SCOPE=READ_ONLY'
       - name: Reject modifications or deletions of already tracked ZIP archives
