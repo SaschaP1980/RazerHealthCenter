@@ -50,7 +50,7 @@ class RemoteByteReadback(unittest.TestCase):
             path.write_bytes(("data:" + name).encode())
         (self.downloads / "releases.json").write_text(
             json.dumps({"schemaVersion": 1, "releases": []}) + "\n")
-        (self.downloads / "README.md").write_text(releases.render_readme([]))
+        (self.downloads / "README.md").write_text(releases.render_readme([]), encoding="utf-8")
         self.published = {}
 
     def publish(self, version, sha="b" * 40):
