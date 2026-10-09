@@ -64,7 +64,7 @@ class ReusableFinalizerContract(unittest.TestCase):
             "sourceSha",
             "releases.json",
             "latest.json",
-            "'.object.sha // empty'",
+            'gh api "$TAG_ENDPOINT" > "$RUNNER_TEMP/tag-existing.json"',
             "refs/tags/v$VERSION",
             "git push --force-with-lease=refs/heads/release/v$VERSION:$STAGED_SHA",
             "RHC_REUSABLE_RECOVERY_VERIFIED",
