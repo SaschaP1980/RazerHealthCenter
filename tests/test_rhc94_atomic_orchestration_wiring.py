@@ -36,6 +36,12 @@ class AtomicOrchestrationWiring(unittest.TestCase):
     def test_legacy_import_go_glob_excludes_model_go(self):
         y=read(".github/workflows/rhc-source-intake.yml")
         self.assertIn("      - '!model.go'", y)
+    def test_stage_live_main_guard_uses_candidate_parent_not_source_head(self):
+        y=read(".github/workflows/rhc-reusable-interim-release.yml")
+        stage=y.split("\n  stage:\n",1)[1].split("\n  finalize:\n",1)[0]
+        self.assertIn('test "$(git rev-parse HEAD^)" = "$(git rev-parse origin/main)"',stage)
+        self.assertIn('test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq \'.commit.sha\')" = "$(git rev-parse "$GITHUB_SHA^")"',stage)
+        self.assertNotIn('test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq \'.commit.sha\')" = "$GITHUB_SHA"',stage)
     def test_production_policy_remains_fail_closed(self):
         import json
         p=json.loads(read("config/rhc-release-policy.json"))
