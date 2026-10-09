@@ -5,7 +5,9 @@ name: RHC Reusable Interim Unsigned Release
 on:
   push:
     branches: [main]
-    paths: ['model.go']
+    paths:
+      - 'model.go'
+      - '.github/workflows/rhc-reusable-interim-release.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -232,7 +234,14 @@ jobs:
           linux=json.loads((stage/'linux-evidence.json').read_text())
           win=json.loads((t/'rhc-reusable-windows/rhc-reusable-windows-evidence.json').read_text())
           previous=d.verify('downloads')
-          policy=json.loads(Path('config/rhc-release-policy.json').read_text())
+          policy_full=json.loads(Path('config/rhc-release-policy.json').read_text())
+          # Preserve actual verified policy values; omit unrelated schema,
+          # CI-context and notes keys from the exact four-field evidence gate.
+          assert policy_full['productionEnabled'] is False
+          assert policy_full['rollbackVerified'] is False
+          assert policy_full['signingDecision']=='unknown'
+          assert policy_full['distribution']=='repo-downloads'
+          policy={k:policy_full[k] for k in i.POLICY}
           assert linux['sourceSha']==win['sourceSha']==os.environ['GITHUB_SHA']
           assert linux['archiveSha256']==win['archiveSha256']
           assert linux['exeSha256']==win['exeSha256']
