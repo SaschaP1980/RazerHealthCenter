@@ -40,6 +40,18 @@ A settings screenshot, saved checkbox or YAML `permissions:` declaration **does 
 
 Bot-origin PRs/pushes may not automatically trigger normal GitHub PR workflows. Explicit trusted workflow dispatch and exact-SHA status verification are required where the contract says so. `SKIPPED`, cancelled, stale or no-job YAML events cannot be labeled GREEN.
 
+## Independent published ZIP readback when the GitHub connector cannot download binaries
+
+For release auditing and new-chat bootstraps, **do not infer an archive failure from a chat-side binary-download block**. The GitHub connector may read commit, tag and catalog metadata but may refuse a multi-megabyte ZIP. The repository's read-only [Downloads Integrity workflow](../.github/workflows/rhc-downloads-verify.yml) is the standard fallback and can verify actual published bytes on a hosted Ubuntu runner.
+
+- First verify current `main` SHA, `downloads/latest.json`, full `releases.json` and expected source tag. The existing local `tools/rhc_downloads.py` checks actual committed ZIP SHA-256, archive size, payload allowlist, embedded checksums and full publication history.
+- For **additional independent HTTP transport evidence**, require a real SUCCESS run of **RHC Repository Downloads Integrity (nonpublishing)** at the **identical immutable public main commit**, whose logs show `RHC_PUBLIC_BINARY_READBACK=` with matching version, filename, size, SHA-256 and `commitSha`; verify the run's event (`push` on main or `workflow_dispatch` on main), three-part provenance (catalog, actual remote HTTP bytes, exact Git SHA) and outcome. A PR-only checkout validation is **not** proof of the publicly fetched HTTP artifact.
+- For an optional fresh audit, manually run it at **Actions → RHC Repository Downloads Integrity (nonpublishing) → Run workflow → main**; leave optional `version` blank for latest or set the precise indexed four-part version to verify an older published archive. A connected chat without an Actions-dispatch capability must direct the owner to the UI rather than claim it started the job. The Actions job has `contents: read` and publishes nothing.
+- The readback tool `tools/rhc_remote_binary_verify.py` fetches the exact GitHub `raw.githubusercontent.com/<owner>/<repo>/<commitSha>/downloads/<version>.zip` URL from an HTTPS runner, checks remote bytes/size/SHA, verifies the seven-file ZIP and `SHA256SUMS.txt`, and fails closed for corrupt/missing/network-blocked responses. No ZIP bytes are uploaded back to ChatGPT; GitHub logs expose only verified metadata.
+- Report separately: `CHAT_BINARY_DOWNLOAD_UNAVAILABLE` (chat connector), `CHECKOUT_ZIP_BYTES_VERIFIED` (existing actual git archive validation), and `HOSTED_REMOTE_BYTES_VERIFIED` (real exact-SHA raw HTTP request). An inaccessible or missing/stale/failed hosted job is `HOSTED_REMOTE_BINARY_NOT_VERIFIED` rather than PASS. Tampered, mismatched or unsafe packages are `INTEGRITY_FAILED`. No code path can turn unsigned, external hardware, native rollback, publisher trust or standard signed-production gates to PASS.
+
+Never pin this normative workflow to a current app version, last CI ID or catalog ZIP hash; those must always be obtained from the live GitHub state.
+
 ## Validation, publication and cleanup
 
 - Confirm exact main/base/head, Issue links, complete diff, actual hosted Linux and **native Windows PowerShell 5.1** safety results, PR statuses and source ancestry before merge. Merge the expected unchanged head SHA; read back actual merge/main and branch cleanup.
