@@ -242,22 +242,28 @@ jobs:
           set -euo pipefail
           delete_safe() {
             local ref="$1" expected="$2" live=''
-            live="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha' 2>/dev/null || true)"
+            live="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha // empty' 2>/dev/null || true)"
             if [ -n "$live" ]; then
               test "$live" = "$expected" || { echo "Changed ref: $ref" >&2; exit 1; }
               git merge-base --is-ancestor "$live" "$GITHUB_SHA"
               gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$ref"
             fi
-            test -z "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha' 2>/dev/null || true)"
+            test -z "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$ref" --jq '.object.sha // empty' 2>/dev/null || true)"
           }
           delete_safe release/v3.0.8.1 "$RELEASE_STAGE_SHA"
           gh api "repos/$GITHUB_REPOSITORY/pulls/37" \
             --jq '.state+" "+(.merged|tostring)+" "+.head.sha' | grep -qx 'closed true 36b7112d140a591bc74cd67e54e48f51142c84a1'
           delete_safe work/RHC-34-fixture 36b7112d140a591bc74cd67e54e48f51142c84a1
-          ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/work/RHC-34-tagfix" --jq '.object.sha' 2>/dev/null || true)"
+          ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/work/RHC-34-tagfix" --jq '.object.sha // empty' 2>/dev/null || true)"
           if [ -n "$ref" ]; then
             git merge-base --is-ancestor "$ref" "$GITHUB_SHA"
             delete_safe work/RHC-34-tagfix "$ref"
+          fi
+          # Cleanup ref may already be gone; never treat GitHub 'null' as a SHA.
+          CLEANUP_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/work/RHC-34-cleanup" --jq '.object.sha // empty' 2>/dev/null || true)"
+          if [ -n "$CLEANUP_HEAD" ]; then
+            git merge-base --is-ancestor "$CLEANUP_HEAD" "$GITHUB_SHA"
+            delete_safe work/RHC-34-cleanup "$CLEANUP_HEAD"
           fi
           gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v3.0.8.1" --jq '.object.sha' | grep -qx "$SOURCE_SHA"
           gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha' | grep -qx "$GITHUB_SHA"
