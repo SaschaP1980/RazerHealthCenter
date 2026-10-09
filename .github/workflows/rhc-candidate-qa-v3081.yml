@@ -134,8 +134,9 @@ jobs:
           if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PS5.1 required' }
           if ((git -C candidate rev-parse HEAD).Trim() -ne $env:SOURCE_SHA) { throw 'Candidate source SHA mismatch' }
           if ((git -C qa-tools rev-parse HEAD).Trim() -ne $env:QA_TOOL_SHA) { throw 'QA tooling SHA mismatch' }
-          gh api "repos/$env:GITHUB_REPOSITORY/commits/$env:SOURCE_SHA/statuses?per_page=100" | Set-Content -Encoding UTF8 "$env:RUNNER_TEMP/rhc31-statuses.json"
+          $statusJson=gh api "repos/$env:GITHUB_REPOSITORY/commits/$env:SOURCE_SHA/statuses?per_page=100"
           if ($LASTEXITCODE -ne 0) { throw 'Candidate bot statuses could not be fetched' }
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'rhc31-statuses.json'), ($statusJson -join "`n"), (New-Object System.Text.UTF8Encoding($false)))
           python -B qa-tools/tools/rhc_candidate_qa_gate.py --source candidate --sha "$env:SOURCE_SHA" --statuses "$env:RUNNER_TEMP/rhc31-statuses.json"
           if ($LASTEXITCODE -ne 0) { throw 'Candidate provenance gate blocked' }
           python -B qa-tools/tools/rhc_phase_a_qa.py verify --root candidate --source-sha "$env:SOURCE_SHA" --stage "$env:RUNNER_TEMP/rhc31-stage"
