@@ -41,6 +41,21 @@ jobs:
           test "$(git rev-parse "$STAGED_SHA^")" = "$FIRST"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           test "$(jq -r '.head.ref' "$RUNNER_TEMP/pr.json")" = "release/v$VERSION"
+          # Original immutable source may precede a narrowly scoped reviewed CI repair.
+          # Reject unrelated source changes, missing source PR, changed app or policy.
+          SOURCE="$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["sourceSha"])')"
+          git merge-base --is-ancestor "$SOURCE" "$FIRST"
+          if [ "$SOURCE" != "$FIRST" ]; then
+            git diff --quiet "$SOURCE" "$FIRST" -- model.go CHANGELOG.md config/rhc-release-policy.json
+            git diff --name-only "$SOURCE" "$FIRST" | sort > "$RUNNER_TEMP/source-recovery-diff.txt"
+            printf '%s\\n' .github/workflows/rhc-reusable-interim-postmerge.yml .github/workflows/rhc-reusable-interim-release.yml .github/workflows/rhc82-v3085-recovery.yml tests/test_rhc_82_stage_env_contracts.py > "$RUNNER_TEMP/allowed-recovery-diff.txt"
+            diff -u "$RUNNER_TEMP/allowed-recovery-diff.txt" "$RUNNER_TEMP/source-recovery-diff.txt"
+            python3 -B tools/rhc_workflow_reliability.py resolve-source \\
+              --source-sha "$SOURCE" --work-sha "$(git rev-parse "$SOURCE^2")" > "$RUNNER_TEMP/source.json"
+            test "$(jq -r '.issueNumber' "$RUNNER_TEMP/source.json")" = 78
+            test "$(jq -r '.sourcePR' "$RUNNER_TEMP/source.json")" = 79
+            test "$(gh api "repos/$GITHUB_REPOSITORY/issues/82" --jq '.state')" = open
+          fi
           git diff --name-only "$FIRST" "$STAGED_SHA" | sort > "$RUNNER_TEMP/actual.txt"
           printf '%s\n' downloads/README.md "downloads/RazerHealthCenter-Portable-v$VERSION.zip" downloads/latest.json downloads/releases.json > "$RUNNER_TEMP/expected.txt"
           diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
@@ -59,7 +74,7 @@ jobs:
           assert len(history)>=2 and history[0]==latest and latest['version']==version
           first=os.popen("git rev-parse HEAD^1").read().strip()
           source=latest['sourceSha']
-          assert source==first, 'tag must point to pre-release source main'
+          assert source==first or os.system('git merge-base --is-ancestor '+source+' '+first)==0, 'original source must be ancestor of release main'
           archive=root/latest['file']
           assert hashlib.sha256(archive.read_bytes()).hexdigest()==latest['sha256']
           assert archive.stat().st_size==latest['size'] and len(d.portable_zip_check(archive))==7
@@ -68,7 +83,7 @@ jobs:
           assert 'SmartScreen' in (root/'README.md').read_text()
           print('RHC_REUSABLE_POSTMERGE_SOURCE_AND_CATALOG=PASS version='+version+' source='+source+' sha256='+latest['sha256'])
           PY
-          echo "RHC_REAL_SOURCE_SHA=$FIRST" >> "$GITHUB_ENV"
+          echo "RHC_REAL_SOURCE_SHA=$SOURCE" >> "$GITHUB_ENV"
           echo "RHC_REAL_VERSION=$VERSION" >> "$GITHUB_ENV"
 
   windows:
@@ -128,7 +143,9 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$MERGED_SHA"
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$MERGED_SHA"
-          SOURCE="$(git rev-parse "$MERGED_SHA^1")"
+          RELEASE_MAIN="$(git rev-parse "$MERGED_SHA^1")"
+          SOURCE="$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["sourceSha"])')"
+          git merge-base --is-ancestor "$SOURCE" "$RELEASE_MAIN"
           test "$(git rev-parse "$MERGED_SHA^2")" = "$STAGED_SHA"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           test "$(python3 -c 'import json;print(json.load(open("downloads/latest.json"))["sourceSha"])')" = "$SOURCE"
