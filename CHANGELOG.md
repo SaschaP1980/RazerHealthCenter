@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.2 — 2026-10-09
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.1` to `3.0.8.2`. No functional, diagnostic, UI, Razer repair or PowerShell changes.
+- RHC-41: Explicit owner-requested Work-Branch process verification; this source bump is not itself a release approval. The existing v3.0.8.1 release files and standard release-policy gates are unchanged.
+
 ## 3.0.8.1 — 2026-10-09
 
 - Version-only application HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.0` to `3.0.8.1`. No Razer runtime, repair behavior, PowerShell payload, diagnosis or UI change.
