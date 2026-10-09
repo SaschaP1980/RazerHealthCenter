@@ -18,6 +18,8 @@ class AtomicOrchestrationWiring(unittest.TestCase):
         self.assertIn("rhc94_atomic_release.py validate-stage",y)
         self.assertEqual(y.count("gh pr create"),1)
         self.assertEqual(y.count("pulls/$RELEASE_PR/merge"),1)
+        self.assertIn('gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$WORK_REF"',y)
+        self.assertIn('test "$(git ls-remote origin "refs/heads/$WORK_REF" | cut -f1)" = "$WORK_SHA"',y)
         self.assertNotIn("source PR #$SOURCE_PR_NUMBER",y)
         self.assertIn('gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"',y)
     def test_no_bot_pr_success_fabrication(self):

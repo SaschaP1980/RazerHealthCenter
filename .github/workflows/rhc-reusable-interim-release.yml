@@ -405,4 +405,14 @@ jobs:
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
           gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/release/v$VERSION"
           test -z "$(git ls-remote origin refs/heads/release/v$VERSION)"
+          # Delete only the exactly verified, unchanged Work branch. This is
+          # not a force delete, not a release-branch substitute and does not
+          # delete retained immutable Candidate provenance.
+          WORK_REF="work/RHC-$RHC_ISSUE_NUMBER"
+          WORK_SHA="$(git show -s --format=%B "$SOURCE_SHA" | sed -n 's/^Work-SHA: \([0-9a-f]\{40\}\)$/\1/p')"
+          [[ "$WORK_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git ls-remote origin "refs/heads/$WORK_REF" | cut -f1)" = "$WORK_SHA"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$WORK_REF"
+          test -z "$(git ls-remote origin "refs/heads/$WORK_REF")"
+          echo "RHC94_SINGLE_ATOMIC_PR_RELEASE_SUCCESS=PASS main=$MERGED source=$SOURCE_SHA tag=v$VERSION WorkDeleted=$WORK_REF PhaseB=DEFERRED"
           echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED source=$SOURCE_SHA tag=v$VERSION PhaseB=DEFERRED"
