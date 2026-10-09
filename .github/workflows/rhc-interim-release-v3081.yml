@@ -84,8 +84,10 @@ jobs:
           tmp=pathlib.Path(os.environ['RUNNER_TEMP'])
           a=tmp/'build1/RazerHealthCenter.exe'
           b=tmp/'build2/RazerHealthCenter.exe'
-          one=tmp/'proof/one.zip'
-          two=tmp/'proof/two.zip'
+          one=tmp/'first/RazerHealthCenter-Portable-v3.0.8.1.zip'
+          two=tmp/'second/RazerHealthCenter-Portable-v3.0.8.1.zip'
+          one.parent.mkdir()
+          two.parent.mkdir()
           d.make_lean_zip('.',a,one)
           d.make_lean_zip('.',b,two)
           assert one.read_bytes()==two.read_bytes(), 'independent seven-file ZIPs differ'
