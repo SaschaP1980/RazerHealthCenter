@@ -29,6 +29,16 @@ class ReusablePublisherContract(unittest.TestCase):
             "rollbackVerified=true", "EXPLICIT_OWNER_RHC22"):
             self.assertNotIn(forbidden, s)
 
+    def test_stage_normalizes_policy_snapshot_without_weakening_policy_gate(self):
+        # Real hosted release run #37893586705 failed safely before writes.
+        # The pure gate requires exactly four authoritative production fields,
+        # not the complete on-disk JSON containing schema/notes/required contexts.
+        script = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("policy={k:policy_full[k] for k in i.POLICY}", script)
+        self.assertIn("proof=i.qualify(snapshot)", script)
+        self.assertIn("assert policy_full['productionEnabled'] is False", script)
+        self.assertIn("- '.github/workflows/rhc-reusable-interim-release.yml'", script)
+
     def test_postmerge_tag_and_remote_verification_present(self):
         p = ROOT / ".github/workflows/rhc-reusable-interim-postmerge.yml"
         s = p.read_text(encoding="utf-8")
