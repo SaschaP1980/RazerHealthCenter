@@ -58,7 +58,13 @@ class FutureVersionWorkContracts(unittest.TestCase):
                 self.assertIn(context, wf)
         self.assertIn("needs: [linux, windows]", wf)
         self.assertIn("statuses: write", wf)
-        self.assertIn("exit 1", wf)  # existing production promotion must stay blocked
+        # RHC-76: Candidate qualification succeeds independently of the
+        # separately blocked signed-production controller.
+        self.assertNotIn("  promotion:", wf)
+        self.assertIn("RHC_STANDARD_PRODUCTION=BLOCKED_BY_POLICY", wf)
+        self.assertIn("no production promotion", wf)
+        production=read(".github/workflows/rhc-release-preactivation.yml")
+        self.assertIn("RHC12_REAL_PRODUCTION_POLICY=BLOCKED", production)
 
     def test_candidate_publication_workflow_is_gated_and_nonpublishing(self):
         wf = read(".github/workflows/rhc-candidate-from-work.yml")
