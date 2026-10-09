@@ -1,0 +1,106 @@
+name: RHC Actions GITHUB_TOKEN PR-Creation Smoke
+# Nonpublishing, temporary PR creation and exact-SHA cleanup; no product release.
+on:
+  push:
+    branches:
+      - 'work/RHC-43'
+    paths:
+      - '.github/workflows/rhc-actions-pr-permission-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  permission-smoke:
+    name: Actually create/verify/close bot PR and delete exact test branch
+    if: github.ref == 'refs/heads/work/RHC-43' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Prove GITHUB_TOKEN createPullRequest without publishing or retaining test refs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          BASE="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$BASE"
+          BRANCH="rhc43-pr-smoke-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          FILE=".rhc43-pr-permission-smoke/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.txt"
+          PR_NUM=''
+          PUSHED_SHA=''
+          CREATED=0
+          cleanup() {
+            RC=$?
+            trap - EXIT
+            set +e
+            if [ -z "$PR_NUM" ] && [ -n "$PUSHED_SHA" ]; then
+              OWNER="$(echo "$GITHUB_REPOSITORY" | cut -d / -f 1)"
+              FOUND="$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$OWNER:$BRANCH" | jq -r --arg branch "$BRANCH" --arg sha "$PUSHED_SHA" '[.[] | select(.head.ref==$branch and .head.sha==$sha)] | if length==1 then .[0].number else empty end' 2>/dev/null)"
+              if [ -n "$FOUND" ]; then PR_NUM="$FOUND"; fi
+            fi
+            if [ -n "$PR_NUM" ]; then
+              gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUM" > "$RUNNER_TEMP/pr-before-close.json"
+              if [ $? -ne 0 ] || ! jq -e --arg sha "$PUSHED_SHA" --arg base "$BASE" --arg branch "$BRANCH"                 '.state=="open" and .draft==true and .user.login=="github-actions[bot]" and .head.sha==$sha and .base.sha==$base and .head.ref==$branch and .base.ref=="main"'                 "$RUNNER_TEMP/pr-before-close.json" >/dev/null; then
+                echo "RHC43_PR_PERMISSION=BLOCKED: cannot safely close unidentified PR" >&2
+                RC=1
+              else
+                gh api -X PATCH "repos/$GITHUB_REPOSITORY/pulls/$PR_NUM" -f state=closed > "$RUNNER_TEMP/pr-closed.json"
+                if [ $? -ne 0 ] || ! jq -e '.state=="closed" and .merged==false' "$RUNNER_TEMP/pr-closed.json" >/dev/null; then
+                  echo "RHC43_PR_PERMISSION=BLOCKED: PR close not verified" >&2
+                  RC=1
+                fi
+              fi
+            fi
+            if [ -n "$PUSHED_SHA" ]; then
+              ACTUAL="$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)"
+              if [ "$ACTUAL" = "$PUSHED_SHA" ]; then
+                git push --force-with-lease=refs/heads/$BRANCH:$PUSHED_SHA origin ":refs/heads/$BRANCH"
+                if [ $? -ne 0 ]; then RC=1; fi
+              elif [ -n "$ACTUAL" ]; then
+                echo "RHC43_PR_PERMISSION=BLOCKED: scratch ref changed unexpectedly" >&2
+                RC=1
+              fi
+              REMOTE="$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)"
+              test "$REMOTE" = '' || RC=1
+            fi
+            if [ "$CREATED" -eq 1 ] && [ "$RC" -eq 0 ] && [ -n "$PR_NUM" ]; then
+              echo "RHC43_PR_PERMISSION=PASS real GITHUB_TOKEN gh_pr_create=true actor=github-actions[bot] pr=$PR_NUM base=$BASE head=$PUSHED_SHA closed=true scratch_branch_deleted=true"
+            else
+              echo "RHC43_PR_PERMISSION=FAILED_OR_UNPROVEN pr=$PR_NUM temporary_branch=$BRANCH original_rc=$RC" >&2
+              if [ "$RC" -eq 0 ]; then RC=1; fi
+            fi
+            exit "$RC"
+          }
+          trap cleanup EXIT
+          # Scoped scratch ref prefix: refs/heads/rhc43-pr-smoke-
+          test -z "$(git ls-remote origin "refs/heads/$BRANCH")"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch --create "$BRANCH" "$BASE"
+          mkdir -p "$(dirname "$FILE")"
+          printf 'RHC-43 nonpublishing GITHUB_TOKEN permission smoke; run %s attempt %s; not a release.\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$FILE"
+          git add -- "$FILE"
+          git commit -m "test(RHC-43): ephemeral Actions PR creation permission evidence"
+          PUSHED_SHA="$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD^)" = "$BASE"
+          test "$(git diff --name-only "$BASE" "$PUSHED_SHA")" = "$FILE"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          test "$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)" = "$PUSHED_SHA"
+          echo "RHC43_PR_PERMISSION=BRANCH_CREATED exact_sha=$PUSHED_SHA; testing actual GITHUB_TOKEN gh pr create"
+          PR_URL="$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --draft             --title "[RHC-43] Temporary GITHUB_TOKEN PR permission smoke $GITHUB_RUN_ID"             --body "Nonpublishing administrator-permission smoke using workflow GITHUB_TOKEN. This draft PR is intentionally temporary and will be closed by its original workflow. No merge, product, release, tags or download mutation.")"
+          PR_NUM="$(basename "$PR_URL")"
+          [[ "$PR_NUM" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUM" > "$RUNNER_TEMP/pr-created.json"
+          jq -e --arg sha "$PUSHED_SHA" --arg base "$BASE" --arg branch "$BRANCH"             '.state=="open" and .draft==true and .user.login=="github-actions[bot]" and .head.sha==$sha and .base.sha==$base and .head.ref==$branch and .base.ref=="main" and .merged==false'             "$RUNNER_TEMP/pr-created.json" >/dev/null
+          CREATED=1

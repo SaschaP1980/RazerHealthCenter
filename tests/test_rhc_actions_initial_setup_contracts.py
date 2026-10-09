@@ -53,7 +53,11 @@ class ManualActionsOnboardingContract(unittest.TestCase):
     def test_no_false_claim_that_owner_save_proves_real_permission(self):
         guide = GUIDE.read_text(encoding="utf-8")
         self.assertIn("Owner-confirmed Save on 2026-10-09", guide)
-        self.assertIn("Effective PR creation: NOT YET VERIFIED", guide)
+        self.assertIn("Effective PR creation: VERIFIED on real hosted GitHub Actions", guide)
+        self.assertIn("37903545748", guide)
+        self.assertIn("github-actions[bot]", guide)
+        self.assertIn("CLOSED, NOT MERGED", guide)
+        self.assertIn("rhc43-pr-smoke-37903545748-1", guide)
         self.assertIn("createPullRequest", guide)
         self.assertIn("Do not enable broad write permissions for repositories that do not need them", guide)
 
