@@ -200,9 +200,20 @@ class PhaseAQATests(unittest.TestCase):
                      "test_rhc_phase_a_qa_contracts.py", "upload-artifact",
                      "Get-AuthenticodeSignature", "SOURCE_SHA", "github.sha"):
             self.assertIn(must, workflow)
+        # Live public releases are valid input, but publishing or changing
+        # any existing downloads in a TEST-ONLY QA job must be impossible.
+        for must in ("rhc29-downloads-before.json",
+                     'inventory("downloads") == before',
+                     "git status --porcelain --untracked-files=all -- downloads",
+                     "RHC29_PUBLISHED_DOWNLOADS_UNCHANGED=PASS",
+                     "RHC29_FINAL_REPO_DOWNLOADS=UNCHANGED"):
+            self.assertIn(must, workflow)
         for forbidden in ("contents: write", "gh release create", "git push",
                           "refs/tags", "EXPLICIT_OWNER_RHC22",
-                          "productionEnabled=true"):
+                          "productionEnabled=true",
+                          'assert not pathlib.Path("downloads/latest.json").exists()',
+                          "test ! -e downloads/latest.json",
+                          'find downloads -maxdepth 1 -name'):
             self.assertNotIn(forbidden, workflow)
 
 
