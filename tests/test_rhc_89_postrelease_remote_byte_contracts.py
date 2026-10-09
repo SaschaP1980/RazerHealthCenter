@@ -22,8 +22,8 @@ class AutoPostreleaseReadback(unittest.TestCase):
         self.assertRegex(s, r"workflow_run:\s*\n\s+workflows:\s*\[RHC Reusable Interim Unsigned Release\]")
         self.assertRegex(s, r"workflow_run:[\s\S]*?types:\s*\[completed\]")
         self.assertIn("github.event.workflow_run.conclusion == 'success'", s)
-        self.assertIn("github.event.workflow_run.event == 'push'", s)
-        self.assertIn("github.event.workflow_run.head_branch == 'main'", s)
+        self.assertIn("github.event.workflow_run.event == 'workflow_dispatch'", s)
+        self.assertIn("startsWith(github.event.workflow_run.head_branch, 'candidate/v')", s)
         self.assertIn("github.event.workflow_run.head_repository.full_name == github.repository", s)
 
     def test_original_readonly_paths_and_exact_current_public_main_are_preserved(self):

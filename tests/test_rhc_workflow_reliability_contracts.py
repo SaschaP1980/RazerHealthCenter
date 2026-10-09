@@ -162,8 +162,8 @@ class WorkflowContracts(unittest.TestCase):
         self.assertNotIn('RHC-Issue: 34',y)
         self.assertNotIn('--title "[RHC-34]',y)
         self.assertNotIn('commit_title="Release RHC v$VERSION (interim unsigned, RHC-33)"',y)
-        self.assertIn("resolve-source",y)
-        self.assertIn("verify-stage",y)
+        self.assertIn("rhc94_atomic_release.py validate-candidate",y)
+        self.assertIn("rhc94_atomic_release.py validate-stage",y)
         self.assertIn("verify_release_metadata", (ROOT/"tools/rhc_workflow_reliability.py").read_text())
 
     def test_candidate_qualification_is_not_deliberately_failed(self):

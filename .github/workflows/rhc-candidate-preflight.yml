@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   statuses: write
+  actions: write
 jobs:
   linux:
     name: Linux Candidate exact-main and deterministic Go artifacts
@@ -147,4 +148,6 @@ jobs:
           gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
             -f state=success -f context='rhc/preflight/candidate' \
             -f description='Linux and native Windows Candidate gates passed; no production promotion' > /dev/null
-          echo 'RHC_CANDIDATE_GATE=PASS; no production promotion; standard production remains blocked'
+          # Qualification must complete successfully before staging an unsigned interim release.
+          gh workflow run rhc-reusable-interim-release.yml --ref "$GITHUB_REF_NAME"
+          echo 'RHC_CANDIDATE_GATE=PASS; qualified interim orchestrator dispatched; standard production remains blocked'

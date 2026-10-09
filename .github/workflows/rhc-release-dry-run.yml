@@ -8,7 +8,6 @@ on:
       - main
     paths:
       - 'tools/rhc_release_dry_run.py'
-      - 'model.go'
       - 'tools/rhc_release_contracts.py'
       - 'tests/test_rhc_release_dry_run_contracts.py'
       - '.github/workflows/rhc-release-dry-run.yml'
