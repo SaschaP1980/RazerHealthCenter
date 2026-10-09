@@ -83,6 +83,8 @@ class InterimReleaseContracts(unittest.TestCase):
                       "INTERIM_UNSIGNED_UNCERTIFIED_RELEASE",
                       "pull-requests: write", "contents: write"):
             self.assertIn(token,script)
+        self.assertIn("pull_request:",script)
+        self.assertIn("if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'",script)
         for token in ("RHC_REAL_PUBLICATION_APPROVED: EXPLICIT_OWNER_RHC22",
                       "productionEnabled=true","rollbackVerified=true",
                       "signingDecision: unsigned-approved","gh release create"):
