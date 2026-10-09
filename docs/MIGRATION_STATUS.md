@@ -1,3 +1,11 @@
+## Current v3.0.8.1 special-cycle transition (2026-10-09; status is implementation, NOT a release proof)
+
+The owner specifically chose [RHC-33](https://github.com/SaschaP1980/RazerHealthCenter/issues/33) as the long-lived list of temporarily parked external/administrative release conditions, and [RHC-34](https://github.com/SaschaP1980/RazerHealthCenter/issues/34) as the implementation Work-Path. The new bounded release mode advances `main/model.go` app/reference to `3.0.8.1` ahead of the public download, keeps legacy `candidate/v3.0.8.1` immutable but excludes its stale ancestry as release source, and requires exact SHA Linux/native Windows, reproducible seven-file ZIP, four-file `downloads` PR, source tag and independent postmerge readback.
+
+Phase B hardware/rollback/Publisher/trust and admin-rule requirements are **DEFERRED/NOT VERIFIED** — not approved or passed. Standard RHC20 production policy remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`, and the old standard release engine is still blocked. Until a genuine GitHub Actions run, public ZIP and tag actually pass full independent postrelease checks, do **not** report `RELEASE SUCCESS`. Historical M0–M6 and RHC-20 snapshot paragraphs below are dated technical context rather than current owner instructions.
+
+---
+
 # RHC migration — current v3.0.8.0 and historical v3.0.8 evidence
 
 **Current authority:** Original 321-file v3.0.8 source imported and hosted-tested via PR #2 is historical Golden evidence. Current app/reference is **`3.0.8.0`** (RHC-16), distribution is **`repo-downloads`** (RHC-12), and the archived v3.0.8 **TEST / UNSIGNED** artifact remains nonproduction. Die **technische, nichtpublizierende** Candidate-/Release-Automatisierung ist mit [RHC-20 PR #28](https://github.com/SaschaP1980/RazerHealthCenter/pull/28) CI-qualifiziert und auf `main` gemergt. **Tatsächliche Produktionsaktivierung und Veröffentlichung**, wirksame verpflichtende Main-PR-/Status-Regeln, native Razer-Hardwareabnahme, Rollback und Signing beziehungsweise konkret artefaktgebundene Unsigned-Freigabe bleiben separat unter [Issue #22](https://github.com/SaschaP1980/RazerHealthCenter/issues/22) **OPEN/BLOCKED**. Stage-1 no-delete/no-force-push is active. The dated interim sections below are historical snapshots, not instructions for new work.
