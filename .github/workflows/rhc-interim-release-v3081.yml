@@ -1,5 +1,6 @@
 name: RHC-34 v3.0.8.1 interim release (unsigned and uncertified)
 # ONLY this version. RHC-22 Phase B is PAUSED, not falsely passed.
+# INTERIM_UNSIGNED_UNCERTIFIED_RELEASE: actual unsigned/uncertified state, not Owner-approved production.
 on:
   push:
     branches: [main]
@@ -247,7 +248,7 @@ jobs:
           print('RHC34_STAGE_REAL_SOURCE_AND_2OS=PASS',json.dumps(proof,sort_keys=True))
           PY
           git diff --name-only > "$RUNNER_TEMP/changed.txt"
-          test "$(sort "$RUNNER_TEMP/changed.txt" | tr '\n' ' ')" = "downloads/README.md downloads/latest.json downloads/releases.json "
+          test "$(sort "$RUNNER_TEMP/changed.txt" | tr '\n' ' ')" = "downloads/README.md downloads/releases.json "
           test -f downloads/RazerHealthCenter-Portable-v3.0.8.1.zip
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
       - name: Create exact-parent four-path release branch and PR (never force push)
