@@ -1,3 +1,12 @@
+## Permanent owner authorization — Interim unsigned/uncertified release (2026-10-09)
+
+**UNTIL EXPLICITLY REVOKED**, the owner accepts unsigned/uncertified RHC interim releases. Hardware testing on physical Razer devices, native rollback demonstration, verified publisher identity, code signing, and SmartScreen publisher-trust acceptance are **DEFERRED / NOT_VERIFIED and NOT A RELEASE BLOCKER** for the separately qualified interim distribution mode. This authorization applies to subsequent versioned interim releases, not merely 3.0.8.2. It does not assert that external tests passed: leave all Phase B fields DEFERRED / NOT_VERIFIED and disclose Windows unsigned/unknown publisher/SmartScreen limitations in each public download notice. All actual Go/ZIP provenance, reproducible builds, native PowerShell 5.1 repair safety, immutable old releases, staged Linux/Windows and remote GitHub publication gates remain mandatory.
+
+The separate **standard signed/certified production policy** stays fail-closed at productionEnabled=false, signingDecision=unknown, rollbackVerified=false until explicitly revised; these fields must not be flipped to make interim releases pass. Owner-facing discussion remains German using English engineering terminology; all new GitHub development/docs/Issues remain English.
+
+**Postpublication completion is mandatory:** a release is not fully finalized until the source SHA-bound immutable version tag and exact SHA-lease release-branch cleanup are independently read back. Missing tags must be treated as absent, **not** as a conflicting literal null reference. The generic Work-branch cleaner deliberately never deletes release/v branches; their specialist verified postmerge finalizer owns the deletion. The [RHC-43](https://github.com/SaschaP1980/RazerHealthCenter/issues/43) postpublish recovery workflow may finish a previously public/qualified release without rewriting any public ZIP, catalog, source history or tag.
+
+---
 ## Active RHC-43 version-independent interim Publisher contract — 2026-10-09
 
 [Reusable Publisher workflow](../.github/workflows/rhc-reusable-interim-release.yml) triggers on a main model.go version change; [Postmerge remote verification/tag workflow](../.github/workflows/rhc-reusable-interim-postmerge.yml) binds actual merged download ZIP, catalog, tag and NotSigned PowerShell proof. Both retain source SHA and old release-history immutability; the separate standard production controller stays fail-closed.
