@@ -53,6 +53,8 @@ class InterimPostmergeContract(unittest.TestCase):
     def test_null_safe_postdelete_cleanup_handles_already_removed_ref(self):
         workflow=(ROOT/".github/workflows/rhc-interim-postmerge-v3081.yml").read_text(encoding="utf-8")
         self.assertIn("--jq '.object.sha // empty'",workflow)
+        self.assertGreaterEqual(workflow.count("--jq '.object.sha // empty'"), 4)
+        self.assertIn("RHC34_TAG_RECOVERY_SUCCESS",workflow)
         self.assertIn("delete_safe release/v3.0.8.1",workflow)
         self.assertIn("work/RHC-34-fixture",workflow)
         self.assertIn("work/RHC-34-tagfix",workflow)
