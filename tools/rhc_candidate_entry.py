@@ -34,52 +34,19 @@ def main():
     profiles=re.findall(r'^Release-Profile: (version-only|patch|hotfix)$',message,re.M)
     issues=re.findall(r'^RHC-Issue: ([1-9][0-9]*)$',message,re.M)
     require(len(profiles)==1 and len(issues)==1,'missing unique RHC Issue/profile trailer')
+
     if retry:
         for key, pattern in (
-            ('Recovery-Attempt',r'^Recovery-Attempt: (1)
-    result=validate_candidate(previous=versions[0],version=version,
-        changed_paths=git(root,'diff','--name-only','origin/main','HEAD').splitlines(),
-        release_profile=profiles[0],current_main_parent=True)
-    result.update(candidateSha=head,baseMainSha=main_sha,issue='RHC-'+issues[0])
-    print('RHC_CANDIDATE_ENTRY_SUMMARY='+json.dumps(result,sort_keys=True))
-
-if __name__=='__main__':
-    try:main()
-    except Exception as e:
-        print('RHC_CANDIDATE_ENTRY=BLOCKED: '+str(e),file=sys.stderr)
-        sys.exit(1)
-),
-            ('Recovery-Original-Candidate',r'^Recovery-Original-Candidate: ([0-9a-f]{40})
-    result=validate_candidate(previous=versions[0],version=version,
-        changed_paths=git(root,'diff','--name-only','origin/main','HEAD').splitlines(),
-        release_profile=profiles[0],current_main_parent=True)
-    result.update(candidateSha=head,baseMainSha=main_sha,issue='RHC-'+issues[0])
-    print('RHC_CANDIDATE_ENTRY_SUMMARY='+json.dumps(result,sort_keys=True))
-
-if __name__=='__main__':
-    try:main()
-    except Exception as e:
-        print('RHC_CANDIDATE_ENTRY=BLOCKED: '+str(e),file=sys.stderr)
-        sys.exit(1)
-),
-            ('Recovery-Original-Run',r'^Recovery-Original-Run: ([1-9][0-9]*)
-    result=validate_candidate(previous=versions[0],version=version,
-        changed_paths=git(root,'diff','--name-only','origin/main','HEAD').splitlines(),
-        release_profile=profiles[0],current_main_parent=True)
-    result.update(candidateSha=head,baseMainSha=main_sha,issue='RHC-'+issues[0])
-    print('RHC_CANDIDATE_ENTRY_SUMMARY='+json.dumps(result,sort_keys=True))
-
-if __name__=='__main__':
-    try:main()
-    except Exception as e:
-        print('RHC_CANDIDATE_ENTRY=BLOCKED: '+str(e),file=sys.stderr)
-        sys.exit(1)
-),
+            ("Recovery-Attempt", r"^Recovery-Attempt: (1)$"),
+            ("Recovery-Original-Candidate", r"^Recovery-Original-Candidate: ([0-9a-f]{40})$"),
+            ("Recovery-Original-Run", r"^Recovery-Original-Run: ([1-9][0-9]*)$"),
         ):
-            require(len(re.findall(pattern,message,re.M)) == 1,
-                    'missing/ambiguous immutable Candidate retry: '+key)
+            require(len(re.findall(pattern, message, re.M)) == 1,
+                    "missing/ambiguous immutable Candidate retry: " + key)
     else:
-        require('Recovery-Attempt:' not in message, 'recovery marker on canonical Candidate')
+        require("Recovery-Attempt:" not in message,
+                "recovery marker on canonical Candidate")
+
     result=validate_candidate(previous=versions[0],version=version,
         changed_paths=git(root,'diff','--name-only','origin/main','HEAD').splitlines(),
         release_profile=profiles[0],current_main_parent=True)
