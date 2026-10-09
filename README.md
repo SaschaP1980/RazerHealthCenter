@@ -1,22 +1,18 @@
 # Razer Synapse + Chroma Health Center
 
-**Live version authorities:** application version from [`model.go`](model.go) (`appVersion`, `referenceVersion`); latest **published** Portable version from [`downloads/latest.json`](downloads/latest.json), verified against [`downloads/releases.json`](downloads/releases.json), actual ZIP and source tag. These may differ. The **standard production policy** is independent and lives in [`config/rhc-release-policy.json`](config/rhc-release-policy.json). A real owner-authorized interim publication does not activate this standard policy. App versioning uses `MAJOR.MINOR.PATCH.HOTFIX`; prior three-component release evidence is historical.
+Windows diagnostic and repair-assistance application for Razer Synapse and Chroma. Health/diagnostic operations are read-only; any repair requires explicit in-app user confirmation, safety guards and read-only post-repair verification.
 
-v3.0.8 is a narrow health-semantics patch for the AppEngine user-mode diagnostic. A real native Windows measurement showed a fully functional steady-state background runtime with tray, mappings, device middleware and Chroma working while transient `win-synapse` / `win-chroma-app` dashboard renderers were no longer resident. v3.0.7 incorrectly treated those transient UI renderers as mandatory and reported Gate 1 UNKNOWN.
+## Live version authority
 
-The AppEngine diagnostic is now version 1.0.2. HEALTHY requires the validated Synapse+Chroma run contract, one unambiguous runtime main process using that contract, systray, background manager, lighting engine and generic device middleware. `win-synapse` / `win-chroma-app` remain captured as supporting evidence only. Missing systray still makes the runtime incomplete, preserving detection of the real broken state observed earlier.
+Read the **source/app** version directly from [`model.go`](model.go) (`appVersion` and `referenceVersion`). Read the **latest published Portable** independently from [`downloads/latest.json`](downloads/latest.json) and [`downloads/releases.json`](downloads/releases.json), verifying the real ZIP/hash and immutable version source tag/`sourceSha`. Current `main` may be newer than the tagged release source.
 
-## Historical component version snapshot and current application authority
-- Current app/reference: [`model.go`](model.go); latest public Portable: [`downloads/latest.json`](downloads/latest.json). The component versions below record the original source snapshot.
-- Health Engine: 1.4.6
-- Setup Scanner: 1.0.6
-- Fast Setup Live Probe: 1.1.0
-- Diagnostic Orchestrator: 1.1.0
-- Problem Catalog: 1.1.0
-- Chroma Diagnostic: 1.0.0
-- AppEngine User-Mode Diagnostic: 1.0.2
-- Repair Engine/Catalog: 2.1.0
-- Chroma Repair: 1.1.0
-- AppEngine Recovery: 1.0.0
+The [standard signed/certified production policy](config/rhc-release-policy.json) is separate from qualified owner-authorized unsigned interim publication; physical Razer hardware, rollback and publisher-trust status must never be invented.
 
-All repair confirmation, elevation and read-only verification rules remain unchanged.
+## Project documentation and historical evidence
+
+- [Initial Prompt](docs/INITIAL_PROMPT.md): fully reconstruct the current GitHub state.
+- [Git provenance contract](docs/GIT_PROVENANCE_CONTRACT.md): mandatory Issue → changed-file PR → merged Git commit → release catalog/source tag links.
+- [Development Guidelines](docs/DEVELOPMENT_GUIDELINES.md), [GitHub Operating Guide](docs/GITHUB_HOWTO.md), [Release Process](docs/RELEASE_PROCESS.md), [Interim Contract](docs/REUSABLE_INTERIM_RELEASE_CONTRACT.md): permanent engineering and safety rules.
+- [Migration evidence locator](docs/MIGRATION_STATUS.md): retrieve historical decisions and proof from GitHub Issues, Rolling Comments, PRs and Git; not from frozen status snapshots in normative Markdown.
+
+Component versions and health checks are defined in actual source/tests. The reasons behind past releases and repairs are recorded in the owning GitHub Issues.

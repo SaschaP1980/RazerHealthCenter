@@ -13,25 +13,31 @@ EXPECTED = {
 }
 
 class HistoricalIssueFinalizationContract(unittest.TestCase):
-    def test_migration_status_has_authoritative_current_scope(self):
-        s = LEDGER.read_text(encoding="utf-8")
-        self.assertIn("## Final migration disposition — 2026-10-09", s)
-        self.assertIn("RHC-1: COMPLETED", s)
-        self.assertIn("RHC-3: SUPERSEDED", s)
-        self.assertIn("RHC-34: COMPLETED after verified historical ref cleanup", s)
-        self.assertIn("M4 |", s)
-        self.assertIn("M5 |", s)
-        self.assertIn("M6 |", s)
-        self.assertIn("DEFERRED / NOT_VERIFIED", s)
-        self.assertIn("work/RHC-3", s)
-        self.assertIn("four non-main commits", s)
-        self.assertIn("37737410046", s)
-        self.assertIn("37903545748", s)
-        self.assertIn("37899579163", s)
-        self.assertIn("RHC-22", s)
-        self.assertIn("RHC-33", s)
-        self.assertIn("M4 | RHC-specific Candidate", s)
-        self.assertNotIn("most recent postmerge run verified source/ZIP/tag evidence but **failed final branch cleanup**", s)
+    def test_migration_locator_is_live_and_version_neutral(self):
+        locator = LEDGER.read_text(encoding="utf-8")
+        for required in (
+            "Migration Evidence Locator",
+            "GitHub Issues",
+            "Rolling Comments",
+            "merged PRs",
+            "model.go",
+            "downloads/latest.json",
+            "downloads/releases.json",
+            "sourceSha",
+            "M0–M6",
+            "DEFERRED",
+            "INITIAL_PROMPT.md",
+            "GIT_PROVENANCE_CONTRACT.md",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, locator)
+        # Historical per-release/CI facts belong in the original Issues, not in
+        # the reusable live-status locator. Do not retain frozen status assertions.
+        import re
+        self.assertIsNone(re.search(r"\bv\d+\.\d+\.\d+", locator))
+        self.assertIsNone(re.search(r"\b[0-9a-f]{40}\b", locator))
+        self.assertNotIn("RHC-1: COMPLETED", locator)
+        self.assertNotIn("## Final migration disposition — 2026-10-09", locator)
 
     def test_cleanup_only_exact_four_historical_ancestor_refs(self):
         s = CLEAN.read_text(encoding="utf-8")

@@ -50,16 +50,25 @@ class ManualActionsOnboardingContract(unittest.TestCase):
                 self.assertIn("GitHub Actions PR-creation permission", source)
                 self.assertIn("nonpublishing", source)
 
-    def test_no_false_claim_that_owner_save_proves_real_permission(self):
+    def test_documented_setup_does_not_equate_saved_settings_with_effective_permission(self):
         guide = GUIDE.read_text(encoding="utf-8")
-        self.assertIn("Owner-confirmed Save on 2026-10-09", guide)
-        self.assertIn("Effective PR creation: VERIFIED on real hosted GitHub Actions", guide)
-        self.assertIn("37903545748", guide)
-        self.assertIn("github-actions[bot]", guide)
-        self.assertIn("CLOSED, NOT MERGED", guide)
-        self.assertIn("rhc43-pr-smoke-37903545748-1", guide)
-        self.assertIn("createPullRequest", guide)
-        self.assertIn("Do not enable broad write permissions for repositories that do not need them", guide)
+        for required in (
+            "repository administrator",
+            "Settings > Actions > General",
+            "Workflow permissions",
+            "Read and write permissions",
+            "Allow GitHub Actions to create and approve pull requests",
+            "Save",
+            "not proof of effective permission",
+            "GITHUB_TOKEN",
+            "nonpublishing",
+            "Do not enable broad write permissions for repositories that do not need them",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, guide)
+        self.assertIn("Independently verify", guide)
+        self.assertIn("verified refs", guide)
+        self.assertNotIn("Owner-confirmed Save on 2026-10-09", guide)
 
 
 if __name__ == "__main__":
