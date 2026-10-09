@@ -3,6 +3,25 @@
   "releases": [
     {
       "schemaVersion": 1,
+      "version": "3.0.8.5",
+      "tag": "v3.0.8.5",
+      "file": "RazerHealthCenter-Portable-v3.0.8.5.zip",
+      "sha256": "ae681e4ec9ce3f337d437ae31d41494e59ff88dcddbd5f6fb94b617e94fb9aa1",
+      "size": 8619985,
+      "publishedUtc": "2026-10-09T14:55:07.541260Z",
+      "sourceSha": "182197e845bfd252988f27f417c4cd0f12092667",
+      "packageFiles": [
+        "README-I18N.txt",
+        "README.txt",
+        "RazerHealthCenter.exe",
+        "SAFETY-MODEL.txt",
+        "SHA256SUMS.txt",
+        "i18n-manifest.json",
+        "locales/de-DE.json"
+      ]
+    },
+    {
+      "schemaVersion": 1,
       "version": "3.0.8.4",
       "tag": "v3.0.8.4",
       "file": "RazerHealthCenter-Portable-v3.0.8.4.zip",
