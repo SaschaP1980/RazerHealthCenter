@@ -149,5 +149,36 @@ class Cleanup(unittest.TestCase):
         self.assertEqual(self.refs[self.branch], "d" * 40)
 
 
+    def test_merged_documentation_pr_head_is_deleted_with_exact_sha_lease(self):
+        # Regression: legitimate merged docs PR #65 currently yields unsafe branch name.
+        self.branch = "docs/RHC-60-default-new-version-release"
+        self.pr["head"]["ref"] = self.branch
+        self.refs = {self.branch: HEAD}
+        self.assertEqual(self.do_cleanup()["status"], "deleted")
+        self.assertNotIn(self.branch, self.refs)
+
+    def test_docs_cleanup_rejects_unmerged_or_advanced_refs(self):
+        self.branch = "docs/RHC-60-default-new-version-release"
+        self.pr["head"]["ref"] = self.branch
+        self.refs = {self.branch: HEAD}
+        self.pr["merged"] = False
+        with self.assertRaises(m.Blocked):
+            self.do_cleanup()
+        self.pr["merged"] = True
+        self.refs[self.branch] = "d" * 40
+        with self.assertRaises(m.Blocked):
+            self.do_cleanup()
+        self.assertIn(self.branch, self.refs)
+
+    def test_docs_allowlist_strict_scope(self):
+        for allowed in ["docs/RHC-60-default-new-version-release",
+                        "docs/RHC-66-dev-ops-label"]:
+            self.assertTrue(m.BRANCH.fullmatch(allowed), allowed)
+        for denied in ["docs/RHC-0-test", "docs/RHC-1", "docs/rhc-60-name",
+                       "docs/RHC-1-Upper", "docs/RHC-1-a/extra",
+                       "docs/RHC-1-a..b", "docs/RHC-1-a;echo_bad",
+                       "docs/other", "candidate/v3.0.8.3", "main"]:
+            self.assertFalse(m.BRANCH.fullmatch(denied), denied)
+
 if __name__ == "__main__":
     unittest.main()
