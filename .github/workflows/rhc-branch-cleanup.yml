@@ -42,6 +42,21 @@ jobs:
           set -euo pipefail
           python3 -B tools/rhc_branch_cleanup.py --pr "$MERGED_PR" --execute
 
+      # One-time previously merged docs refs, guarded by the same exact-SHA PR/main ancestry
+      # and atomic lease contract. This gate can only run for this remediation PR merge.
+      - name: Reconcile prior verified RHC-60 and RHC-66 documentation PR heads
+        if: >-
+          github.event_name == 'pull_request'
+          && github.event.pull_request.merged == true
+          && github.event.pull_request.head.ref == 'work/RHC-68'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc_branch_cleanup.py --pr 65 --execute
+          python3 -B tools/rhc_branch_cleanup.py --pr 67 --execute
+
       # One-time historical cleanup ONLY for this implementation PR.
       - name: Reconcile import and RHC-5 branches after RHC-10 merges
         if: >-

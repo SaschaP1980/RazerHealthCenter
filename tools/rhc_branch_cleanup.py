@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 SHA = re.compile(r"[0-9a-f]{40}\Z")
-BRANCH = re.compile(r"(?:work/RHC-[1-9][0-9]*|import/RHC-[1-9][0-9]*-v[0-9]+(?:\.[0-9]+)*|license/RHC-[1-9][0-9]*-[a-z0-9-]+)\Z")
+BRANCH = re.compile(r"(?:work/RHC-[1-9][0-9]*|import/RHC-[1-9][0-9]*-v[0-9]+(?:\.[0-9]+)*|license/RHC-[1-9][0-9]*-[a-z0-9-]+|docs/RHC-[1-9][0-9]*-[a-z0-9]+(?:-[a-z0-9]+)*)\Z")
 
 
 class Blocked(RuntimeError):
