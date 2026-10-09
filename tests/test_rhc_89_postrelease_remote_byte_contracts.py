@@ -58,6 +58,12 @@ class AutoPostreleaseReadback(unittest.TestCase):
         self.assertIn("github.event_name != 'pull_request'",s)
         self.assertIn("github.ref == 'refs/heads/main'",s)
         self.assertIn("--commit-sha \"$GITHUB_SHA\"",s)
+        remote_step=s.split('name: Independently GET immutable published ZIP bytes via HTTPS',1)[1]
+        # Both before and after the network fetch must bind to the *live*
+        # current main ref. A stale source event cannot look freshly verified.
+        self.assertGreaterEqual(remote_step.count('git ls-remote origin refs/heads/main'),1)
+        self.assertLess(remote_step.index('python3 -B tools/rhc_remote_binary_verify.py'),
+                        remote_step.index('test "$(git ls-remote origin refs/heads/main'))
         self.assertIn("urllib.request.urlopen(req, timeout=45)",script)
         self.assertIn('transport": "HTTPS_GITHUB_RAW_EXACT_COMMIT"',script)
         self.assertIn("downloads.portable_zip_check(path)",script)
