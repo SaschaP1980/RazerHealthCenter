@@ -10,6 +10,14 @@ on:
       - 'tools/rhc_interim_release.py'
       - 'tools/rhc_downloads.py'
       - '.github/workflows/rhc-interim-release-v3081.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'model.go'
+      - 'CHANGELOG.md'
+      - 'tools/rhc_interim_release.py'
+      - 'tools/rhc_downloads.py'
+      - '.github/workflows/rhc-interim-release-v3081.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -178,6 +186,7 @@ jobs:
 
   stage:
     name: Stage single immutable ZIP/catalog PR only after both OS success
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [linux, windows]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
