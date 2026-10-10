@@ -224,5 +224,22 @@ class TimingContractTests(unittest.TestCase):
         self.assertEqual(r["measurement"]["retry_job_seconds"], 5)
 
 
+    def test_final_success_preserved_with_failed_previous_attempt(self):
+        item = run(61, "2026-10-10T10:00:00Z",
+                   "2026-10-10T10:00:48Z", attempt=2, conclusion="success")
+        evidence = {"61": {"total_count": 2, "jobs": [
+            job(610, "2026-10-10T10:00:05Z", "2026-10-10T10:00:10Z",
+                result="failure", attempt=1),
+            job(611, "2026-10-10T10:00:25Z", "2026-10-10T10:00:45Z",
+                result="success", attempt=2),
+        ]}}
+        report = timing.build_report([item], evidence, expected_sha=self.sha)
+        self.assertEqual(report["runs"][0]["conclusion"], "success")
+        self.assertEqual(report["runs"][0]["classification"], "COMPLETED_WITH_HOSTED_SUCCESS")
+        self.assertEqual(report["measurement"]["retry_job_seconds"], 5)
+        self.assertEqual(report["measurement"]["successful_attempt_job_seconds"], 20)
+        self.assertEqual(report["runs"][0]["jobs"][0]["conclusion"], "failure")
+
+
 if __name__ == "__main__":
     unittest.main()
