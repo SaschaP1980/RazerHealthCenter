@@ -126,6 +126,36 @@ class NoiseContracts(unittest.TestCase):
         with self.assertRaises(EvidenceBlocked):
             evaluate_release_pr(PR,SHA,[],{},r,jobs,WF_DOWNLOADS)
 
+    def test_real_supplementary_hosted_failure_remains_visible_even_if_dispatch_passed(self):
+        r, jobs = trusted()
+        extra = run(38043054293, WF_DOWNLOADS)
+        report = evaluate_release_pr(PR,SHA,[extra],{extra["id"]:[
+            dict(id=20,run_id=extra["id"],name="genuine test",
+                 status="completed",conclusion="failure")]},r,jobs,WF_DOWNLOADS)
+        self.assertEqual(report["result"],
+                         "TRUSTED_GATE_PASS_WITH_OTHER_HOSTED_FAILURES_REQUIRING_REVIEW")
+        self.assertEqual(report["supplementary"]["actualHostedFailures"],1)
+        self.assertEqual(report["trustedGate"]["classification"],"TRUSTED_HOSTED_PASS")
+
+    def test_timing_reports_real_relative_events_without_claiming_speedup(self):
+        r,jobs=trusted(updated_at="2026-10-10T09:54:46Z")
+        extra=run(38043054293,WF_DOWNLOADS)
+        pr=dict(PR,merged_at="2026-10-10T09:54:56Z")
+        report=evaluate_release_pr(pr,SHA,[extra],{extra["id"]:[]},r,jobs,WF_DOWNLOADS)
+        timing=report["releaseCriticalPath"]
+        self.assertEqual(timing["trustedCompletedSecondsBeforeMerge"],10)
+        self.assertEqual(timing["supplementaryCompletions"][0]
+                         ["completedSecondsAfterMerge"],1)
+        self.assertEqual(timing["performanceGain"],"NOT VERIFIED — cannot infer causality or improvement")
+
+    def test_optional_action_required_and_cancelled_are_never_pass(self):
+        rr=[run(501,WF_DOWNLOADS,conclusion="action_required"),
+            run(502,WF_PREACTIVATION,conclusion="cancelled")]
+        events=classify_supplementary(PR,SHA,rr,{501:[],502:[]})
+        self.assertEqual([z["classification"] for z in events],
+                        ["ZERO_JOB_NO_TEST_ACTION_REQUIRED","ZERO_JOB_NO_TEST_CANCELLED"])
+        self.assertFalse(any(z["countsAsTrustedGate"] for z in events))
+
     def test_read_only_protocol_fetches_exact_pr_runs_jobs_and_no_writes(self):
         r,jobs=trusted()
         zero=run(*WFS[0][:2],name=WFS[0][2])
