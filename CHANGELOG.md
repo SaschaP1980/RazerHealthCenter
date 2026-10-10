@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.13 — 2026-10-10
+
+- Version-only HOTFIX: appVersion and referenceVersion advanced from 3.0.8.12 to 3.0.8.13. No runtime or Razer repair/privilege/security-gate changes.
+- RHC-149: owner-authorized clean Wave A (#138/#132/#139) real Work-Branch → Development Completion → Candidate → unsigned interim public release E2E acceptance; this source change alone is not publication evidence.
+
 ## 3.0.8.12 — 2026-10-10
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.11` to `3.0.8.12`; MAJOR, MINOR and PATCH remain unchanged. No app logic, UI, device handling, Razer repair, diagnostics, PowerShell, privilege/UAC, security policy, release workflows or signer/rollback policy changes.
