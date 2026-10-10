@@ -11,6 +11,28 @@ New GitHub Issues, PRs, comments and normative documents are written in English;
 - **Executable Work-Path:** for substantial code/workflow/tool work, use justified `work/RHC-N`, with one existing [Rolling Comment](templates/WORK_PATH_ROLLING_COMMENT.md). Create `BOOTSTRAP` comment first and independently read back **before** creating Work branch/first code commit. Pin fresh main SHA; after branch creation reread its head, update and verify same comment before coding. Keep factual millisecond UTC heartbeats around every **3 minutes** while ACTIVE and meaningful persistent code checkpoints around **10–15 minutes**. Reconstruct all refs/comments after interruption, do not backdate.
 - Any change to Go/Python/PowerShell, workflows, tools, tests or machine-readable policy is **not docs-only**. Classification comes from changed paths, not the topic of the issue. Follow real work/candidate/CI rules. Do not invent owner approval for a new product release.
 
+### RHC-115: authoritative GitHub Issue initialization is a blocking precondition
+
+For every **new** Issue, use the two-phase, single-create repository tool
+`tools/rhc_issue_init.py init` or an equivalent client implementing its complete
+contract: unique provisional title, real GitHub-assigned number, rename to
+`[RHC-N] Descriptive subject`, and independently GET-verified number, exact
+final title, saved body and open state. Verify existing Issues with
+`python3 tools/rhc_issue_init.py verify --repository OWNER/REPO --issue N`
+**before** creating a Work/docs branch, editing files, opening a PR or running
+a Candidate/release writer. Stop on `INITIALIZATION_BLOCKED / NEEDS_CORRECTION`;
+never recreate after a missing or ambiguous create response, or retry an
+uncertain PATCH before GET reconciliation. Continue on readback PASS only.
+
+Executable controls enforce this in Development Completion, Work-to-Candidate
+transfer, RHC-94 candidate publisher and version-only source provenance. They
+are additional defenses, not a substitute for checking **before the first
+branch/file mutation**. GitHub's web UI and unrelated API clients are outside
+this CLI's interception scope; repository workflows cannot claim global
+creation-time or branch-time blocking. Legacy Issue audit is read-only; no
+historic titles are silently repaired. Separate RHC-116 label/path hardening
+remains an independently tracked implementation.
+
 ### Mandatory full Work-Path Rolling Comment (no abbreviated substitutes)
 
 For **every authorized Work-Path**, read [the canonical Rolling Comment template](templates/WORK_PATH_ROLLING_COMMENT.md) and **instantiate its entire fenced Markdown scaffold** in the one Issue comment **at BOOTSTRAP, before the Work branch or first executable change**. The template is the required format, not an optional example or merely a linked reference. Do **not** replace it with an ad hoc short progress note. Preserve the exact top-level title, all named singleton headings **once, in their prescribed order**, field labels, measurement table, numbered attempt sections, and closing evidence/conformance sections. Record actual base/main SHA, issue, authorization, scope, branch `NOT CREATED` and checkpoint; independently verify the stored comment ID, UTC heartbeat and readback before any branch mutation.
