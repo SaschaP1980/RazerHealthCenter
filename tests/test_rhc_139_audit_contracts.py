@@ -266,5 +266,24 @@ class AuditContract(unittest.TestCase):
         self.assertEqual(gateway2.calls,[])
 
 
+    def test_failed_issue_close_leaves_waiting_not_false_completed(self):
+        gateway=Fake()
+        def fail_close(n,state):
+            gateway.calls.append("update_issue:"+state)
+            raise RuntimeError("GitHub close refused")
+        gateway.update_issue=fail_close
+        with self.assertRaises(RuntimeError):
+            audit.finalize(gateway,proof(),now=NOW,apply=True)
+        self.assertIn("**Agent-State:** WAITING_FOR_GITHUB",gateway.comment["body"])
+        self.assertNotIn("**Agent-State:** COMPLETED",gateway.comment["body"])
+
+    def test_verified_close_time_and_final_completed_readback_are_recorded(self):
+        gateway=Fake()
+        audit.finalize(gateway,proof(),now=NOW,apply=True)
+        self.assertIn("**Agent-State:** COMPLETED",gateway.comment["body"])
+        self.assertIn("2026-10-11T00:30:03Z",gateway.comment["body"])
+        self.assertEqual(gateway.calls.count("update_comment"),2)
+
+
 if __name__=="__main__":
     unittest.main()
