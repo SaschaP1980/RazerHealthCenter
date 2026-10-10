@@ -79,7 +79,7 @@ DISPOSITION = re.compile(
     r"(?m)^Development path: (dev-path: fast|dev-path: work-branch|Not applicable|PATH_DECISION_PENDING) — ([^\r\n]+)$")
 WORK_AREA = re.compile(
     r"(?i)\b(?:github|ci(?:/cd)?|workflow|devops|dev-ops|developer tool(?:ing)?|"
-    r"infrastructure|issue[- ](?:title|label|initializ)|release automation)\b")
+    r"infrastructure|issue[- ](?:titles?|labels?|initializ(?:ation|ations)?)|release automation)\b")
 EXECUTABLE_SCOPE = re.compile(
     r"(?i)\b(?:implement|implementation|code|build|workflow|developer|"
     r"infrastructure|github|ci/cd|refactor|program|automation)\b")
