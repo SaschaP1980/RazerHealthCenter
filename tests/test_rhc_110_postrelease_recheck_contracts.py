@@ -31,7 +31,7 @@ def valid_snapshot():
         "triggerRun": dict(name="RHC Verified Merged-Branch Cleanup",
                            event="pull_request", head_sha=S["f"],
                            head_branch="work/RHC-110", status="completed",
-                           conclusion="success", jobs=jobs(["Delete only the verified and unchanged merged PR head"])),
+                           conclusion="success", jobs=jobs(["cleanup-merged"])),
         "release": dict(verified=True, mainSha=S["e"], mergeSha=S["d"],
                         sourceSha=S["c"], version=VERSION,
                         tagSha=S["c"], archiveSha256=ZIP,

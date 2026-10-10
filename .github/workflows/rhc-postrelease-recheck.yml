@@ -1,0 +1,64 @@
+name: RHC-110 Controlled Read-only Postrelease Recheck
+# Never publish/rebuild/modify tags or downloads. Only dispatch RHC-102 after
+# a reviewed, hosted-qualified corrective PR and a real failed previous audit.
+# GITHUB_TOKEN-created PR events/pushes may have zero jobs: workflow_run on the
+# completed cleanup workflow, plus an hourly bounded read-only sweep, are used.
+run-name: RHC110 RECHECK ${{ github.event_name }} public-main:${{ github.sha }}
+
+on:
+  workflow_run:
+    workflows: [RHC Verified Merged-Branch Cleanup]
+    types: [completed]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      corrective_pr:
+        description: Optional exact merged corrective PR number (does not override dedupe)
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+  actions: write
+
+concurrency:
+  group: rhc110-single-readonly-recheck-main
+  cancel-in-progress: false
+
+jobs:
+  readonly-controller:
+    name: Validate trusted correction and dispatch independently verified 3-job audit
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_EVENT_NAME: ${{ github.event_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 Node24 pinned
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate exact merged main, issue, owner review, 2OS CI, immutable ZIP/tag and old real RED
+        shell: bash
+        env:
+          RECOVERY_PR: ${{ inputs.corrective_pr || '' }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          if [ -n "$RECOVERY_PR" ]; then
+            [[ "$RECOVERY_PR" =~ ^[1-9][0-9]*$ ]]
+            python3 -B tools/rhc_postrelease_recheck.py \
+              --event-json "$GITHUB_EVENT_PATH" --corrective-pr "$RECOVERY_PR"
+          else
+            python3 -B tools/rhc_postrelease_recheck.py \
+              --event-json "$GITHUB_EVENT_PATH"
+          fi
