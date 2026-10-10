@@ -195,5 +195,76 @@ class AuditContract(unittest.TestCase):
                 "sha":HEAD,"status":"success","run_id":0,"job_count":0},NOW)
 
 
+    def test_incremental_event_saves_once_with_real_run_sha_and_job_readback(self):
+        gateway=Fake()
+        ev={"key":"work-101","issue":139,"sha":HEAD,
+            "status":"success","run_id":101,"job_count":3}
+        first=audit.record_verified_event(gateway,3101,ev,now=NOW,apply=True)
+        self.assertEqual(first["status"],"RECORDED")
+        self.assertEqual(gateway.calls,["update_comment"])
+        second=audit.record_verified_event(gateway,3101,ev,now=NOW,apply=True)
+        self.assertEqual(second["status"],"ALREADY_RECORDED")
+        self.assertEqual(gateway.calls,["update_comment"])
+        with self.assertRaises(ValueError):
+            audit.record_verified_event(gateway,3101,
+                                        dict(ev,job_count=1),now=NOW,apply=True)
+
+    def test_incremental_bad_or_zero_job_never_writes_comment(self):
+        gateway=Fake()
+        ev={"key":"work-101","issue":139,"sha":HEAD,
+            "status":"success","run_id":101,"job_count":3}
+        gateway.runs[101]["head_sha"]=SOURCE
+        with self.assertRaises(ValueError):
+            audit.record_verified_event(gateway,3101,ev,now=NOW,apply=True)
+        self.assertEqual(gateway.calls,[])
+
+    def test_release_mode_needs_all_real_stage_and_postrelease_jobs(self):
+        gateway=Fake()
+        gateway.pr["head"]["sha"]=STAGE
+        gateway.parents=[BASE,STAGE]
+        gateway.runs.update({
+            105:{"id":105,"name":"RHC Candidate Preflight","event":"workflow_dispatch",
+                 "status":"completed","conclusion":"success","head_sha":SOURCE},
+            106:{"id":106,"name":"RHC Interim Release","event":"workflow_dispatch",
+                 "status":"completed","conclusion":"success","head_sha":SOURCE},
+            107:{"id":107,"name":"RHC Downloads Integrity","event":"workflow_dispatch",
+                 "status":"completed","conclusion":"success","head_sha":STAGE},
+            108:{"id":108,"name":"RHC Independent Postrelease","event":"workflow_dispatch",
+                 "status":"completed","conclusion":"success","head_sha":MERGE},
+        })
+        gateway.jobs.update({
+            105:[job(20,"candidate linux"),job(21,"candidate windows"),
+                 job(22,"candidate aggregate")],
+            106:[job(23,"publish linux"),job(24,"publish windows"),
+                 job(25,"stage"),job(26,"finalizer")],
+            107:[job(27,"downloads hash check")],
+            108:[job(28,"https linux"),job(29,"native windows"),
+                 job(30,"aggregate")],
+        })
+        gateway.get_latest=lambda:{"version":"3.0.8.13","sourceSha":SOURCE,
+                                  "sha256":"f"*40,"size":100}
+        gateway.get_tag=lambda tag:SOURCE if tag=="v3.0.8.13" else None
+        p=proof()
+        p.update(mode="release",stage_sha=STAGE,source_sha=SOURCE,
+                 version="3.0.8.13",
+                 run_ids={"work":101,"candidate":105,"publisher":106,
+                          "downloads":107,"rhc102":108})
+        x=audit.finalize(gateway,p,now=NOW,apply=True)
+        self.assertEqual(x["status"],"COMPLETED")
+        self.assertEqual(x["run_count"],5)
+        self.assertEqual(gateway.issue["state"],"closed")
+        gateway2=Fake()
+        gateway2.pr["head"]["sha"]=STAGE
+        gateway2.parents=[BASE,STAGE]
+        gateway2.runs.update(gateway.runs)
+        gateway2.jobs.update(gateway.jobs)
+        gateway2.get_latest=gateway.get_latest
+        gateway2.get_tag=gateway.get_tag
+        gateway2.jobs[107]=[]
+        with self.assertRaises(ValueError):
+            audit.finalize(gateway2,p,now=NOW,apply=True)
+        self.assertEqual(gateway2.calls,[])
+
+
 if __name__=="__main__":
     unittest.main()
