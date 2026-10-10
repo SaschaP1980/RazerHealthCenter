@@ -45,7 +45,8 @@ provenance; hosted Linux plus separate native Windows/PowerShell 5.1; two
 deterministic EXE/seven-file ZIP builds and repair-safety; one exact combined
 source+four-downloads PR/merge; immutable tag/catalog/ZIP history; the separate
 authenticated exact-stage Downloads Integrity `workflow_dispatch` with a
-**genuine, correctly identified completed-success hosted job**; exact public
+**genuine, correctly identified completed-success hosted job** verified through
+`tools/rhc_workflow_reliability.py verify-hosted`; exact public
 readback and the independent RHC-102 public HTTPS ZIP + native Windows +
 three-job aggregate below. Absent, skipped, zero-job, stale, wrong-SHA or
 failed **mandatory** evidence blocks. Optional bot-origin `pull_request`
