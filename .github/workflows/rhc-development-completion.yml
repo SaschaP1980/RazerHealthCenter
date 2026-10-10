@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
   actions: read
   statuses: write
 
@@ -35,6 +36,12 @@ jobs:
           trap "status failure 'BLOCKED: incomplete or stale Work qualification'" ERR
           git fetch --no-tags origin main
           git log -1 --format=%B | grep -Fx 'Development-Completion: requested'
+          # RHC-115: independent authoritative Issue GET before Work is eligible
+          # for Candidate transfer; the provisional creation reply is insufficient.
+          ISSUE="$(git log -1 --format=%B | sed -n -E 's/^RHC-Issue: ([1-9][0-9]*)$/\1/p')"
+          [[ "$ISSUE" =~ ^[1-9][0-9]*$ ]] || { echo 'Missing unique responsible Issue trailer'; exit 1; }
+          test "$(git log -1 --format=%B | grep -Ec '^RHC-Issue: ')" = '1'
+          python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$ISSUE"
           CURRENT_MAIN="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
           test "$(git rev-parse origin/main)" = "$CURRENT_MAIN"
           test "$(git merge-base origin/main HEAD)" = "$CURRENT_MAIN"

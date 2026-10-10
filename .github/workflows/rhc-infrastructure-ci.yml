@@ -37,6 +37,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
 
 concurrency:
   group: rhc-infra-validation-${{ github.sha }}-${{ github.event_name }}
@@ -55,6 +56,16 @@ jobs:
         with:
           go-version: '1.23.2'
           cache: false
+      - name: RHC-115 canonical Issue readback for Work push
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/work/RHC-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NUMBER="${GITHUB_REF_NAME#work/RHC-}"
+          [[ "$NUMBER" =~ ^[1-9][0-9]*$ ]]
+          python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$NUMBER"
       - name: Verify strict current 4-part version, archive safety and nonpublishing policy
         shell: bash
         run: |
