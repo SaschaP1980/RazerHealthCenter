@@ -81,7 +81,7 @@ def verify_bootstrap(comment, issue_number, branch_created):
     # The original BOOTSTRAP ISO is separately persisted and compared to
     # GitHub's independent creation timestamp even after later edits.
     creation_proofs = re.findall(
-        r"(?m)^\\*\\*Bootstrap creation ISO timestamp:\\*\\* \`?([^\\s`]+)`?$",
+        r"(?m)^[*][*]Bootstrap creation ISO timestamp:[*][*] [`]?([0-9T:.-]+Z)[`]?$",
         body)
     if len(creation_proofs) != 1:
         raise ValueError("exactly one frozen BOOTSTRAP creation clock required")
