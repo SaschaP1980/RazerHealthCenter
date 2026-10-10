@@ -113,7 +113,11 @@ signed-production guard.
   as validation. For newly created Issues use the tested two-phase client
   `python3 tools/rhc_issue_init.py init --repository OWNER/REPO --subject
   'Descriptive subject' --body-file issue.md --label enhancement
-  --label 'priority: medium'` with an authenticated GitHub CLI.
+  --label 'priority: medium' --label 'dev-path: fast'` with an authenticated GitHub CLI.
+  The example `issue.md` MUST contain a specific line such as
+  `Development path: dev-path: fast — bounded reviewed documentation change`.
+  Add `--label dev-ops` for a GitHub/CI/infrastructure Issue and use
+  `--label 'dev-path: work-branch'` with its matching reason for complex work.
   This issues exactly one POST with a unique neutral provisional title and
   creation-time labels, locates the authoritative GitHub-assigned number via
   a unique read-only lookup and a separate numeric GET, then performs exactly
@@ -136,9 +140,29 @@ signed-production guard.
   that bypass it cannot be prevented from creating a provisional Issue, nor
   can repository CI prevent all branch creations before they occur. A universal
   GitHub-side enforcement feature is NOT CLAIMED; integrate other clients
-  explicitly before calling them protected. RHC-116's separate label/path
-  initialization work remains open; this `init` CLI at least requires one
-  type and one priority label at create time.
+  explicitly before calling them protected. RHC-116 strengthens creation with a type/priority/area/path check,
+  canonical title and strict saved-state readback. Path decisions are not
+  implementation or product-release approval.
+  **RHC-116 addition:** At creation, labels MUST already contain exactly
+  one `bug`/`enhancement`, exactly one known `priority:*`, and an
+  appropriate `dev-ops` for CI/GitHub/infrastructure. Every Issue needs an
+  explicit `Development path: ... — <specific reason>` line in its body.
+  Executable paths are `dev-path: fast` or `dev-path: work-branch` with
+  the **matching single label**, never both. External/legal/research-only
+  Issues use `Not applicable` with a concrete reason and no path label;
+  unchosen implementation paths use `PATH_DECISION_PENDING` with the
+  blocking reason and no path label. Neither permits development. The
+  `init` command supplies labels **on the first POST**, verifies they
+  persisted on the provisional Issue, and independently rechecks canonical
+  title/number/body/labels/decision following rename. For active development
+  always use `verify --for-development` (Work/CI/Candidate gates use it).
+  Title-only verification is insufficient. `audit` reports current open
+  Issue title/label/disposition drift, excludes PRs and never auto-edits.
+  `repair_issue_labels` uses narrowly scoped additive mutations and raw
+  GET reconciliation; conflicting priority/type/path changes require an
+  explicitly reviewed replacement transaction rather than accumulating
+  labels. No GitHub App or universal web-UI interception is implied.
+
 - **F6 / null CI steps:** Missing/null `steps` or `jobs` means evidence
   unavailable, not green. `normalize_job_steps` yields an empty evidence
   array; `verify_hosted_jobs` fails closed on a missing or empty job set.

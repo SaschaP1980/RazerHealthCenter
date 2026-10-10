@@ -7,6 +7,9 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "tools"))
 from rhc_issue_init import (InitializationBlocked, initialize_issue,
                             recover_issue, verify_issue)
 
+VALID_BODY = 'Development path: dev-path: fast — narrowly scoped example update'
+LABELS = ['enhancement', 'priority: high', 'dev-path: fast']
+
 
 class Gateway:
     def __init__(self):
@@ -25,7 +28,8 @@ class Gateway:
     def create(self, title, body, labels):
         self.creates += 1
         self.issues[self.number] = dict(number=self.number, title=title,
-                                        body=body, state="open")
+                                        body=body, state="open",
+                                        labels=[{'name': x} for x in labels])
         if self.create_raises:
             raise TimeoutError("uncertain creation result")
         return {"number": self.number + 1 if self.bad_response_number
@@ -76,7 +80,7 @@ class TitleContracts(unittest.TestCase):
 
     def test_create_and_independent_readback(self):
         g = Gateway()
-        result = initialize_issue(g, "Example", "Scope", ["enhancement"], nonce="aabbccddeeff")
+        result = initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")
         self.assertEqual(result["number"], 115)
         self.assertEqual(g.creates, 1)
         self.assertEqual(g.updates, 1)
@@ -85,13 +89,13 @@ class TitleContracts(unittest.TestCase):
     def test_missing_number_reconciles_without_duplicate(self):
         g = Gateway()
         g.numberless = True
-        self.assertEqual(initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")["number"], 115)
+        self.assertEqual(initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")["number"], 115)
         self.assertEqual(g.creates, 1)
 
     def test_uncertain_create_reconciles_without_second_create(self):
         g = Gateway()
         g.create_raises = True
-        self.assertEqual(initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")["number"], 115)
+        self.assertEqual(initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")["number"], 115)
         self.assertEqual(g.creates, 1)
 
     def test_ambiguous_duplicate_or_wrong_create_number_fails_closed(self):
@@ -99,7 +103,7 @@ class TitleContracts(unittest.TestCase):
             g = Gateway()
             setattr(g, flag, True)
             with self.subTest(flag=flag), self.assertRaises(InitializationBlocked):
-                initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")
+                initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")
             self.assertEqual(g.creates, 1)
             self.assertEqual(g.updates, 0)
 
@@ -108,26 +112,26 @@ class TitleContracts(unittest.TestCase):
             g = Gateway()
             setattr(g, flag, True)
             with self.subTest(flag=flag), self.assertRaises(InitializationBlocked):
-                initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")
+                initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")
             self.assertEqual(g.creates, 1)
         g = Gateway()
         g.update_raises = True
-        self.assertEqual(initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")["number"], 115)
+        self.assertEqual(initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")["number"], 115)
         self.assertEqual(g.updates, 1)
 
     def test_recover_existing_correct_does_not_write(self):
         g = Gateway()
         g.issues[115] = dict(number=115, title="[RHC-115] Example",
-                             body="Scope", state="open")
-        self.assertEqual(recover_issue(g, 115, "Example", "Scope")["number"], 115)
+                             body=VALID_BODY, state="open", labels=[{"name": x} for x in LABELS])
+        self.assertEqual(recover_issue(g, 115, "Example", VALID_BODY)["number"], 115)
         self.assertEqual(g.updates, 0)
         self.assertEqual(g.creates, 0)
 
     def test_recover_exact_provisional_and_reject_foreign(self):
         g = Gateway()
         g.issues[115] = dict(number=115, title="Initializing RHC Issue: Example [init-aabbccddeeff]",
-                             body="Scope", state="open")
-        self.assertEqual(recover_issue(g, 115, "Example", "Scope", nonce="aabbccddeeff")["number"], 115)
+                             body=VALID_BODY, state="open", labels=[{"name": x} for x in LABELS])
+        self.assertEqual(recover_issue(g, 115, "Example", VALID_BODY, nonce="aabbccddeeff")["number"], 115)
         self.assertEqual(g.updates, 1)
         with self.assertRaises(InitializationBlocked):
             recover_issue(g, 115, "Different", "Scope", nonce="aabbccddeeff")
@@ -136,7 +140,7 @@ class TitleContracts(unittest.TestCase):
         g = Gateway()
         g.create = lambda *_: None
         with self.assertRaises(InitializationBlocked):
-            initialize_issue(g, "Example", "Scope", [], nonce="aabbccddeeff")
+            initialize_issue(g, "Example", VALID_BODY, LABELS, nonce="aabbccddeeff")
 
     def test_verify_is_independent_from_create_response(self):
         g = Gateway()

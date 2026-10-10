@@ -139,8 +139,9 @@ def current_candidate():
     wb = "work/RHC-" + str(n)
     workhead = gh("git/ref/heads/" + wb)["object"]["sha"]
     # RHC-115: an independently fetched actual Issue must carry its own number.
-    from rhc_issue_init import verify_issue
-    responsible_issue = verify_issue(gh("issues/" + str(n)), n)
+    from rhc_issue_init import verify_initialized_issue
+    responsible_issue = verify_initialized_issue(gh("issues/" + str(n)), n,
+                                                  for_development=True)
     proof = qualify_candidate(source, base, cand, work, responsible_issue,
                               gh("commits/" + source + "/statuses"),
                               gh("commits/" + worksha + "/statuses"),

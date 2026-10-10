@@ -70,6 +70,117 @@ def verify_issue(issue, number, *, body=None, subject=None, require_open=True):
     return issue
 
 
+
+# RHC-116: explicit saved Issue taxonomy and development disposition.
+TYPES = frozenset(("bug", "enhancement"))
+PRIORITIES = frozenset(("priority: critical", "priority: high", "priority: medium", "priority: low"))
+PATHS = frozenset(("dev-path: fast", "dev-path: work-branch"))
+DISPOSITION = re.compile(
+    r"(?m)^Development path: (dev-path: fast|dev-path: work-branch|Not applicable|PATH_DECISION_PENDING) — ([^\r\n]+)$")
+WORK_AREA = re.compile(
+    r"(?i)\b(?:github|ci(?:/cd)?|workflow|devops|dev-ops|developer tool(?:ing)?|"
+    r"infrastructure|issue[- ](?:titles?|labels?|initializ(?:ation|ations)?)|release automation)\b")
+EXECUTABLE_SCOPE = re.compile(
+    r"(?i)\b(?:implement|implementation|code|build|workflow|developer|"
+    r"infrastructure|github|ci/cd|refactor|program|automation)\b")
+
+
+def _label_names(issue):
+    rows = issue.get("labels") if isinstance(issue, dict) else None
+    require(isinstance(rows, list), "Issue labels unavailable in independent GET")
+    names = [x.get("name") if isinstance(x, dict) else x for x in rows]
+    require(all(isinstance(n, str) and n.strip() == n and n for n in names),
+            "malformed label values")
+    require(len(names) == len(set(names)), "duplicate Issue label metadata")
+    return names
+
+
+def _taxonomy_from_scope(body, title):
+    """Require exactly one auditable owner path declaration, not incidental prose."""
+    matches = DISPOSITION.findall(body)
+    require(len(matches) == 1, "exactly one documented Development path decision required")
+    status, reason = matches[0]
+    require(len(reason.strip()) >= 12 and reason == reason.strip()
+            and not re.search(r"(?i)^(?:tbd|unknown|todo|none|n/a)\b", reason),
+            "development-path disposition needs a specific reason")
+    if status == "Not applicable":
+        require(not EXECUTABLE_SCOPE.search(title)
+                and not EXECUTABLE_SCOPE.search(reason),
+                "non-executable disposition contradicts executable scope")
+    return status, reason
+
+
+def issue_taxonomy(issue, *, for_development=False):
+    """Fail closed on type, priority, area and documented path decision."""
+    require(isinstance(issue, dict), "invalid saved Issue")
+    names = _label_names(issue)
+    types = [n for n in names if n in TYPES]
+    priorities = [n for n in names if n.startswith("priority:")]
+    paths = [n for n in names if n.startswith("dev-path:")]
+    require(len(types) == 1, "exactly one bug/enhancement label required")
+    require(len(priorities) == 1 and priorities[0] in PRIORITIES,
+            "exactly one recognized priority label required")
+    require(len(paths) <= 1 and all(p in PATHS for p in paths),
+            "ambiguous, conflicting or unknown development-path labels")
+    title = issue.get("title") or ""
+    body = issue.get("body") or ""
+    require(isinstance(title, str) and isinstance(body, str),
+            "Issue title/body unavailable")
+    area_required = bool(WORK_AREA.search(title))
+    require(("dev-ops" in names) == area_required,
+            "dev-ops work-area label inconsistent with Issue title")
+    status, reason = _taxonomy_from_scope(body, title)
+    if status in PATHS:
+        require(paths == [status], "Issue development path label does not match body decision")
+    else:
+        require(not paths, "pending or non-executable Issue must not have a dev-path label")
+    if for_development:
+        require(status in PATHS and paths == [status],
+                "development blocked pending explicit executable path decision")
+    return dict(type=types[0], priority=priorities[0], path=status,
+                reason=reason, devOps=area_required)
+
+
+def verify_initialized_issue(issue, number, *, body=None, subject=None,
+                             for_development=False, require_open=True):
+    """One independent GET proves canonical [RHC-N], labels and disposition."""
+    verified = verify_issue(issue, number, body=body, subject=subject,
+                            require_open=require_open)
+    issue_taxonomy(verified, for_development=for_development)
+    return verified
+
+
+def validate_create_request(subject, body, labels):
+    """Reject invalid scope before Issue POST; create-time labels mandatory."""
+    require(isinstance(body, str) and bool(body.strip()), "nonempty Issue scope required")
+    require(isinstance(labels, (tuple, list)), "Issue labels invalid")
+    # Provisional titles are not yet numbered; taxonomy operates on the subject.
+    issue_taxonomy(dict(title=subject, body=body, labels=list(labels)))
+    return True
+
+
+def repair_issue_labels(gateway, number, labels, *, for_development=False):
+    """One additive mutation on an exact Issue; no blind retries or replacements."""
+    before = gateway.get(number)
+    verify_issue(before, number)
+    require(isinstance(labels, (list, tuple)) and len(labels) == len(set(labels)),
+            "invalid or duplicated requested labels")
+    existing = _label_names(before)
+    missing = [name for name in labels if name not in existing]
+    potential = dict(before, labels=existing + missing)
+    issue_taxonomy(potential, for_development=for_development)
+    if not missing:
+        return verify_initialized_issue(gateway.get(number), number,
+                                        for_development=for_development)
+    require(hasattr(gateway, "add_labels"), "additive label API unavailable")
+    try:
+        gateway.add_labels(number, missing)
+    except Exception:
+        pass  # Uncertain write: reconcile only through independent GET, not replay.
+    return verify_initialized_issue(gateway.get(number), number,
+                                    for_development=for_development)
+
+
 def _candidate_number(gateway, provisional, body, created):
     # A matching response number helps, but a separate GET remains mandatory.
     response_number = created.get("number") if isinstance(created, dict) else None
@@ -96,7 +207,7 @@ def recover_issue(gateway, number, subject, body, *, nonce=None, log=None):
             and saved.get("body") == body and bool(body.strip()),
             "identified Issue missing/changed or body/state mismatch")
     if saved.get("title") == expected:
-        return verify_issue(gateway.get(number), number, body=body, subject=subject)
+        return verify_initialized_issue(gateway.get(number), number, body=body, subject=subject)
     require(nonce is not None and saved.get("title") == provisional_title(subject, nonce),
             "refusing to rename a foreign, stale or non-provisional Issue")
     try:
@@ -108,15 +219,14 @@ def recover_issue(gateway, number, subject, body, *, nonce=None, log=None):
             log("rename_response_unknown", number, str(exc))
         # Do not retry writes. Independent GET determines if the prior write worked.
     confirmed = gateway.get(number)
-    return verify_issue(confirmed, number, body=body, subject=subject)
+    return verify_initialized_issue(confirmed, number, body=body, subject=subject)
 
 
 def initialize_issue(gateway, subject, body, labels, *, nonce=None, log=None):
     """One create, unique-search reconciliation, one guarded rename, final GET."""
-    require(isinstance(body, str) and bool(body.strip()), "nonempty Issue scope required")
+    validate_create_request(subject, body, labels)
     nonce = nonce if nonce is not None else secrets.token_hex(8)
     temporary = provisional_title(subject, nonce)
-    require(isinstance(labels, (tuple, list)), "Issue labels invalid")
     created = None
     try:
         created = gateway.create(temporary, body, list(labels))
@@ -133,6 +243,9 @@ def initialize_issue(gateway, subject, body, labels, *, nonce=None, log=None):
             and initial.get("title") == temporary and initial.get("body") == body
             and initial.get("state") == "open" and "pull_request" not in initial,
             "provisional Issue stale, duplicated, missing or modified before rename")
+    initial_names = _label_names(initial)
+    require(set(initial_names) == set(labels) and len(initial_names) == len(labels),
+            "creation-time labels were not persisted exactly on provisional Issue")
     if log:
         log("authoritative_provisional_readback", number, temporary)
     confirmed = recover_issue(gateway, number, subject, body, nonce=nonce, log=log)
@@ -171,6 +284,9 @@ class GithubGateway:
     def update(self, number, title):
         return self._api("PATCH", "/issues/{}".format(number), dict(title=title))
 
+    def add_labels(self, number, labels):
+        return self._api("POST", "/issues/{}/labels".format(number), dict(labels=labels))
+
     def get(self, number):
         return self._api("GET", "/issues/{}".format(number))
 
@@ -196,12 +312,12 @@ def audit(gateway):
     """Read-only audit: never rewrite unrelated or historic Issue titles."""
     bad = []
     checked = 0
-    for row in gateway.all_issues(state="all"):
+    for row in gateway.all_issues(state="open"):
         if "pull_request" in row:
             continue
         checked += 1
         try:
-            verify_issue(row, row.get("number"), require_open=False)
+            verify_initialized_issue(row, row.get("number"), require_open=True)
         except InitializationBlocked as exc:
             bad.append(dict(number=row.get("number"), title=row.get("title"), error=str(exc)))
     return dict(result="PASS" if not bad else "NEEDS_CORRECTION",
@@ -224,6 +340,7 @@ def cli(argv=None):
     parser.add_argument("--body-sha256")
     parser.add_argument("--nonce")
     parser.add_argument("--label", action="append", default=[])
+    parser.add_argument("--for-development", action="store_true")
     args = parser.parse_args(argv)
     try:
         gateway = GithubGateway(args.repository)
@@ -234,12 +351,7 @@ def cli(argv=None):
         if args.command == "init":
             require(body is not None and args.subject is not None,
                     "init requires --subject and --body-file")
-            types = ("bug", "enhancement")
-            priorities = ("priority: critical", "priority: high",
-                          "priority: medium", "priority: low")
-            require(sum(x in types for x in args.label) == 1
-                    and sum(x in priorities for x in args.label) == 1,
-                    "Issue creation requires exactly one type and priority label (RHC-116)")
+            validate_create_request(args.subject, body, args.label)
             result = initialize_issue(gateway, args.subject, body, args.label,
                                       nonce=args.nonce, log=_event)
         elif args.command == "recover":
@@ -249,8 +361,9 @@ def cli(argv=None):
                                    nonce=args.nonce, log=_event)
         elif args.command == "verify":
             require(args.issue is not None, "verify requires numeric --issue")
-            result = verify_issue(gateway.get(args.issue), args.issue,
-                                  body=body, subject=args.subject)
+            result = verify_initialized_issue(gateway.get(args.issue), args.issue,
+                        body=body, subject=args.subject,
+                        for_development=args.for_development)
             if args.body_sha256:
                 require(hashlib.sha256(result["body"].encode()).hexdigest() ==
                         args.body_sha256, "saved body digest mismatch")

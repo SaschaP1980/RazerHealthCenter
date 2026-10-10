@@ -16,25 +16,25 @@ class Wiring(unittest.TestCase):
         workflow = self.file(".github/workflows/rhc-infrastructure-ci.yml")
         self.assertIn("RHC-115 canonical Issue readback for Work push", workflow)
         self.assertIn("issues: read", workflow)
-        self.assertIn('python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$NUMBER"', workflow)
+        self.assertIn('python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$NUMBER" --for-development', workflow)
         self.assertIn("github.event_name == 'push'", workflow)
 
     def test_development_completion_blocks_before_trusted_status(self):
         workflow = self.file(".github/workflows/rhc-development-completion.yml")
         self.assertIn("RHC-Issue: ([1-9][0-9]*)", workflow)
-        self.assertIn('python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$ISSUE"', workflow)
+        self.assertIn('python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$ISSUE" --for-development', workflow)
         self.assertLess(workflow.index("python3 tools/rhc_issue_init.py verify"),
                         workflow.index('CURRENT_MAIN="$(gh api'))
 
     def test_candidate_transfer_checks_live_issue_before_write(self):
         code = self.file("tools/rhc_candidate_from_work.py")
-        self.assertIn('verify_issue(gh("GET", "/issues/" + plan["issue"]), int(plan["issue"]))', code)
-        self.assertLess(code.index('verify_issue(gh("GET", "/issues/"'),
+        self.assertIn('verify_initialized_issue(gh("GET", "/issues/" + plan["issue"]),', code)
+        self.assertLess(code.index('verify_initialized_issue(gh("GET", "/issues/"'),
                         code.index('new = gh("POST", "/git/commits"'))
 
     def test_publisher_checks_actual_issue_before_staging(self):
         code = self.file("tools/rhc94_atomic_release.py")
-        self.assertIn('responsible_issue = verify_issue(gh("issues/" + str(n)), n)', code)
+        self.assertIn('responsible_issue = verify_initialized_issue(gh("issues/" + str(n)), n,', code)
         self.assertIn('workhead = gh("git/ref/heads/" + wb)', code)
         self.assertIn('proof = qualify_candidate(source, base, cand, work, responsible_issue,', code)
 

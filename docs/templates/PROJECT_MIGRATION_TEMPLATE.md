@@ -50,6 +50,8 @@ See [Git provenance](../GIT_PROVENANCE_CONTRACT.md), [Interim Contract](../REUSA
 - Confirm whether the GitHub repository is public. Scan source and historical logs for secrets/PII; document scan limits and inspect relevant files. Do not upload sensitive material into public history; removing it later does not erase history.
 - Freeze product-version and behavior scope. Initial repository bootstrap is not permission for an application update, firmware/service modification, signing decision or production release.
 - Create one migration Issue with acceptance gates and known limitations. Use actual GitHub Issue #N, rename to `[<CODE>-N]`, and document path decisions and unresolved questions.
+- **New RHC-116 taxonomy gate:** supply exactly one type (`bug` or `enhancement`) and exactly one valid `priority:*` at initial Issue creation, plus `dev-ops` for GitHub/CI/developer infrastructure. Independently verify saved labels, number, title, body and explicit `Development path: dev-path: fast/work-branch — reason` (executable), `Not applicable — reason` (external/legal/research only), or `PATH_DECISION_PENDING — reason` (development blocked). Only one matching path label may accompany executable work. Never infer a path from the issue number, write only after readback, and exclude open PRs from Issue audits. An uncertain create/write must be reconciled by GET, not reissued. Preserve unrelated existing labels.
+
 
 ### Recovery bootstrap — mandatory before the first Work-Path mutation
 
