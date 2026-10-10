@@ -91,6 +91,15 @@ class NoiseContracts(unittest.TestCase):
         self.assertEqual(events[0]["classification"], "ACTUAL_HOSTED_JOB_FAIL")
         self.assertEqual(events[0]["actualJobs"], 1)
 
+    def test_failed_workflow_with_all_successful_jobs_is_not_relabelled_success(self):
+        r = run(38043054293, WF_DOWNLOADS, conclusion="failure")
+        result = classify_supplementary(PR,SHA,[r],{r["id"]:[
+            dict(id=5,run_id=r["id"],name="actual job",
+                 status="completed",conclusion="success")]})
+        self.assertNotEqual(result[0]["classification"],
+                            "SUPPLEMENTARY_HOSTED_SUCCESS_NOT_TRUSTED_DISPATCH")
+        self.assertEqual(result[0]["conclusion"],"failure")
+
     def test_human_pr_failed_zero_job_is_not_labeled_bot_noise(self):
         pr = dict(PR, user={"login":"contributor"})
         r = run(38043054293, WF_DOWNLOADS, actor={"login":"contributor"})
