@@ -46,6 +46,56 @@ For a new qualified interim version the Candidate's exact-SHA Linux/native Windo
 
 `action_required`, zero jobs, skipped/cancelled jobs, stale commits, pending runs, missing binary evidence and local/checkout-only checks **never** establish that the independent release cycle finished. A GitHub-bot PR webhook is not a replacement for the trusted exact-main `workflow_dispatch`. The verifier's narrow PR-close entry for RHC-102 itself is historical infrastructure acceptance only. If a publisher merged but verification or cleanup failed, report the actual partial state `BLOCKED/NEEDS_ATTENTION`; do not rerun a mutation without readback of remote refs. See [release contract](REUSABLE_INTERIM_RELEASE_CONTRACT.md). A future fresh-release repeatability test remains separate ([RHC-105](https://github.com/SaschaP1980/RazerHealthCenter/issues/105)).
 
+### RHC-114 supplemental zero-job PR event diagnostic (nonpublishing)
+
+For an automated combined interim Release PR, GitHub may create separate
+`pull_request` workflow records that end `failure` with **zero actual jobs**.
+This is neither a successful check nor evidence that a test assertion failed.
+The GitHub run's original conclusion, exact head SHA, actor, workflow ID and
+job count must remain visible. **Do not** guess a `GITHUB_TOKEN` restriction
+as the cause solely from the actor or absence of jobs, and never mark an
+`action_required`, skipped, cancelled, pending or zero-job run GREEN.
+
+After reading the immutable staged SHA, bot-created combined release PR number
+and the **independently trusted** explicit Downloads Integrity dispatch run ID,
+operators may run the *read-only* report from an authenticated `gh` CLI:
+
+```bash
+python3 -B tools/rhc114_ci_noise.py \
+  --repository OWNER/REPOSITORY \
+  --pr NUMBER \
+  --stage-sha EXACT_40_HEX_RELEASE_PR_HEAD \
+  --trusted-run-id VERIFIED_TRUSTED_DISPATCH_RUN_ID \
+  --trusted-workflow-id VERIFIED_DOWNLOADS_INTEGRITY_WORKFLOW_ID
+```
+
+It only issues bounded GitHub API **GET** requests for PR identity,
+staged-head `pull_request` workflow runs, each actual job list, the chosen
+trusted `workflow_dispatch` run and its actual jobs. It fails closed if
+provenance is ambiguous/stale, API pages are incomplete, the trusted run has
+zero jobs, or any mandatory hosted job fails/skips/cancels. Optional PR
+`failure`/zero-job events are reported separately as
+`SUPPLEMENTARY_ZERO_JOB_FAILURE`; actual executed failed jobs remain
+`ACTUAL_HOSTED_JOB_FAIL` and require operator review. `trustedGate`
+may be `TRUSTED_HOSTED_PASS` **only** for a completed-success authenticated,
+correct-SHA explicit dispatch with genuine completed-success hosted jobs.
+The overall report does **not** mean all related GitHub checks are green,
+does not set status contexts, and must not be used as the sole publisher gate.
+Output captures each historical run ID, exact SHA, actor, conclusion,
+timestamps and job count. Event timings are compared with PR merge time only
+when available; performance gain and the underlying no-job cause remain
+`NOT VERIFIED` without independent proof.
+
+This classification deliberately leaves existing human-authored PR
+`pull_request` triggers, exact Linux/native-Windows Candidate gates, staged
+Downloads Integrity, immutable catalog/ZIP/tag requirements and independent
+RHC-102 HTTPS + native Windows + aggregate postrelease proof **unchanged**.
+There is no new credential, admin ruleset change, suppression of a real
+failure, release trigger or universal GitHub event fix. If future automation
+needs to remove GitHub-created zero-job run objects, obtain separately
+reviewed and evidenced trigger/platform scope; this tool reports them
+accurately rather than promising GitHub will stop emitting them.
+
 ### RHC-110 automatic corrective recheck (no additional release)
 
 The default path is automatic: after merging a reviewed, Issue-backed **verification-only Work PR**, the [verified branch cleanup](../.github/workflows/rhc-branch-cleanup.yml) finishes and [the read-only RHC-110 controller](../.github/workflows/rhc-postrelease-recheck.yml) is notified by a trusted `workflow_run` completion. A bounded hourly schedule can recover missed bot-origin webhook activity; optional manual controller `workflow_dispatch` selects an exact corrective PR without overriding fail-closed guards. The controller checks exact merged `main`/PR/issue/review/Work Linux+Windows jobs, preserves public ZIP and source tag, finds the historical failed RHC-102 run, rejects already-dispatched current-main verification and refuses publication activity.
