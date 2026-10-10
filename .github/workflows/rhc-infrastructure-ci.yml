@@ -65,7 +65,7 @@ jobs:
           set -euo pipefail
           NUMBER="${GITHUB_REF_NAME#work/RHC-}"
           [[ "$NUMBER" =~ ^[1-9][0-9]*$ ]]
-          python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$NUMBER"
+          python3 tools/rhc_issue_init.py verify --repository "$GITHUB_REPOSITORY" --issue "$NUMBER" --for-development
       - name: Verify strict current 4-part version, archive safety and nonpublishing policy
         shell: bash
         run: |
