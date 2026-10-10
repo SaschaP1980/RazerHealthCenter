@@ -113,5 +113,18 @@ class RHC126ReleaseContractTests(unittest.TestCase):
         self.assertIn('test "$(git rev-parse "$STAGED^")" = "$SOURCE"', self.w)
 
 
+    def test_rhc124_forensic_suite_retained_but_never_a_publisher_dependency(self):
+        # Historical extra-suite evidence remains useful for diagnostics,
+        # but no GitHub App or those five jobs are a release prerequisite.
+        helper = ROOT / "tools/rhc124_pr_ci.py"
+        self.assertTrue(helper.is_file())
+        text = helper.read_text(encoding="utf-8")
+        self.assertIn("verify_check_suites", text)
+        self.assertNotIn("rhc124_pr_ci.py", self.w)
+        contract = (ROOT / "docs/REUSABLE_INTERIM_RELEASE_CONTRACT.md").read_text(encoding="utf-8")
+        self.assertIn("archival read-only forensic helper", contract)
+        self.assertIn("rhc_workflow_reliability.py verify-hosted", contract)
+
+
 if __name__ == "__main__":
     unittest.main()
