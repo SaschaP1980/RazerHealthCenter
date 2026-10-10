@@ -27,6 +27,14 @@ Every source/release PR links responsible Issues. Historical version-specific ow
 
 Project process requires PRs, but current GitHub ruleset may not technically enforce required PRs: always read live effective protections. No unapproved admin permissions/policy modifications, self-approval or direct main bypass.
 
+## RHC-102: independent hosted postrelease contract (mandatory)
+
+The live [publisher](../.github/workflows/rhc-reusable-interim-release.yml) dispatches the [independent verifier](../.github/workflows/rhc-postrelease-verification.yml) via `workflow_dispatch --ref main`, supplying the **actual merged** `expected_main_sha`, frozen Candidate `expected_source_sha`, current four-part `version` and `expected_release_pr`. The verifier independently checks the single combined PR lineage, unchanged prior archives/catalog and matching source tag. On Ubuntu it performs an **actual HTTPS fetch** of the public ZIP at the exact main SHA and validates remote size, SHA-256, internal checksum manifest and payload allowlist. On **windows-2025** it checks the actual packaged PE, PowerShell 5.1/repair safety and unsigned Authenticode state. Its aggregate only succeeds if both platforms succeeded.
+
+Require independently observed `RHC102_INDEPENDENT_HTTPS=PASS`, `RHC102_INDEPENDENT_WINDOWS=PASS` and `RHC102_INDEPENDENT_POSTRELEASE=PASS`, followed by the publisher's `RHC102_HOSTED_POSTRELEASE_THREE_JOB_GATE=PASS` gate for **exactly three actual completed-success jobs** on the expected SHA and correct dispatch event. GitHub `action_required`, skipped/cancelled jobs, zero-job workflow records, pending/stale runs, incorrect refs or failed remote bytes **must not qualify**. Keep actual run IDs, job URLs, immutable SHAs and any partial failure in the responsible Issue ledger. Do not treat `RHC_PUBLICATION=PASS_POSTRELEASE_PENDING` as a completed release. The workflow's tightly restricted RHC-102 infrastructure `pull_request` acceptance trigger is not a universal release-PR shortcut.
+
+The separate [downloads-integrity](../.github/workflows/rhc-downloads-verify.yml) workflow is a useful **nonpublishing** historical/read-only HTTPS audit, not proof of the entire RHC-102 postrelease contract. A previously green release does not establish reproducibility of the **next** release's dispatch pipeline: [RHC-105](https://github.com/SaschaP1980/RazerHealthCenter/issues/105) tracks that future real-world end-to-end exercise. No verification here certifies real hardware, rollback, signing, or SmartScreen trust in interim mode.
+
 ## RHC-98: Immutable retry after a failed unpublished Candidate
 
 An existing Candidate source commit and branch remain immutable forensic evidence,
