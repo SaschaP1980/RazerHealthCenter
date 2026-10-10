@@ -1,0 +1,86 @@
+name: RHC-131 CI Timing Audit (read-only)
+
+# Opt-in audit. It has no workflow_run / push / PR trigger, cannot publish,
+# and its report must never be used as a release approval or green check.
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "Comma-separated completed GitHub Actions run IDs (1-25)"
+        required: true
+        type: string
+      issue:
+        description: "Optional owning GitHub Issue number"
+        required: false
+        type: string
+      version:
+        description: "Optional four-part version (metadata only)"
+        required: false
+        type: string
+      work_sha:
+        description: "Optional exact Work SHA (metadata only)"
+        required: false
+        type: string
+      candidate_sha:
+        description: "Optional exact Candidate SHA (metadata only)"
+        required: false
+        type: string
+      stage_sha:
+        description: "Optional exact staged PR SHA (metadata only)"
+        required: false
+        type: string
+      public_sha:
+        description: "Optional exact published main SHA (metadata only)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  report:
+    name: Generate SHA-evidenced timing report without release authority
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 Node 24
+        with:
+          persist-credentials: false
+      - name: Verify RHC-131 timing report contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s tests -p 'test_rhc_131_timing_contracts.py' -v
+      - name: Retrieve real GitHub run/job/step evidence, then emit nonauthoritative report
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RHC131_RUN_IDS: ${{ inputs.run_ids }}
+          RHC131_ISSUE: ${{ inputs.issue }}
+          RHC131_VERSION: ${{ inputs.version }}
+          RHC131_WORK_SHA: ${{ inputs.work_sha }}
+          RHC131_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          RHC131_STAGE_SHA: ${{ inputs.stage_sha }}
+          RHC131_PUBLIC_SHA: ${{ inputs.public_sha }}
+        run: |
+          set -euo pipefail
+          args=(--repository "$GITHUB_REPOSITORY" --run-ids "$RHC131_RUN_IDS" --out-dir "$RUNNER_TEMP/rhc131-audit")
+          if [ -n "$RHC131_ISSUE" ]; then args+=(--issue "$RHC131_ISSUE"); fi
+          if [ -n "$RHC131_VERSION" ]; then args+=(--version "$RHC131_VERSION"); fi
+          if [ -n "$RHC131_WORK_SHA" ]; then args+=(--work-sha "$RHC131_WORK_SHA"); fi
+          if [ -n "$RHC131_CANDIDATE_SHA" ]; then args+=(--candidate-sha "$RHC131_CANDIDATE_SHA"); fi
+          if [ -n "$RHC131_STAGE_SHA" ]; then args+=(--stage-sha "$RHC131_STAGE_SHA"); fi
+          if [ -n "$RHC131_PUBLIC_SHA" ]; then args+=(--public-sha "$RHC131_PUBLIC_SHA"); fi
+          python3 -B tools/rhc131_timing.py "${args[@]}"
+          test -s "$RUNNER_TEMP/rhc131-audit/rhc131-timing.json"
+          test -s "$RUNNER_TEMP/rhc131-audit/rhc131-timing.tsv"
+          test -s "$RUNNER_TEMP/rhc131-audit/rhc131-summary.txt"
+          cat "$RUNNER_TEMP/rhc131-audit/rhc131-summary.txt" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload nonauthoritative timing JSON, TSV and summary only
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 Node 24
+        with:
+          name: rhc131-readonly-timing-${{ github.run_id }}
+          path: ${{ runner.temp }}/rhc131-audit/
+          retention-days: 7
+          if-no-files-found: error
