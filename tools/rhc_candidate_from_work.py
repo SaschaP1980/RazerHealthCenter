@@ -284,8 +284,9 @@ def main():
         statuses=statuses, policy=policy,
         candidateExists=existing is not None, retry=retry))
     # RHC-115: exact numeric Issue/title/body readback BEFORE Candidate mutation.
-    from rhc_issue_init import verify_issue
-    verify_issue(gh("GET", "/issues/" + plan["issue"]), int(plan["issue"]))
+    from rhc_issue_init import verify_initialized_issue
+    verify_initialized_issue(gh("GET", "/issues/" + plan["issue"]),
+                             int(plan["issue"]), for_development=True)
     candidate_ref = plan['branch']
     # Exclusive mutation boundary; verify live refs again before any write.
     require(gh("GET", "/branches/main")["commit"]["sha"] == main_sha, "main moved")
