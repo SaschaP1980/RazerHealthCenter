@@ -234,17 +234,24 @@ class AuditContract(unittest.TestCase):
         })
         for actual_id in (105,106,107,108):
             gateway.runs[actual_id]["actor"]={"login":"github-actions[bot]"}
+        # Real completed hosted v3.0.8.12 run/job naming from #129:
+        # Candidate #38078230959, publisher #38078329081,
+        # downloads #38078501688, RHC102 #38078536667.
         gateway.jobs.update({
-            105:[job(20,"candidate linux"),job(21,"candidate windows"),
-                 job(22,"candidate aggregate")],
-            106:[job(23,"publish linux"),job(24,"publish windows"),
-                 job(25,"stage"),job(26,"finalizer")],
-            107:[job(27,"downloads hash check")],
-            108:[job(28,"https linux"),job(29,"native windows"),
-                 job(30,"aggregate")],
+            105:[job(20,"Windows native PowerShell 5.1 and Go Candidate safety"),
+                 job(21,"Linux Candidate exact-main and deterministic Go artifacts"),
+                 job(22,"Exact-SHA Candidate qualification (nonpublishing)")],
+            106:[job(23,"Exact-candidate double Linux PE/ZIP and isolated catalog verification"),
+                 job(24,"Actual native Windows PS5.1 and unsigned EXE/ZIP safety verification"),
+                 job(25,"Stage single immutable ZIP/catalog PR only after both OS success"),
+                 job(26,"Independently verify exact-stage downloads then merge, tag, remote hash and cleanup")],
+            107:[job(27,"Validate ZIP manifest and unmodified release history")],
+            108:[job(28,"Independently GET HTTPS public ZIP and exact release graph"),
+                 job(29,"Independently reverify released EXE and native PS5.1 Razer safety"),
+                 job(30,"Conclude only after independent HTTPS AND native Windows success")],
         })
         gateway.get_latest=lambda:{"version":"3.0.8.13","sourceSha":SOURCE,
-                                  "sha256":"f"*40,"size":100}
+                                  "sha256":"f"*64,"size":100}
         gateway.get_tag=lambda tag:SOURCE if tag=="v3.0.8.13" else None
         p=proof()
         p.update(mode="release",stage_sha=STAGE,source_sha=SOURCE,
@@ -278,6 +285,19 @@ class AuditContract(unittest.TestCase):
             audit.finalize(gateway3,p,now=NOW,apply=True)
         self.assertEqual(gateway3.calls,[])
 
+
+    def test_job_roles_must_be_distinct_actual_hosted_jobs(self):
+        gateway=Fake()
+        # One misleading successful job cannot satisfy Windows, Linux, Node24
+        # even if its single display name contains all three substrings.
+        gateway.jobs[101]=[
+            job(1,"rhc/infra/linux rhc/infra/windows rhc/infra/artifact-node24"),
+            job(2,"irrelevant worker"),
+            job(3,"irrelevant worker 2"),
+        ]
+        with self.assertRaises(ValueError):
+            audit.finalize(gateway,proof(),now=NOW,apply=True)
+        self.assertEqual(gateway.calls,[])
 
     def test_failed_issue_close_leaves_waiting_not_false_completed(self):
         gateway=Fake()
