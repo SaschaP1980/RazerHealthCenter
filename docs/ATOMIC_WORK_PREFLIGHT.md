@@ -23,7 +23,9 @@ taxonomy, exactly one priority/type/path label and one explicit
 `Development path: dev-path: work-branch — ...` decision.
 
 A full canonical Rolling Comment must already exist **before the Work
-branch**. The CLI reads the saved comment ID over GitHub GET, verifies
+branch**. For a freshly created BOOTSTRAP comment, persist the original millisecond ISO clock in the separate **`Bootstrap creation ISO timestamp`** field and keep it unchanged after creation. A later edit refreshes the three ordinary heartbeat lines. Preflight verifies the frozen birth timestamp against GitHub `created_at`, the refreshed live heartbeat against GitHub `updated_at`, and chronological ordering; it rejects missing, duplicated or conflicting proof, and never treats an updated heartbeat as the original creation instant. This is read-back evidence rather than cryptographic tamper-proof history.
+
+The CLI reads the saved comment ID over GitHub GET, verifies
 all 13 singleton headings, correct Issue/Work identity, one common
 ISO/UTC/Europe-Berlin heartbeat, its original time close to comment
 creation, and an affirmative BOOTSTRAP readback. Missing/bad clocks, the

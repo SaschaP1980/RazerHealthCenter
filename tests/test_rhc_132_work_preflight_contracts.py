@@ -31,8 +31,10 @@ def issue():
 
 def comment():
     return {"id": 3001, "created_at": "2026-10-10T21:00:01Z",
+            "updated_at": "2026-10-10T21:00:01Z",
             "body": "\n".join("### " + h for h in HEADINGS) +
             "\n**Original ISO timestamp:** 2026-10-10T21:00:00.123Z" +
+            "\n**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z" +
             "\n**Last heartbeat:** 2026-10-10 at 21:00:00 UTC" +
             "\n**Local reference (Europe/Berlin):** 10.10.2026, 23:00:00 CEST" +
             "\n**Issue:** [RHC-132](https://github.com/SaschaP1980/RazerHealthCenter/issues/132)" +
@@ -83,6 +85,49 @@ class Contract(unittest.TestCase):
                   {"comment":dict(old,body=old["body"].replace("23:00:00 CEST","21:00:00 CEST"))}):
             with self.subTest(p=p), self.assertRaises(ValueError):
                 hotfix.plan(**data(**p))
+
+    def test_delayed_valid_rolling_heartbeat_does_not_invalidate_original_creation(self):
+        old = comment()
+        refreshed = old["body"].replace(
+            "**Original ISO timestamp:** 2026-10-10T21:00:00.123Z",
+            "**Original ISO timestamp:** 2026-10-10T21:03:45.345Z").replace(
+            "**Last heartbeat:** 2026-10-10 at 21:00:00 UTC",
+            "**Last heartbeat:** 2026-10-10 at 21:03:45 UTC").replace(
+            "**Local reference (Europe/Berlin):** 10.10.2026, 23:00:00 CEST",
+            "**Local reference (Europe/Berlin):** 10.10.2026, 23:03:45 CEST")
+        saved = dict(old, body=refreshed, updated_at="2026-10-10T21:03:46Z")
+        hotfix.verify_bootstrap(saved, 132, "2026-10-10T21:01:00Z")
+
+    def test_missing_or_forged_original_creation_proof_is_blocked(self):
+        old = comment()
+        for corrupted in (
+            old["body"].replace(
+                "\n**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z", ""),
+            old["body"].replace(
+                "**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z",
+                "**Bootstrap creation ISO timestamp:** 2026-10-10T20:50:00.123Z"),
+            old["body"].replace(
+                "**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z",
+                "**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z\n"
+                "**Bootstrap creation ISO timestamp:** 2026-10-10T21:00:00.123Z"),
+        ):
+            with self.subTest(corrupted=corrupted[-120:]), self.assertRaises(ValueError):
+                hotfix.verify_bootstrap(dict(old, body=corrupted), 132, "2026-10-10T21:01:00Z")
+
+    def test_current_heartbeat_must_match_saved_github_edit_time(self):
+        old = comment()
+        for changed in (
+            dict(old, updated_at="2026-10-10T21:05:01Z"),
+            dict(old, updated_at="2026-10-10T20:59:00Z"),
+            dict(old, updated_at=None),
+        ):
+            with self.subTest(updated_at=changed["updated_at"]), self.assertRaises(ValueError):
+                hotfix.verify_bootstrap(changed, 132, "2026-10-10T21:01:00Z")
+
+    def test_creation_after_branch_still_rejected_when_comment_is_fresh(self):
+        old = comment()
+        with self.assertRaises(ValueError):
+            hotfix.verify_bootstrap(old, 132, "2026-10-10T20:59:00Z")
 
     def test_wrong_main_sha_branch_or_version_rejected(self):
         for p in ({"readback_main_sha":"b"*40},

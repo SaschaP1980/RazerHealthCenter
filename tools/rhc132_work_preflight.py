@@ -76,9 +76,26 @@ def verify_bootstrap(comment, issue_number, branch_created):
         raise ValueError("UTC heartbeat differs from one ISO instant")
     if local.group(1) != berlin(instant):
         raise ValueError("Berlin heartbeat differs from ISO instant")
+    # The current rolling heartbeat is refreshed on every substantive edit.
+    # Its GitHub clock counterpart is updated_at, not immutable created_at.
+    # The original BOOTSTRAP ISO is separately persisted and compared to
+    # GitHub's independent creation timestamp even after later edits.
+    creation_proofs = re.findall(
+        r"(?m)^[*][*]Bootstrap creation ISO timestamp:[*][*] [`]?([0-9T:.-]+Z)[`]?$",
+        body)
+    if len(creation_proofs) != 1:
+        raise ValueError("exactly one frozen BOOTSTRAP creation clock required")
+    bootstrap = clock(creation_proofs[0])
     created = clock(comment.get("created_at"))
-    if abs((created - instant).total_seconds()) > 30:
-        raise ValueError("comment original heartbeat is stale against creation")
+    updated = clock(comment.get("updated_at"))
+    if abs((created - bootstrap).total_seconds()) > 30:
+        raise ValueError("BOOTSTRAP creation proof differs from GitHub created_at")
+    if updated < created:
+        raise ValueError("GitHub comment updated_at precedes creation")
+    if abs((updated - instant).total_seconds()) > 30:
+        raise ValueError("current rolling heartbeat differs from GitHub updated_at")
+    if instant < bootstrap - timedelta(seconds=30):
+        raise ValueError("rolling heartbeat predates original BOOTSTRAP")
     if created >= clock(branch_created):
         raise ValueError("BOOTSTRAP comment created after Work branch")
     if f"issues/{issue_number}" not in body or (
