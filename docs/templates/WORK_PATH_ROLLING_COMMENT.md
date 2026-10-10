@@ -12,6 +12,8 @@ Use as soon as a durable `work/RHC-<GitHub Issue number>` Work-Path is explicitl
 
 Ordinary Fast-Paths and one-commit documentation updates do not require this Work-Path Rolling Comment.
 
+The initial BOOTSTRAP comment also records exactly one **`Bootstrap creation ISO timestamp`** equal to the initial `Original ISO timestamp`; it remains frozen across later edits. On every later update the three regular heartbeat lines are refreshed from one new instant and checked against GitHub `updated_at`, **not** `created_at`. The frozen BOOTSTRAP timestamp remains independently checked against GitHub `created_at`. A missing, duplicated, stale, altered or contradictory creation proof blocks preflight. GitHub Issue comments are editable: this is an independently read back evidence contract, not cryptographic immutability or a server-side compare-and-swap guarantee.
+
 Maintain one cumulative Issue comment. **Update each singleton section in place**, never append duplicate stale Candidate/Release sections. Numbered attempt sections are unique by attempt. Retain actual failures, counts and retries even when final status becomes PASS.
 
 **ACTIVE cadence (LBS parity):** Maximum approximately **3 minutes** between verified in-place Rolling Comment heartbeats during active Work-Path execution, independently of whether a code commit is ready. Immediately update before long/high-risk sequences. Minimal truthful liveness text is permitted if nothing new happened; do not create a timer-only Git commit. Exceptions require accurately recorded `WAITING_FOR_GITHUB` plus exact queued/in-progress run, verified `BLOCKED_EXTERNAL`, genuine `IDLE`/`STOPPED`, or terminal `COMPLETED`. ACTIVE older than ~3 minutes is a missed heartbeat; older than ~5 minutes without a verified live workflow means resume as a stopped stream from GitHub Issue/main/Work SHA/checkpoint/CI. Persist a separate coherent code checkpoint within ~10–15 minutes of substantive completed uncommitted work. On closure correct stale branch/status fields and record deviations with evidence.
@@ -62,6 +64,7 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 **Last heartbeat:** <YYYY-MM-DD at HH:mm:ss UTC, derived from the same verified instant>
 **Local reference (Europe/Berlin):** <DD.MM.YYYY, HH:mm:ss CET or CEST, de-DE for that instant>
 **Original ISO timestamp:** `<YYYY-MM-DDTHH:mm:ss.sssZ from the one freshly verified UTC instant>`
+**Bootstrap creation ISO timestamp:** `<same original ISO value from initial BOOTSTRAP creation; retain unchanged through all future edits>`
 **Agent-State:** ACTIVE | WAITING_FOR_GITHUB | BLOCKED_EXTERNAL | STOPPED | COMPLETED
 **Issue:** [RHC-<number>](https://github.com/SaschaP1980/RazerHealthCenter/issues/<number>)
 **Base main:** `<SHA>`
