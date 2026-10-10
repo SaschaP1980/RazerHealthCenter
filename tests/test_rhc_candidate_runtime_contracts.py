@@ -35,6 +35,7 @@ class Server:
         self.main_moved = False
         self.model_tampered = False
         self.fail_dispatch = False
+        self.issue_title = "[RHC-18] Prepare a qualified test Candidate"
 
     def api(self, method, path, payload=None, optional404=False):
         if method == "POST":
@@ -57,6 +58,8 @@ class Server:
         if path == "/branches/main":
             self.main_reads += 1
             return {"commit": {"sha": B if self.main_moved and self.main_reads > 1 else A}}
+        if path == "/issues/18":
+            return {"number": 18, "title": self.issue_title, "body": "Verified test Issue scope", "state": "open"}
         if path == "/git/ref/heads/work/RHC-18":
             return {"object": {"sha": B}}
         if path == "/git/commits/" + B:
@@ -121,6 +124,15 @@ class CandidateApiSimulation(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.execute(server)
         self.assertEqual(server.writes, [])
+
+    def test_malformed_responsible_issue_title_blocks_candidate_before_any_post(self):
+        for title in ("RHC: missing", "[RHC] incomplete", "[RHC-17] wrong number",
+                      "[RHC-18]", "Initializing RHC Issue: temporary [init-aabbccddeeff]"):
+            server = Server()
+            server.issue_title = title
+            with self.subTest(title=title), self.assertRaises(ValueError):
+                self.execute(server)
+            self.assertEqual(server.writes, [])
 
     def test_main_advance_fails_before_mutation(self):
         server = Server()
