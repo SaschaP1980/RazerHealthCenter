@@ -160,6 +160,9 @@ def _collect_run(raw, jobs_by_run, expected_sha):
     reported = entry.get("total_count")
     if not isinstance(reported, int) or reported < len(jobs):
         reported = None
+    reused_attempt_listings = entry.get("reused_attempt_job_listings", 0)
+    if type(reused_attempt_listings) is not int or reused_attempt_listings < 0:
+        reused_attempt_listings = None
     attempt = raw.get("run_attempt", 1)
     if type(attempt) is not int or attempt < 1:
         attempt = None
@@ -205,7 +208,9 @@ def _collect_run(raw, jobs_by_run, expected_sha):
         "completion_verification": "OBSERVED_COMPLETED_RUN" if complete else "NOT_VERIFIED",
         "observed_run_window_seconds": seconds_between(raw.get("created_at"), observed_until)
         if complete else None,
-        "reported_job_count": reported, "classification": classification,
+        "reported_job_count": reported,
+        "reused_attempt_job_listings": reused_attempt_listings,
+        "classification": classification,
         "jobs": report_jobs,
     }
 
@@ -353,6 +358,8 @@ def collect(repo, identifiers):
             raise ValueError("unsupported run attempt count")
         combined = []
         seen_ids = set()
+        earlier_windows = set()
+        reused_listings = 0
         for attempt in range(1, attempt_count + 1):
             page = 1
             while True:
@@ -364,12 +371,23 @@ def collect(repo, identifiers):
                     job_id = item.get("id")
                     if type(job_id) is not int or job_id < 1:
                         raise ValueError("missing actual GitHub job ID")
+                    fingerprint = (
+                        item.get("name"), item.get("started_at"),
+                        item.get("completed_at"), item.get("conclusion"))
                     if job_id in seen_ids:
-                        # GitHub's attempt-N listing can repeat unchanged
-                        # Windows jobs under a later attempt. Only the
-                        # earliest occurrence provides truthful provenance.
+                        # Same ID repeated across GitHub attempt responses.
+                        reused_listings += 1
+                        continue
+                    if attempt > 1 and fingerprint in earlier_windows:
+                        # Rerun-failed-jobs can copy untouched successful
+                        # Windows job evidence under a different attempt
+                        # listing and even a different job ID. Coincident
+                        # name/times/conclusion is conservatively treated
+                        # as reused evidence; disclose the number excluded.
+                        reused_listings += 1
                         continue
                     seen_ids.add(job_id)
+                    earlier_windows.add(fingerprint)
                     item["run_attempt"] = attempt
                     combined.append(item)
                 if len(items) < 100:
@@ -378,7 +396,10 @@ def collect(repo, identifiers):
                 if page > 10:
                     raise ValueError("too many job pages")
         result["runs"].append(run)
-        result["jobs_by_run"][ident] = {"total_count": len(combined), "jobs": combined}
+        result["jobs_by_run"][ident] = {
+            "total_count": len(combined), "jobs": combined,
+            "reused_attempt_job_listings": reused_listings,
+        }
     return result
 
 
