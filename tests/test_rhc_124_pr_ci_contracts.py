@@ -1,4 +1,5 @@
 """RHC-124: real PR hosted-check gate and least-privilege App wiring."""
+import copy
 import pathlib
 import sys
 import unittest
@@ -44,7 +45,7 @@ def fixture():
              "status": "completed", "conclusion": "success"}
             for k, name in enumerate(names)
         ]
-    return dict(PR), runs, jobs
+    return copy.deepcopy(PR), runs, jobs
 
 
 class RHC124PrGateTests(unittest.TestCase):
