@@ -35,6 +35,12 @@ Require independently observed `RHC102_INDEPENDENT_HTTPS=PASS`, `RHC102_INDEPEND
 
 The separate [downloads-integrity](../.github/workflows/rhc-downloads-verify.yml) workflow is a useful **nonpublishing** historical/read-only HTTPS audit, not proof of the entire RHC-102 postrelease contract. A previously green release does not establish reproducibility of the **next** release's dispatch pipeline: [RHC-105](https://github.com/SaschaP1980/RazerHealthCenter/issues/105) tracks that future real-world end-to-end exercise. No verification here certifies real hardware, rollback, signing, or SmartScreen trust in interim mode.
 
+### RHC-110 — no second publication for a corrected postrelease verifier
+
+The real RHC-102 postrelease failure state survives a subsequent test-only fix: `RHC_PUBLICATION=PASS_POSTRELEASE_PENDING` does not automatically become final historical success. When approved corrective verification code has been merged, the separate nonpublishing [RHC-110 controller](../.github/workflows/rhc-postrelease-recheck.yml) may dispatch **only** `rhc-postrelease-verification.yml`, with the latest exact public main SHA, unchanged published `sourceSha`, version and original combined release PR. It requires verified clean provenance, current archive bytes, exact-head merged PR/Issue/review, Linux/native-Windows Infrastructure success, the original authentic failed three-job RHC-102 run, and no existing current-main dispatch. A trusted `workflow_run` of successful branch cleanup and bounded scheduled fallback avoid relying on zero-job bot PR webhooks.
+
+A successful follow-up means **corrective read-only audit PASS only**; it never rewrites the original failed publisher run or grants production signing, rollback, real hardware or SmartScreen acceptance. RHC-110 is not a retry of the immutable Candidate or the publisher; production policy, ZIP, catalogs and source tags are outside its write scope.
+
 ## RHC-98: Immutable retry after a failed unpublished Candidate
 
 An existing Candidate source commit and branch remain immutable forensic evidence,

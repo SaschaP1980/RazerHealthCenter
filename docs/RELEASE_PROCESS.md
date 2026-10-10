@@ -52,6 +52,12 @@ The [RHC Repository Downloads Integrity workflow](../.github/workflows/rhc-downl
 Historically failed actions, concrete version-specific permissions and actual source/package/CI hashes are documented in their responsible Issues and Rolling Comments, **not mirrored here**.
 
 
+### Corrective read-only re-verification after an initial failed postrelease gate (RHC-110)
+
+An actual merged interim release is **not rolled back or republished** merely because a verifier test later requires a correction. Do not rerun the original publisher, move the released source tag, rebuild a published ZIP or rewrite its catalogs. For an Issue-linked corrective verification-only PR, use the [read-only RHC-110 controller](../.github/workflows/rhc-postrelease-recheck.yml): a trusted completed branch-cleanup `workflow_run` plus an hourly bounded fallback can dispatch RHC-102 on the **current exact main** only after a real exact-head review, genuine hosted Linux/native Windows Infrastructure qualification, immutable publication lineage, original completed-failure evidence and zero prior exact-main dispatches have been verified. The only Action write capability is dispatching that already-existing independent read-only workflow.
+
+The verifier must independently re-read public ZIP bytes over HTTPS, immutable source tag, catalog and actual native Windows safety. Even a later three-job PASS is recorded as `PASS_CORRECTIVE_AUDIT_ONLY`, **not** as retroactive success of an initial publisher run that failed; keep the original failure and corrective PR/hosted run chain. A blocked/missing/zero-job check never satisfies release-completion criteria.
+
 ## RHC-94 atomic single-PR transaction (normative)
 
 One qualified Candidate source SHA, two independent Linux PE/ZIP builds, actual hosted native Windows PS5.1 and repair-safety evidence, a four-file downloads staging delta, one Issue-linked combined source+downloads PR, one validated main merge, ZIP-free Candidate source tag and independent real HTTPS binary readback constitute the interim transaction. Parent/main/Work-tree identity and the trust chain are checked before every mutation. Zero-job bot PR webhooks and skipped statuses NEVER qualify. Historical source-first releases remain valid archival evidence; do not re-activate them. Run IDs/elapsed time and any failure belong to the owning Issue's same rolling comment. The new atomic release path uses the Candidate's SHA as catalog sourceSha, not a merged preliminary source commit.
