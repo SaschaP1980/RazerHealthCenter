@@ -91,5 +91,27 @@ class RHC126ReleaseContractTests(unittest.TestCase):
         self.assertIn("workflow_dispatch", howto)
 
 
+    def test_authoritative_release_docs_keep_required_gates(self):
+        contract = (ROOT / "docs/REUSABLE_INTERIM_RELEASE_CONTRACT.md").read_text(encoding="utf-8")
+        process = (ROOT / "docs/RELEASE_PROCESS.md").read_text(encoding="utf-8")
+        for doc in (contract, process):
+            with self.subTest(path="release docs"):
+                self.assertIn("RHC-126", doc)
+                self.assertIn("GITHUB_TOKEN", doc)
+                self.assertIn("workflow_dispatch", doc)
+                self.assertIn("native Windows", doc)
+                self.assertIn("RHC-102", doc)
+        self.assertIn("RHC-114", process)
+        self.assertIn("rhc_workflow_reliability.py", contract)
+
+    def test_bot_actor_and_frozen_pr_sha_are_checked(self):
+        self.assertIn('.user.login == "github-actions[bot]"', self.w)
+        self.assertIn('.head.sha == $stage', self.w)
+        self.assertIn('.base.sha == $base', self.w)
+        self.assertIn('.draft == false', self.w)
+        self.assertIn('test "$ACTUAL" = 1', self.w)
+        self.assertIn('test "$(git rev-parse "$STAGED^")" = "$SOURCE"', self.w)
+
+
 if __name__ == "__main__":
     unittest.main()
