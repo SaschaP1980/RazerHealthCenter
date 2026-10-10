@@ -6,7 +6,7 @@ Use as soon as a durable `work/RHC-<GitHub Issue number>` Work-Path is explicitl
 
 1. Confirm live Issue, owner approval, exact current main SHA, version source, permitted files and forbidden safety/release actions. An unborn repository may need a minimal repository bootstrap commit first; this does not authorize Work changes.
 2. Create this **single Issue Rolling Comment first**, with `Current phase: BOOTSTRAP`, the planned branch `NOT CREATED`, main SHA as last checkpoint, next precise action and a genuinely user-visible chat marker (else `not issued`). Do not create a branch, PR or code/workflow commit first.
-3. Re-fetch the saved comment; confirm its ID, text, fresh ISO 8601 UTC timestamp with milliseconds and GitHub `created_at`/`updated_at`. If creation, time or readback cannot be confirmed, **STOP** before the first branch mutation.
+3. Re-fetch the saved comment; confirm its ID and complete text, including the **three heartbeat fields derived from one freshly verified UTC instant**: readable `Last heartbeat`, `Local reference (Europe/Berlin)` and the authoritative millisecond-precision `Original ISO timestamp`. Compare the **saved original ISO timestamp**, not the locale-formatted lines, against GitHub `created_at`/`updated_at` (second precision). If creation, clock evidence or readback cannot be confirmed, **STOP** before the first branch mutation.
 4. Then verify main remains at the pinned SHA, create the branch, re-fetch its SHA and update **this same comment**. Verify the new comment text before the first code commit; if stale or ambiguous, **BLOCKED**.
 5. Refresh the exact checkpoint and next action before consequential writes and after significant commits/tests. After any timeout or interruption, re-read Issue, comment, main/Work refs, PR and CI. Never retry an uncertain write blindly. Late bootstrap is a process failure even when subsequent CI is GREEN.
 
@@ -16,7 +16,41 @@ Maintain one cumulative Issue comment. **Update each singleton section in place*
 
 **ACTIVE cadence (LBS parity):** Maximum approximately **3 minutes** between verified in-place Rolling Comment heartbeats during active Work-Path execution, independently of whether a code commit is ready. Immediately update before long/high-risk sequences. Minimal truthful liveness text is permitted if nothing new happened; do not create a timer-only Git commit. Exceptions require accurately recorded `WAITING_FOR_GITHUB` plus exact queued/in-progress run, verified `BLOCKED_EXTERNAL`, genuine `IDLE`/`STOPPED`, or terminal `COMPLETED`. ACTIVE older than ~3 minutes is a missed heartbeat; older than ~5 minutes without a verified live workflow means resume as a stopped stream from GitHub Issue/main/Work SHA/checkpoint/CI. Persist a separate coherent code checkpoint within ~10–15 minutes of substantive completed uncommitted work. On closure correct stale branch/status fields and record deviations with evidence.
 
-**Heartbeat contract (mandatory):** On comment creation **and every substantive in-place update**, set `**Last heartbeat:**` to a **fresh, actual ISO 8601 UTC timestamp including date, time, seconds and milliseconds**, e.g. `2026-10-08T07:24:41.763Z`. Obtain the timestamp from a checked, timezone-aware current-time source immediately before submitting the edit; do not synthesize a clock time from the calendar date or from Issue/Workflow run dates. After the write, re-read the comment through GitHub and compare the stored heartbeat with its independently reported `updated_at` (GitHub API time has second precision and may differ by a few seconds). If the current time cannot be verified, use `unknown — time not verified` rather than a date-only placeholder or invented time. Preserve historical event times separately in the chronological ledger; **Last heartbeat is the current edit's heartbeat**, not the original issue creation or an old run timestamp.
+**Heartbeat contract (mandatory):** On comment creation **and every substantive in-place update**, capture **one fresh, verified, timezone-aware UTC instant with millisecond precision** from a checked clock immediately before submitting the edit. Render all three English-labeled fields below **from that same instant**; never obtain another clock reading to fill the other fields:
+
+- `**Last heartbeat:**` displays `YYYY-MM-DD at HH:mm:ss UTC` (human-readable **UTC**, without milliseconds; omit, do not round, the fractional part).
+- `**Local reference (Europe/Berlin):**` displays `DD.MM.YYYY, HH:mm:ss CET` or `CEST` using the **IANA** zone `Europe/Berlin` and **locale** `de-DE`; determine the zone abbreviation by its rules for the instant, not by guessing the season. The local calendar date can differ from UTC.
+- `**Original ISO timestamp:**` preserves the **exact unaltered** UTC `YYYY-MM-DDTHH:mm:ss.sssZ` string in inline code; it is the machine-readable authority for automation, freshness, BOOTSTRAP and audit (including milliseconds). Do not reconstruct it from a seconds-only display.
+
+After writing, re-fetch the complete saved comment through GitHub and validate **`Original ISO timestamp`** and the two derived human-readable lines against that one value; compare the **stored original ISO** to independently reported GitHub `created_at`/`updated_at` (the GitHub API reports seconds and normal write latency may differ by a few seconds). Never parse the `de-DE` presentation to determine freshness. If the clock is unverified, write **`unknown — time not verified` in all three fields** and keep the relevant gate `BLOCKED`/`NOT VERIFIED`; never fabricate any of the values. The heartbeat represents **this comment edit**, not the Issue's creation, a workflow event or a dated historical ledger entry. The ~3-minute ACTIVE cadence and every other Work-Path/section/audit requirement remain unchanged.
+
+**Illustrative values only — do not reuse these example timestamps as live heartbeats:**
+
+Summer (`CEST`; one verified instant, milliseconds retained):
+
+```markdown
+**Last heartbeat:** 2026-10-10 at 11:02:24 UTC
+**Local reference (Europe/Berlin):** 10.10.2026, 13:02:24 CEST
+**Original ISO timestamp:** `2026-10-10T11:02:24.267Z`
+```
+
+Winter (`CET`; same conversion contract):
+
+```markdown
+**Last heartbeat:** 2026-01-15 at 11:02:24 UTC
+**Local reference (Europe/Berlin):** 15.01.2026, 12:02:24 CET
+**Original ISO timestamp:** `2026-01-15T11:02:24.267Z`
+```
+
+UTC-to-local **date rollover** (local date is the next day):
+
+```markdown
+**Last heartbeat:** 2026-10-10 at 22:15:09 UTC
+**Local reference (Europe/Berlin):** 11.10.2026, 00:15:09 CEST
+**Original ISO timestamp:** `2026-10-10T22:15:09.042Z`
+```
+
+The `Europe/Berlin` label is a **fixed project reference**, not viewer-specific timezone detection; GitHub Issue Markdown is static and does not personalize this field. Do **not** embed active HTML/JavaScript or silently rewrite historically stored Rolling Comments. When a consumer expects the former ISO value directly after `Last heartbeat`, treat that consumer as incompatible and **STOP for separate executable-change authorization**; do not adjust tests, scripts, workflows or safety gates in this documentation-only change.
 
 For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID format `RHC<N>CHAT<12 uppercase random hexadecimal characters>`. Generate one identifier per working chat **after the issue number is known**, using cryptographically secure random bytes; write the literal marker in a normal user-visible assistant message **before** recording it in GitHub. Additional chats get separate markers. Do not invent the ChatGPT internal conversation ID, URL, model-selector setting or reasoning effort; mark unsupported evidence `unknown`/`not issued`.
 
@@ -25,7 +59,9 @@ For new Issues, GitHub Issue #N becomes `[RHC-N]`, `work/RHC-N` and Work-Chat-ID
 ~~~markdown
 ## RHC-<GitHub Issue number> — Rolling Build & Release State
 
-**Last heartbeat:** <actual ISO 8601 UTC timestamp with milliseconds, YYYY-MM-DDTHH:mm:ss.sssZ>
+**Last heartbeat:** <YYYY-MM-DD at HH:mm:ss UTC, derived from the same verified instant>
+**Local reference (Europe/Berlin):** <DD.MM.YYYY, HH:mm:ss CET or CEST, de-DE for that instant>
+**Original ISO timestamp:** `<YYYY-MM-DDTHH:mm:ss.sssZ from the one freshly verified UTC instant>`
 **Agent-State:** ACTIVE | WAITING_FOR_GITHUB | BLOCKED_EXTERNAL | STOPPED | COMPLETED
 **Issue:** [RHC-<number>](https://github.com/SaschaP1980/RazerHealthCenter/issues/<number>)
 **Base main:** `<SHA>`
