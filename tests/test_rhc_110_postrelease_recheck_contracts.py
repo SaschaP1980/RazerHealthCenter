@@ -155,6 +155,37 @@ class ControllerContracts(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 r.verify_postrelease_jobs(bad)
 
+    def test_never_redispatch_on_same_main_after_success_or_pending_run(self):
+        """Stable main+version+source+release PR key is single-shot, even after failure."""
+        for status, conclusion in (
+            ("queued", None), ("in_progress", None),
+            ("completed", "success"), ("completed", "failure"),
+        ):
+            obj = valid_snapshot()
+            obj["existingCurrentRuns"] = [
+                dict(id=900, head_sha=S["e"], status=status, conclusion=conclusion),
+            ]
+            with self.subTest(status=status, conclusion=conclusion):
+                with self.assertRaisesRegex(ValueError, "already attempted"):
+                    r.validate_plan(obj)
+
+    def test_owner_manual_recovery_cannot_bypass_original_failure_or_review(self):
+        obj = valid_snapshot()
+        obj["event"] = "workflow_dispatch"
+        self.assertEqual(r.validate_plan(obj)["status"], "ELIGIBLE")
+        invalid = copy.deepcopy(obj)
+        invalid["correctionPr"]["reviews"] = []
+        with self.assertRaisesRegex(ValueError, "review"):
+            r.validate_plan(invalid)
+        invalid = copy.deepcopy(obj)
+        invalid["priorPostrelease"]["conclusion"] = "success"
+        with self.assertRaisesRegex(ValueError, "original"):
+            r.validate_plan(invalid)
+        invalid = copy.deepcopy(obj)
+        invalid["triggerRun"]["conclusion"] = "skipped"
+        with self.assertRaisesRegex(ValueError, "cleanup"):
+            r.validate_plan(invalid)
+
     def test_workflow_has_trusted_nonpublishing_and_autonomous_triggers(self):
         s = (ROOT / ".github/workflows/rhc-postrelease-recheck.yml").read_text()
         self.assertIn("workflow_run:", s)
