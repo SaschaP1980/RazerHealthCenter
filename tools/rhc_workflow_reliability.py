@@ -185,6 +185,9 @@ def live_source(source_sha, work_sha):
     require(commit.get("sha") == work_sha, "source Work readback wrong SHA")
     n = issue_numbers((commit.get("commit") or {}).get("message"))
     issue = gh_read("repos/" + os.environ["GITHUB_REPOSITORY"] + "/issues/" + str(n))
+    # Read-only historical provenance may reference an already closed Issue.
+    from rhc_issue_init import verify_issue
+    verify_issue(issue, n, require_open=False)
     return resolve_source_provenance(source_sha, prs, commit, issue)
 
 
