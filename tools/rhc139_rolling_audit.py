@@ -263,7 +263,7 @@ def finalize(gateway, proof, *, now, apply=False):
     require(complete.count("### Plan-conformance assessment")==1,
             "missing final canonical heading")
     complete=complete.replace("### Plan-conformance assessment",
-            "- RHC139_ISSUE_CLOSED "+json.dumps(closure,sort_keys=True)+"\\n\\n"+
+            "- RHC139_ISSUE_CLOSED "+json.dumps(closure,sort_keys=True)+chr(10)+chr(10)+
             "### Plan-conformance assessment",1)
     canonical(complete)
     gateway.update_comment(comment_id,complete)
