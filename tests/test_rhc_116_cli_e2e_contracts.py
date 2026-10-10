@@ -76,7 +76,7 @@ class FullTransport(unittest.TestCase):
         self.assertEqual(rc, 0, output)
         self.assertIn("RHC115_INITIALIZATION_VERIFIED=", output)
         self.assertEqual(server.issue["title"], "[RHC-116] GitHub Issue initialization workflow")
-        self.assertEqual([call[0] for call in server.calls], ["POST", "GET", "GET", "PATCH", "GET"])
+        self.assertEqual([call[0] for call in server.calls], ["POST", "GET", "GET", "GET", "PATCH", "GET"])
         self.assertEqual(server.calls[0][2]["labels"], list(LABELS))
         rc, output = self.run_command(server, ["verify", "--repository",
                    "SaschaP1980/RazerHealthCenter", "--issue", "116", "--for-development"])
