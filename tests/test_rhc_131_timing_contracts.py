@@ -145,5 +145,57 @@ class TimingContractTests(unittest.TestCase):
         self.assertIn("NOT_VERIFIED", t)
 
 
+    def test_manual_audit_workflow_remains_opt_in_read_only(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/rhc131-performance-audit.yml").read_text(encoding="utf-8")
+        self.assertIn("  workflow_dispatch:", workflow)
+        self.assertIn("  actions: read", workflow)
+        self.assertIn("  contents: read", workflow)
+        self.assertNotIn("\n  push:", workflow)
+        self.assertNotIn("\n  pull_request:", workflow)
+        self.assertNotIn("pull_request_target", workflow)
+        self.assertNotIn("contents: write", workflow)
+        self.assertNotIn("gh workflow run", workflow)
+        self.assertIn("python3 -B tools/rhc131_timing.py", workflow)
+        self.assertIn("rhc131-readonly-timing-", workflow)
+
+    def test_existing_build_script_guards_remain_with_nonfatal_timing_markers(self):
+        build = (Path(__file__).resolve().parents[1] / "build.sh").read_text(encoding="utf-8")
+        self.assertIn("set -euo pipefail", build)
+        self.assertEqual(build.count("rhc131_phase start "), 9)
+        self.assertEqual(build.count("rhc131_phase end "), 9)
+        for must in (
+            "go test .", "go run ./tools/i18n_guard .", "go vet ./...",
+            "go build -trimpath", "tools/patch_rsrc.py", "tools/validate_pe.py",
+            "tools/validate_ui_recovery.py", "tools/validate_repair_safety.py",
+            'sha256sum "$OUT/RazerHealthCenter.exe"',
+        ):
+            with self.subTest(guard=must):
+                self.assertIn(must, build)
+
+    def test_cli_offline_fixture_writes_schema_json_tsv_and_summary(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            folder = Path(td)
+            fixture = folder / "fixture.json"
+            fixture.write_text(json.dumps({
+                "runs": [run(20, "2026-10-10T10:00:00Z", "2026-10-10T10:00:30Z")],
+                "jobs_by_run": {"20": {"total_count": 1, "jobs": [
+                    job(200, "2026-10-10T10:00:05Z", "2026-10-10T10:00:25Z")
+                ]}},
+            }), encoding="utf-8")
+            output = folder / "output"
+            self.assertEqual(timing.main([
+                "--fixture", str(fixture), "--out-dir", str(output),
+                "--issue", "131", "--version", "3.0.8.12",
+                "--expected-sha", self.sha,
+            ]), 0)
+            doc = json.loads((output / "rhc131-timing.json").read_text(encoding="utf-8"))
+            self.assertEqual(doc["issue"], 131)
+            self.assertEqual(doc["measurement"]["observed_wall_seconds"], 30)
+            self.assertEqual(doc["measurement"]["sum_job_seconds"], 20)
+            self.assertIn("run_id", (output / "rhc131-timing.tsv").read_text(encoding="utf-8"))
+            self.assertIn("NONAUTHORITATIVE", (output / "rhc131-summary.txt").read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()
