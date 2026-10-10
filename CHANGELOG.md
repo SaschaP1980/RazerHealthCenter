@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.12 — 2026-10-10
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.11` to `3.0.8.12`; MAJOR, MINOR and PATCH remain unchanged. No app logic, UI, device handling, Razer repair, diagnostics, PowerShell, privilege/UAC, security policy, release workflows or signer/rollback policy changes.
+- RHC-129: owner-authorized complete Work-Branch → Development Completion → Candidate → unsigned interim single combined Source+Downloads release PR → independent RHC-102 hosted Linux HTTPS/native Windows/aggregate proof. Live RHC-114 investigation compares optional bot-created PR zero-job event evidence against genuine separately dispatched mandatory release checks; a source-only change is not a published release.
+
 ## 3.0.8.11 — 2026-10-10
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advance from `3.0.8.10` to `3.0.8.11`. No runtime, Razer repair, UI, device, diagnostics, PowerShell, privilege/UAC, security policy, signing or release workflow modification.
