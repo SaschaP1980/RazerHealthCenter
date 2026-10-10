@@ -96,6 +96,68 @@ needs to remove GitHub-created zero-job run objects, obtain separately
 reviewed and evidenced trigger/platform scope; this tool reports them
 accurately rather than promising GitHub will stop emitting them.
 
+### RHC-124 dedicated App identity for automated interim release PRs
+
+The publisher uses **two narrowly separated identities**. Its existing job
+`GITHUB_TOKEN` stages `release/v...`, dispatches independent Downloads Integrity,
+reads/verifies the exact SHA, merges the qualified PR, makes the immutable
+source tag and triggers RHC-102 as before. **Only** the actual `gh pr create`
+step uses a short-lived **GitHub App installation token**. This avoids the
+approval-required `pull_request` workflow events caused by a release PR created
+with `GITHUB_TOKEN`. The new fail-closed finalizer also requires the genuine
+App-origin PR Infrastructure (Linux/native Windows/artifact), Downloads
+Integrity, and Release Preactivation workflows to have executed and passed
+before merging; their exact commit check-suites/check-runs are checked in
+addition to the existing authenticated `workflow_dispatch` Downloads gate.
+
+**One-time owner setup (no secret values in repository or logs):**
+
+1. In GitHub **Settings → Developer settings → GitHub Apps → New GitHub App**,
+   create a dedicated release-PR-only App and install it **only** on this
+   repository. Set repository permissions **Pull requests: Read and write** and
+   **Contents: Read-only**; verify the installation actually grants these
+   permissions. No Actions write/admin/contents write is needed for the App.
+2. Record the App's **Client ID** as repository Actions **variable**
+   `RHC_RELEASE_APP_CLIENT_ID` (not the deprecated numeric App ID field).
+   Generate its private key and store it in repository Actions **secret**
+   `RHC_RELEASE_APP_PRIVATE_KEY`. Never send this PEM into chat, commit it,
+   paste it in Issues or include it in a diagnosis ZIP. Rotate/revoke the key if
+   exposed. Do not add the App token as a static secret: the pinned official
+   `actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1`
+   v3.2.0 action mints a short-lived token on the hosted stage runner, scopes
+   it to the current repository and requests only
+   `permission-contents: read` plus `permission-pull-requests: write`.
+3. **Before any production publication**, request and verify a separate
+   owner-authorized **nonpublishing integration exercise** with an isolated
+   App-created PR, verify the expected App bot author (never
+   `github-actions[bot]`), all genuinely hosted `pull_request` jobs and
+   unique successful check-suites, and cleanup using exact known refs.
+   Independently check ordinary human-created PR CI still functions. The
+   existence of YAML and these variables is NOT evidence that the App is
+   installed or that a real App-origin workflow succeeded.
+
+When the secret/variable/App installation is missing or denied, the stage
+fails **before opening a release PR or making a publication**; do not silently
+reuse `GITHUB_TOKEN`. The finalizer invokes `tools/rhc124_pr_ci.py` for
+exact PR number/head SHA, expected App bot, all three genuine event workflow
+IDs, completed-success real hosted Linux/native Windows/auxiliary jobs, and
+matching check suites and check-runs. Terminal failures, zero jobs, missing
+runner/check evidence, wrong identity/SHA and ambiguous records stop merge.
+Incomplete correctly scoped workflows may be polled for a bounded period, but
+are **never** promoted to PASS by waiting. A green App-created PR alone is not
+a release: frozen Candidate/Work provenance, independently trusted exact-SHA
+Downloads dispatch, archived ZIP/history, HTTPS readback, native Windows and
+RHC-102 aggregate postrelease remain separately required.
+
+Current implementation controls can be statically and mock-host-tested without
+credentials. A **real installation and nonpublishing App PR run** are distinct
+owner-side acceptance criteria; never report either as PASS from tests alone.
+Full historical incident evidence and the App credential rollout remain in
+[RHC-114](https://github.com/SaschaP1980/RazerHealthCenter/issues/114) and
+[RHC-124](https://github.com/SaschaP1980/RazerHealthCenter/issues/124).
+Docs: [GITHUB_TOKEN-triggered PR approval](https://docs.github.com/en/actions/concepts/security/github_token)
+and [official App-token action](https://github.com/actions/create-github-app-token).
+
 ### RHC-110 automatic corrective recheck (no additional release)
 
 The default path is automatic: after merging a reviewed, Issue-backed **verification-only Work PR**, the [verified branch cleanup](../.github/workflows/rhc-branch-cleanup.yml) finishes and [the read-only RHC-110 controller](../.github/workflows/rhc-postrelease-recheck.yml) is notified by a trusted `workflow_run` completion. A bounded hourly schedule can recover missed bot-origin webhook activity; optional manual controller `workflow_dispatch` selects an exact corrective PR without overriding fail-closed guards. The controller checks exact merged `main`/PR/issue/review/Work Linux+Windows jobs, preserves public ZIP and source tag, finds the historical failed RHC-102 run, rejects already-dispatched current-main verification and refuses publication activity.
