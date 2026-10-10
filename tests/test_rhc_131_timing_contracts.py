@@ -197,5 +197,32 @@ class TimingContractTests(unittest.TestCase):
             self.assertIn("NONAUTHORITATIVE", (output / "rhc131-summary.txt").read_text(encoding="utf-8"))
 
 
+    def test_gh_attempt_list_reuses_job_id_without_double_counting(self):
+        from unittest.mock import patch
+        first = job(501, "2026-10-10T10:00:05Z", "2026-10-10T10:00:10Z",
+                    result="failure", attempt=1)
+        stable = job(502, "2026-10-10T10:00:05Z", "2026-10-10T10:00:20Z",
+                     attempt=1)
+        retry = job(503, "2026-10-10T10:00:25Z", "2026-10-10T10:00:45Z",
+                    attempt=2)
+        evidence = {
+            "actions/runs/60": run(60, "2026-10-10T10:00:00Z",
+                                   "2026-10-10T10:00:48Z", attempt=2),
+            "actions/runs/60/attempts/1/jobs?per_page=100&page=1":
+                {"jobs": [first, stable]},
+            "actions/runs/60/attempts/2/jobs?per_page=100&page=1":
+                {"jobs": [{**stable, "run_attempt": 2}, retry]},
+        }
+        with patch.object(timing, "_api", side_effect=lambda _r, path: evidence[path]):
+            sample = timing.collect("SaschaP1980/RazerHealthCenter", ["60"])
+        unique = sample["jobs_by_run"]["60"]["jobs"]
+        self.assertEqual(sample["jobs_by_run"]["60"]["total_count"], 3)
+        self.assertEqual(sorted(x["id"] for x in unique), [501, 502, 503])
+        self.assertEqual(next(x for x in unique if x["id"] == 502)["run_attempt"], 1)
+        r = timing.build_report(sample["runs"], sample["jobs_by_run"], expected_sha=self.sha)
+        self.assertEqual(r["measurement"]["sum_job_seconds"], 40)
+        self.assertEqual(r["measurement"]["retry_job_seconds"], 5)
+
+
 if __name__ == "__main__":
     unittest.main()
