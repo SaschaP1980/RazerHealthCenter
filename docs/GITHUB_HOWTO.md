@@ -113,7 +113,11 @@ signed-production guard.
   as validation. For newly created Issues use the tested two-phase client
   `python3 tools/rhc_issue_init.py init --repository OWNER/REPO --subject
   'Descriptive subject' --body-file issue.md --label enhancement
-  --label 'priority: medium'` with an authenticated GitHub CLI.
+  --label 'priority: medium' --label 'dev-path: fast'` with an authenticated GitHub CLI.
+  The example `issue.md` MUST contain a specific line such as
+  `Development path: dev-path: fast — bounded reviewed documentation change`.
+  Add `--label dev-ops` for a GitHub/CI/infrastructure Issue and use
+  `--label 'dev-path: work-branch'` with its matching reason for complex work.
   This issues exactly one POST with a unique neutral provisional title and
   creation-time labels, locates the authoritative GitHub-assigned number via
   a unique read-only lookup and a separate numeric GET, then performs exactly
