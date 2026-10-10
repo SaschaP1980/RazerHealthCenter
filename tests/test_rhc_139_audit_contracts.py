@@ -232,6 +232,8 @@ class AuditContract(unittest.TestCase):
             108:{"id":108,"name":"RHC Independent Postrelease","event":"workflow_dispatch",
                  "status":"completed","conclusion":"success","head_sha":MERGE},
         })
+        for actual_id in (105,106,107,108):
+            gateway.runs[actual_id]["actor"]={"login":"github-actions[bot]"}
         gateway.jobs.update({
             105:[job(20,"candidate linux"),job(21,"candidate windows"),
                  job(22,"candidate aggregate")],
@@ -264,6 +266,17 @@ class AuditContract(unittest.TestCase):
         with self.assertRaises(ValueError):
             audit.finalize(gateway2,p,now=NOW,apply=True)
         self.assertEqual(gateway2.calls,[])
+        gateway3=Fake()
+        gateway3.pr["head"]["sha"]=STAGE
+        gateway3.parents=[BASE,STAGE]
+        gateway3.runs.update(gateway.runs)
+        gateway3.jobs.update(gateway.jobs)
+        gateway3.get_latest=gateway.get_latest
+        gateway3.get_tag=gateway.get_tag
+        gateway3.runs[107]["actor"]={"login":"untrusted"}
+        with self.assertRaises(ValueError):
+            audit.finalize(gateway3,p,now=NOW,apply=True)
+        self.assertEqual(gateway3.calls,[])
 
 
     def test_failed_issue_close_leaves_waiting_not_false_completed(self):
