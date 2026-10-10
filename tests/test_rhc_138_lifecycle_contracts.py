@@ -43,7 +43,7 @@ class LifecycleContracts(unittest.TestCase):
 
     def test_no_user_request_timestamp_means_not_verified_not_zero(self):
         r = life.build_report([event("issue_created", BASE),
-                               event("issue_closed", END)], issue=129)
+                               event("issue_closed", END, entity="129-final-close")], issue=129)
         self.assertIsNone(r["interval_seconds"]["owner_request_to_final_message"])
         self.assertEqual(r["measurement"]["owner_span_verification"], "NOT_VERIFIED")
 
@@ -90,7 +90,7 @@ class LifecycleContracts(unittest.TestCase):
 
     def test_auto_close_and_reopen_are_visible_not_misclassified(self):
         e = [event("issue_created", BASE),
-             event("issue_closed", "2026-10-10T19:07:15Z"),
+             event("issue_closed", "2026-10-10T19:07:15Z", entity="129-early-close"),
              event("issue_reopened", "2026-10-10T19:08:00Z"),
              event("issue_closed", END)]
         r = life.build_report(e, issue=129)
