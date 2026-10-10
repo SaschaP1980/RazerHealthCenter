@@ -184,6 +184,10 @@ def verify_acceptance(gateway, proof):
     for key,(count,sha,event,parts,cats) in expected.items():
         run_id=runs[key]
         require(type(run_id) is int and run_id>0, "invalid required run ID")
+        if mode == "release" and key in ("candidate","publisher","downloads","rhc102"):
+            actor=(gateway.get_run(run_id).get("actor") or {}).get("login")
+            require(actor == "github-actions[bot]",
+                    "trusted dispatch actor absent or mismatched")
         _jobs(gateway,run_id,count,sha,event,parts,cats)
         result.append({"key":key+"-"+str(run_id),"issue":issue,
                        "sha":sha,"status":"success","run_id":run_id,
