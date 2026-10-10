@@ -18,6 +18,32 @@ privileged GitHub App or an automatic approval mechanism. Wave A comprises
 this third independently tested implementation. A *new* real product-version
 release requires separate explicit owner authorization.
 
+## Historical real-gate compatibility and distinct hosted roles
+
+The published v3.0.8.12 release [#129](https://github.com/SaschaP1980/RazerHealthCenter/issues/129)
+has **genuine completed-success** independent workflows:
+Candidate #38078230959 (3 jobs: native Windows safety, Linux artifacts,
+**Candidate qualification**); Publisher #38078329081 (4 jobs: double Linux,
+native Windows, immutable stage, **independent exact-stage download/merge
+verifier**); Downloads #38078501688 (one real staged-SHA job), and RHC102
+#38078536667 (3 jobs: public HTTPS ZIP, independent native PS5.1 and
+**concluding aggregation**). Job display names do not consistently contain
+literal `aggregate` or `finalizer`.
+
+The release-mode fixture uses these authentic distinct-role job titles,
+their exact events, actors and SHA boundaries; an independent hosted job
+must fulfill **each** required role, not one display string containing
+several roles. A required skipped, failed, zero-job, wrong-SHA or
+`action_required` workflow remains BLOCKED. The published `latest.json`
+ZIP SHA-256 requires **64 hexadecimal characters**, unlike a Git commit SHA
+which requires 40. In particular the historical real release must not be
+rejected by an incorrect 40-character digest rule.
+
+This is a contract regression test from historical evidence, **not** a claim
+that the current tools have published a new version or remotely exercised
+their optional `--apply` path. Never replace real hosted RHC102/Downloads
+acceptance with the CLI's local fixtures.
+
 ## How the canonical journal is updated
 
 `tools/rhc139_rolling_audit.py` owns one **existing** canonical Issue
