@@ -169,7 +169,7 @@ class Taxonomy(unittest.TestCase):
         g.rows[116]=row()
         g.rows[117]=dict(number=117,title="[RHC-117] Other",body=PATH_PENDING,
                          state="open",labels=[],pull_request={"url":"pr"})
-        g.rows[118]=row(["enhancement"],title="[RHC-118] GitHub workflow labels")
+        g.rows[118]=dict(row(["enhancement"],title="[RHC-118] GitHub workflow labels"), number=118)
         output=audit(g)
         self.assertEqual(output["checked"],2)
         self.assertEqual(len(output["malformed"]),1)
