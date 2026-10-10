@@ -6,6 +6,7 @@ on:
   workflow_dispatch:  # Only an authorized exact Candidate preflight dispatch publishes
 permissions:
   contents: read
+  issues: read
 # The read-only Linux proof performs authenticated GitHub GETs; each mutating
 # stage/finalizer job still gets only its own explicitly declared permissions.
 env:
@@ -193,6 +194,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      issues: read
       pull-requests: write
       actions: write
     env:
@@ -318,6 +320,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+      issues: read
       pull-requests: write
       actions: write
     env:
