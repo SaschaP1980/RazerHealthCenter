@@ -345,6 +345,7 @@ def collect(repo, identifiers):
         if type(attempt_count) is not int or not (1 <= attempt_count <= 20):
             raise ValueError("unsupported run attempt count")
         combined = []
+        seen_ids = set()
         for attempt in range(1, attempt_count + 1):
             page = 1
             while True:
@@ -353,8 +354,17 @@ def collect(repo, identifiers):
                 if not isinstance(items, list):
                     raise ValueError("missing job array")
                 for item in items:
+                    job_id = item.get("id")
+                    if type(job_id) is not int or job_id < 1:
+                        raise ValueError("missing actual GitHub job ID")
+                    if job_id in seen_ids:
+                        # GitHub's attempt-N listing can repeat unchanged
+                        # Windows jobs under a later attempt. Only the
+                        # earliest occurrence provides truthful provenance.
+                        continue
+                    seen_ids.add(job_id)
                     item["run_attempt"] = attempt
-                combined.extend(items)
+                    combined.append(item)
                 if len(items) < 100:
                     break
                 page += 1
