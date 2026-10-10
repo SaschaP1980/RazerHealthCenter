@@ -188,6 +188,8 @@ jobs:
 
   stage:
     name: Stage single immutable ZIP/catalog PR only after both OS success
+    outputs:
+      release_app_actor: ${{ steps.app-token.outputs.app-slug }}[bot]
     if: startsWith(github.ref, 'refs/heads/candidate/v') && github.event_name == 'workflow_dispatch'
     needs: [linux, windows]
     runs-on: ubuntu-24.04
@@ -204,6 +206,17 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      # RHC-124: no broad App credential; only PR creation uses this token.
+      # Fails closed BEFORE staging any public release branch if not provisioned.
+      - name: Create short-lived repository-scoped GitHub App PR token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0 Node24
+        with:
+          client-id: ${{ vars.RHC_RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RHC_RELEASE_APP_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: read
+          permission-pull-requests: write
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
@@ -290,7 +303,7 @@ jobs:
           # the same SHA as main: enforce the original exact one-parent
           # ancestry again after generating the staged archive.
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$(git rev-parse "$GITHUB_SHA^")"
-      - name: Create exact-parent four-path release branch and PR (never force push)
+      - name: Create exact-parent four-path release branch (GITHUB_TOKEN only)
         shell: bash
         run: |
           set -euo pipefail
@@ -308,10 +321,24 @@ jobs:
           git push origin HEAD:refs/heads/release/v$VERSION
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED_SHA"
           gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"
+          echo "STAGED_SHA=$STAGED_SHA" >> "$GITHUB_ENV"
+      # This scoped App token overrides job GH_TOKEN ONLY in this step.
+      - name: Create one combined PR using the dedicated App installation identity
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_APP_ACTOR: ${{ steps.app-token.outputs.app-slug }}[bot]
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN" && test -n "$RELEASE_APP_ACTOR"
+          test "$RELEASE_APP_ACTOR" != 'github-actions[bot]'
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head release/v$VERSION \
             --title "[RHC-$RHC_ISSUE_NUMBER] Interim unsigned v$VERSION release — exact source and 2OS verified" \
             --body "Refs #$RHC_ISSUE_NUMBER; single atomic Source+Downloads PR; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, Work-SHA $WORK_HEAD. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
-          echo "RHC_REUSABLE_INTERIM_STAGE=PR_CREATED stagedSha=$STAGED_SHA sourceSha=$GITHUB_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=SaschaP1980:release/v$VERSION" > "$RUNNER_TEMP/rhc124-pr-identity.json"
+          ACTUAL="$(jq -r --arg stage "$STAGED_SHA" --arg actor "$RELEASE_APP_ACTOR" '[.[] | select(.head.sha == $stage and .user.login == $actor)] | length' "$RUNNER_TEMP/rhc124-pr-identity.json")"
+          test "$ACTUAL" = 1
+          echo "RHC_REUSABLE_INTERIM_STAGE=PR_CREATED stagedSha=$STAGED_SHA appActor=$RELEASE_APP_ACTOR sourceSha=$GITHUB_SHA"
 
   finalize:
     name: Independently verify exact release PR CI then merge, tag, remote hash and cleanup
@@ -325,6 +352,7 @@ jobs:
       actions: write
     env:
       GH_TOKEN: ${{ github.token }}
+      RELEASE_APP_ACTOR: ${{ needs.stage.outputs.release_app_actor }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -360,6 +388,24 @@ jobs:
             sleep 10
           done
           test -n "$VAL" && test "$STATUS" = completed && test "$CONC" = success
+          # RHC-124: real hosted PR CI is IN ADDITION to the trusted exact-SHA dispatch.
+          # Pending checks get bounded retries; any genuine failure/0-job blocks.
+          test -n "$RELEASE_APP_ACTOR"
+          PR_CI_VERIFIED=''
+          for attempt in $(seq 1 90); do
+            if python3 -B tools/rhc124_pr_ci.py \
+              --repository "$GITHUB_REPOSITORY" --pr "$PR" \
+              --stage-sha "$STAGED" --actor "$RELEASE_APP_ACTOR"; then
+              PR_CI_VERIFIED=PASS
+              break
+            else
+              STATUS_CODE="$?"
+              test "$STATUS_CODE" = 2 || exit 1
+            fi
+            sleep 10
+          done
+          test "$PR_CI_VERIFIED" = PASS
+          echo "RHC124_HOSTED_PR_THREE_WORKFLOW_GATE=PASS PR=$PR sha=$STAGED actor=$RELEASE_APP_ACTOR"
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$BASE"
           test "$(git ls-remote origin refs/heads/release/v$VERSION | cut -f1)" = "$STAGED"
           test -z "$(git ls-remote origin refs/tags/v$VERSION)"

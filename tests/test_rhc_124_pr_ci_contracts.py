@@ -5,7 +5,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from rhc124_pr_ci import (EvidenceBlocked, EvidencePending, verify_pr_ci)  # noqa: E402
+from rhc124_pr_ci import (EvidenceBlocked, EvidencePending, verify_pr_ci, verify_check_suites)  # noqa: E402
 
 SHA = "a" * 40
 ACTOR = "rhc-release-pr-bot[bot]"
@@ -31,6 +31,10 @@ def fixture():
             "id": run_id, "workflow_id": workflow,
             "head_sha": SHA, "head_branch": PR["head"]["ref"],
             "event": "pull_request", "actor": {"login": ACTOR},
+            "name": {378158256: "RHC Infrastructure Qualification (nonpublishing)",
+                     378374563: "RHC Repository Downloads Integrity (nonpublishing)",
+                     378644602: "RHC-12 Release Preactivation Evidence Check (read-only)"}[workflow],
+            "check_suite_id": 8000 + index,
             "display_title": PR["title"],
             "created_at": "2026-10-10T18:00:01Z", "run_attempt": 1,
             "status": "completed", "conclusion": "success",
@@ -158,7 +162,7 @@ class RHC124PrGateTests(unittest.TestCase):
         self.assertIn("actions/create-github-app-token@", y)
         self.assertIn("permission-pull-requests: write", y)
         self.assertIn("permission-contents: read", y)
-        self.assertIn("RHC_RELEASE_APP_ID", y)
+        self.assertIn("RHC_RELEASE_APP_CLIENT_ID", y)
         self.assertIn("RHC_RELEASE_APP_PRIVATE_KEY", y)
         self.assertIn("needs.stage.outputs.release_app_actor", y)
         self.assertIn("rhc124_pr_ci.py", y)
@@ -166,6 +170,56 @@ class RHC124PrGateTests(unittest.TestCase):
         self.assertEqual(y.count("gh pr create"), 1)
         self.assertIn("GH_TOKEN: ${{ github.token }}", y)
         self.assertNotIn("pull_request_target:", y)
+
+    def test_independent_check_suites_and_exact_check_runs(self):
+        pr, runs, jobs = fixture()
+        result = verify_pr_ci(pr, runs, jobs, SHA, ACTOR)
+        suites = [
+            {"id": r["check_suite_id"], "status": "completed",
+             "conclusion": "success", "head_sha": SHA,
+             "latest_check_runs_count": len(jobs[r["id"]])}
+            for r in runs
+        ]
+        checks = [
+            {"id": j["id"], "name": j["name"], "status": "completed",
+             "conclusion": "success", "head_sha": SHA,
+             "check_suite": {"id": r["check_suite_id"]}}
+            for r in runs for j in jobs[r["id"]]
+        ]
+        self.assertEqual(
+            verify_check_suites(result, runs, jobs, suites, checks)["actualCheckRuns"],
+            5)
+        for mutation in ["missing_suite", "failed_suite", "zero_checks",
+                         "wrong_sha", "missing_check_run", "wrong_check_run",
+                         "foreign_check_suite", "failed_check_run"]:
+            bad_suites = [dict(x) for x in suites]
+            bad_checks = [dict(x) for x in checks]
+            if mutation == "missing_suite":
+                bad_suites.pop()
+            elif mutation == "failed_suite":
+                bad_suites[0]["conclusion"] = "failure"
+            elif mutation == "zero_checks":
+                bad_suites[0]["latest_check_runs_count"] = 0
+            elif mutation == "wrong_sha":
+                bad_suites[0]["head_sha"] = "b"*40
+            elif mutation == "missing_check_run":
+                bad_checks.pop()
+            elif mutation == "wrong_check_run":
+                bad_checks[0]["head_sha"] = "b"*40
+            elif mutation == "foreign_check_suite":
+                bad_checks[0]["check_suite"] = {"id": 1111}
+            elif mutation == "failed_check_run":
+                bad_checks[0]["conclusion"] = "failure"
+            with self.subTest(mutation=mutation), self.assertRaises(EvidenceBlocked):
+                verify_check_suites(result, runs, jobs, bad_suites, bad_checks)
+
+    def test_no_bypass_for_missing_ci_with_successful_dispatch(self):
+        pr, runs, jobs = fixture()
+        runs.pop()
+        with self.assertRaises(EvidencePending):
+            verify_pr_ci(pr, runs, jobs, SHA, ACTOR)
+        self.assertIn("rhc_workflow_reliability.py verify-hosted",
+                      (ROOT / ".github/workflows/rhc-reusable-interim-release.yml").read_text())
 
 
 if __name__ == "__main__":
