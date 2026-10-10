@@ -7,6 +7,7 @@ release dispatch, code version mutation, ZIP publication or gate bypass.
 """
 import argparse
 import base64
+from itertools import permutations
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -117,8 +118,15 @@ def _jobs(gateway, rid, count, sha, event, name_fragments, categories):
                     and x.get("conclusion") == "success" for x in jobs),
             "job identities/statuses not all genuine successful")
     labels = [str(x.get("name","")).lower() for x in jobs]
-    require(all(any(cat.lower() in name for name in labels)
-                for cat in categories), "actual native OS/aggregate job missing")
+    # Each mandatory role must map to a DIFFERENT completed hosted job.
+    # A single misleading display name containing 'linux windows artifact'
+    # is never sufficient to prove three independent Linux/Windows/Node24 jobs.
+    distinct = any(
+        all(role.lower() in labels[index]
+            for role, index in zip(categories, job_indexes))
+        for job_indexes in permutations(range(len(jobs)), len(categories))
+    )
+    require(distinct, "distinct actual native OS/aggregate hosted jobs missing")
     return count
 
 
@@ -151,10 +159,14 @@ def verify_acceptance(gateway, proof):
     require(isinstance(runs, dict), "no authorized run mapping")
     if mode == "nonpublishing":
         expected = {
-            "work": (3,proof["work_sha"],"push",["Infrastructure"],["linux","windows","artifact"]),
-            "pr_infra": (3,proof["work_sha"],"pull_request",["Infrastructure"],["linux","windows","artifact"]),
-            "pr_source": (2,proof["work_sha"],"pull_request",["Source Intake"],["linux","windows"]),
-            "cleanup": (1,proof["merged_sha"],"workflow_run",["Branch Cleanup"],["cleanup"]),
+            "work": (3,proof["work_sha"],"push",["Infrastructure"],
+                     ["rhc/infra/linux","rhc/infra/windows","rhc/infra/artifact"]),
+            "pr_infra": (3,proof["work_sha"],"pull_request",["Infrastructure"],
+                         ["rhc/infra/linux","rhc/infra/windows","rhc/infra/artifact"]),
+            "pr_source": (2,proof["work_sha"],"pull_request",["Source Intake"],
+                         ["linux build","hosted windows"]),
+            "cleanup": (1,proof["merged_sha"],"workflow_run",["Branch Cleanup"],
+                        ["cleanup-merged"]),
         }
         require(gateway.get_work_branch(f"work/RHC-{issue}") is None,
                 "unmerged Work ref still live")
@@ -164,19 +176,30 @@ def verify_acceptance(gateway, proof):
                 isinstance(proof.get("version"),str) and
                 VERS.fullmatch(proof["version"]), "release proof incomplete")
         expected={
-            "work":(3,proof["work_sha"],"push",["Infrastructure"],["linux","windows","artifact"]),
-            "candidate":(3,proof["source_sha"],"workflow_dispatch",["Candidate"],["linux","windows","aggregate"]),
-            "publisher":(4,proof["source_sha"],"workflow_dispatch",["Interim"],["linux","windows","stage","final"]),
+            "work":(3,proof["work_sha"],"push",["Infrastructure"],
+                    ["rhc/infra/linux","rhc/infra/windows","rhc/infra/artifact"]),
+            # Real hosted Candidate #38078230959 has a qualification job,
+            # not a job literally named "aggregate".
+            "candidate":(3,proof["source_sha"],"workflow_dispatch",["Candidate"],
+                         ["candidate exact-main","candidate safety","candidate qualification"]),
+            # The terminal Release job genuinely verifies the exact-stage
+            # downloads; its displayed name is not "finalizer".
+            "publisher":(4,proof["source_sha"],"workflow_dispatch",["Interim"],
+                         ["double linux","native windows","stage single immutable",
+                          "independently verify exact-stage"]),
             "downloads":(1,proof["stage_sha"],"workflow_dispatch",["Downloads"],[]),
-            "rhc102":(3,proof["merged_sha"],"workflow_dispatch",["Postrelease"],["linux","windows","aggregate"]),
+            # RHC102 final job is "Conclude only after independent ..." not
+            # literally "aggregate". All three actual OS/HTTPS jobs distinct.
+            "rhc102":(3,proof["merged_sha"],"workflow_dispatch",["Postrelease"],
+                       ["https public zip","native ps5.1","conclude only"]),
         }
         latest=gateway.get_latest()
         require(latest.get("version")==proof["version"] and
                 latest.get("sourceSha")==proof["source_sha"] and
                 isinstance(latest.get("sha256"),str) and
-                SHA.fullmatch(latest["sha256"]) and
+                re.fullmatch(r"[0-9a-f]{64}",latest["sha256"]) and
                 type(latest.get("size")) is int and latest["size"]>0,
-                "public latest ZIP/hash/source not verified")
+                "public latest ZIP SHA-256 (64 hex)/source not verified")
         require(gateway.get_tag("v"+proof["version"])==proof["source_sha"],
                 "immutable version source tag mismatched")
     require(set(runs)==set(expected), "missing/unexpected required gate")
