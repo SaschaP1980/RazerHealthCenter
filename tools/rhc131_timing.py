@@ -180,9 +180,16 @@ def _collect_run(raw, jobs_by_run, expected_sha):
         classification = "NOT_COMPLETED_NOT_VERIFIED"
     elif conclusion != "success":
         classification = "JOB_OR_WORKFLOW_FAILURE"
-    elif any(x.get("conclusion") != "success" for x in jobs):
+    elif attempt is None:
+        classification = "INCOMPLETE_JOB_EVIDENCE"
+    elif not any(x.get("run_attempt", attempt) == attempt for x in jobs):
+        classification = "NO_CURRENT_ATTEMPT_HOSTED_JOB_NOT_VERIFIED"
+    elif any(x.get("conclusion") != "success"
+             for x in jobs if x.get("run_attempt", attempt) == attempt):
         classification = "JOB_OR_WORKFLOW_FAILURE"
     else:
+        # Earlier failed attempts are genuine history and cost time, but
+        # must not rewrite a real completed-success latest attempt to FAIL.
         classification = "COMPLETED_WITH_HOSTED_SUCCESS"
     observed_until = raw.get("updated_at")
     # GitHub Actions run.updated_at is a change marker, not a true completed_at.
