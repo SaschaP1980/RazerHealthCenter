@@ -148,7 +148,7 @@ def _timing(pr, supplementary, trusted):
                     performanceGain="NOT VERIFIED")
     rows = []
     for r in supplementary:
-        elapsed = _utc_seconds(r.get("updated_at"))
+        elapsed = _utc_seconds(r.get("updatedAt"))
         rows.append(dict(runId=r["runId"],
                          completedSecondsAfterMerge=(round(elapsed - merged, 3)
                             if elapsed is not None else None)))
