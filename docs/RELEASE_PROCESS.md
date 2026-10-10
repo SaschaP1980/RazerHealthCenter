@@ -41,6 +41,29 @@ This implicit trigger **excludes** link-only initial readback, documentation wor
 4. Merge only unchanged, approved exact head with necessary statuses. Create or independently verify immutable version tag at **frozen sourceSha**. Read back actual public main merge/parents, ZIP SHA-256/size/bytes, releases history, latest pointer, tag identity, PR/Issue links and exact-lease **release-branch cleanup**. The generic Work cleaner is not authorized to delete release branches.
 5. Report `RELEASE VERIFIED` **only** when remote public outcome and required postrelease finalization are true. Partial publication/failed tag/cleanup is a separate `BLOCKED/NEEDS_ATTENTION` recovery state. Never edit previous ZIP bytes or silently retry uncertain writes.
 
+### RHC-126 — proven automated release path without extra App credentials
+
+The automated interim Release PR is created using the publisher stage job's
+existing scoped `GITHUB_TOKEN`, not a dedicated GitHub App. RHC-124's
+supplemental three-`pull_request`-suite/five-job release finalizer gate is
+intentionally **not required**. This is a conscious removal of an added,
+never App-E2E-verified premerge control, **not** removal of actual previously
+passed Linux/native Windows/immutable archive safety evidence.
+
+The separate authenticated exact-staged-SHA Downloads Integrity
+`workflow_dispatch` with a real hosted completed-success job remains a
+hard **premerge gate**; zero-job/failure/skipped/wrong-SHA/pending mandatory
+checks cannot pass. Work and Candidate Linux/native Windows, two repeatable
+PE/ZIP builds, exact source+four-downloads PR and provenance, immutable tag
+and archive history, public HTTPS readback and RHC-102 postrelease 3/3
+are unchanged. Ordinary human-authored PR `pull_request` CI remains
+enabled. Optional bot-created PR event records may still report
+`failure` with **zero executed jobs**; preserve their true conclusions
+without inferring test failure or manufacturing all-green status. See
+[RHC-126](https://github.com/SaschaP1980/RazerHealthCenter/issues/126)
+and [RHC-114](https://github.com/SaschaP1980/RazerHealthCenter/issues/114)
+for the recorded trade-off and outstanding GitHub-platform investigation.
+
 ## Independent postrelease verification and final status
 
 After the single combined Source+Downloads PR is merged and the immutable source tag, catalog, published ZIP and scoped cleanup have been independently read back, the **publisher must dispatch** [RHC Independent Postrelease Verification](../.github/workflows/rhc-postrelease-verification.yml) using `workflow_dispatch` **on `main`** and the exact `expected_main_sha`, `expected_source_sha`, four-part `version` and `expected_release_pr`. That dedicated workflow is independent of the publisher and of the nonpublishing downloads-integrity audit. It must establish the exact immutable merge ancestry and same public `main` SHA, read the actual archive over HTTPS at the exact Git commit, and verify ZIP size/hash, internal manifest and seven-file payload. Require real successful Linux and **hosted native Windows** jobs plus the successful aggregate: `RHC102_INDEPENDENT_HTTPS=PASS`, `RHC102_INDEPENDENT_WINDOWS=PASS`, `RHC102_INDEPENDENT_POSTRELEASE=PASS`. The publisher also requires `RHC102_HOSTED_POSTRELEASE_THREE_JOB_GATE=PASS` after checking three completed-success jobs and their genuine run/event identity. A `PASS_POSTRELEASE_PENDING` message is **not final release success**.

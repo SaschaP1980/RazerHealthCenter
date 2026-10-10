@@ -1,4 +1,4 @@
-"""RHC-124: real PR hosted-check gate and least-privilege App wiring."""
+"""RHC-124 archived PR-suite forensic tests; RHC-126 no longer requires App gate."""
 import copy
 import pathlib
 import sys
@@ -158,16 +158,18 @@ class RHC124PrGateTests(unittest.TestCase):
         self.assertIn('gh workflow run rhc-downloads-verify.yml --ref "release/v$VERSION"', y)
         self.assertIn("RHC102_HOSTED_POSTRELEASE_THREE_JOB_GATE=PASS", y)
 
-    def test_wiring_scopes_app_only_to_pr_creation(self):
+    def test_archived_app_evidence_engine_is_not_a_release_gate(self):
+        # RHC-126 deliberately removes the *live* GitHub App dependency.
+        # Preserve RHC-124's independent adversarial check-suite fixtures as
+        # archival forensic coverage; they must not block bot release PRs.
         y = (ROOT / ".github/workflows/rhc-reusable-interim-release.yml").read_text()
-        self.assertIn("actions/create-github-app-token@", y)
-        self.assertIn("permission-pull-requests: write", y)
-        self.assertIn("permission-contents: read", y)
-        self.assertIn("RHC_RELEASE_APP_CLIENT_ID", y)
-        self.assertIn("RHC_RELEASE_APP_PRIVATE_KEY", y)
-        self.assertIn("needs.stage.outputs.release_app_actor", y)
-        self.assertIn("rhc124_pr_ci.py", y)
-        self.assertIn("GH_TOKEN: ${{ steps.app-token.outputs.token }}", y)
+        for forbidden in (
+            "actions/create-github-app-token@", "RHC_RELEASE_APP_CLIENT_ID",
+            "RHC_RELEASE_APP_PRIVATE_KEY", "needs.stage.outputs.release_app_actor",
+            "rhc124_pr_ci.py", "GH_TOKEN: ${{ steps.app-token.outputs.token }}",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, y)
         self.assertEqual(y.count("gh pr create"), 1)
         self.assertIn("GH_TOKEN: ${{ github.token }}", y)
         self.assertNotIn("pull_request_target:", y)

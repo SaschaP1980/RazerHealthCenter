@@ -27,6 +27,37 @@ Every source/release PR links responsible Issues. Historical version-specific ow
 
 Project process requires PRs, but current GitHub ruleset may not technically enforce required PRs: always read live effective protections. No unapproved admin permissions/policy modifications, self-approval or direct main bypass.
 
+### RHC-126: no additional GitHub App or release-PR suites
+
+The owner intentionally superseded the RHC-124 dedicated GitHub App and its
+**additional** three-release-PR-workflow/five-hosted-job finalizer requirement
+([RHC-126](https://github.com/SaschaP1980/RazerHealthCenter/issues/126)).
+The stage job creates its **single combined** Issue-linked release PR with
+its existing scoped `GITHUB_TOKEN`, validating the bot actor, exact staged
+head, unchanged base and non-draft state. **No** `RHC_RELEASE_APP_CLIENT_ID`,
+`RHC_RELEASE_APP_PRIVATE_KEY`, App-created PR author or RHC-124 check-suite
+gate is a condition for release. This changes the unproven added defense-in-depth
+from RHC-124; it does **not** reduce any gate actually exercised in the qualified
+v3.0.8.11 release.
+
+**Still mandatory:** exact Issue/Work/Development Completion/Candidate SHA
+provenance; hosted Linux plus separate native Windows/PowerShell 5.1; two
+deterministic EXE/seven-file ZIP builds and repair-safety; one exact combined
+source+four-downloads PR/merge; immutable tag/catalog/ZIP history; the separate
+authenticated exact-stage Downloads Integrity `workflow_dispatch` with a
+**genuine, correctly identified completed-success hosted job** verified through
+`tools/rhc_workflow_reliability.py verify-hosted`; exact public
+readback and the independent RHC-102 public HTTPS ZIP + native Windows +
+three-job aggregate below. Absent, skipped, zero-job, stale, wrong-SHA or
+failed **mandatory** evidence blocks. Optional bot-origin `pull_request`
+`failure`/0-job records remain truthful historical supplementary evidence,
+**never** a synthetic PASS, and may still appear; the GitHub internal cause
+remains unverified. Human-authored PR validation remains active and unchanged.
+The retained `tools/rhc124_pr_ci.py` is an archival read-only forensic helper,
+**not** a publisher gate. A subsequent real version release, not this
+nonpublishing infrastructure change, is required to validate fresh end-to-end
+publication; parent RHC-114 remains open.
+
 ## RHC-102: independent hosted postrelease contract (mandatory)
 
 The live [publisher](../.github/workflows/rhc-reusable-interim-release.yml) dispatches the [independent verifier](../.github/workflows/rhc-postrelease-verification.yml) via `workflow_dispatch --ref main`, supplying the **actual merged** `expected_main_sha`, frozen Candidate `expected_source_sha`, current four-part `version` and `expected_release_pr`. The verifier independently checks the single combined PR lineage, unchanged prior archives/catalog and matching source tag. On Ubuntu it performs an **actual HTTPS fetch** of the public ZIP at the exact main SHA and validates remote size, SHA-256, internal checksum manifest and payload allowlist. On **windows-2025** it checks the actual packaged PE, PowerShell 5.1/repair safety and unsigned Authenticode state. Its aggregate only succeeds if both platforms succeeded.

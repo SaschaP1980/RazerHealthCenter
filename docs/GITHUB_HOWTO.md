@@ -96,67 +96,20 @@ needs to remove GitHub-created zero-job run objects, obtain separately
 reviewed and evidenced trigger/platform scope; this tool reports them
 accurately rather than promising GitHub will stop emitting them.
 
-### RHC-124 dedicated App identity for automated interim release PRs
+### RHC-126: keep proven release gates without a dedicated GitHub App
 
-The publisher uses **two narrowly separated identities**. Its existing job
-`GITHUB_TOKEN` stages `release/v...`, dispatches independent Downloads Integrity,
-reads/verifies the exact SHA, merges the qualified PR, makes the immutable
-source tag and triggers RHC-102 as before. **Only** the actual `gh pr create`
-step uses a short-lived **GitHub App installation token**. This avoids the
-approval-required `pull_request` workflow events caused by a release PR created
-with `GITHUB_TOKEN`. The new fail-closed finalizer also requires the genuine
-App-origin PR Infrastructure (Linux/native Windows/artifact), Downloads
-Integrity, and Release Preactivation workflows to have executed and passed
-before merging; their exact commit check-suites/check-runs are checked in
-addition to the existing authenticated `workflow_dispatch` Downloads gate.
+The owner chose to **supersede [RHC-124](https://github.com/SaschaP1980/RazerHealthCenter/issues/124)** with [RHC-126](https://github.com/SaschaP1980/RazerHealthCenter/issues/126): no additional installed GitHub App or long-lived App private key is required to create the automated unsigned interim release PR. The single combined Candidate-source+four-downloads PR is created using the existing scoped stage-job **`GITHUB_TOKEN`** (`gh pr create`). The stage independently checks that the PR has the expected exact head/base, is not a draft and is authored by `github-actions[bot]`. The standard permissions and Issue/Work/Candidate provenance remain unchanged.
 
-**One-time owner setup (no secret values in repository or logs):**
+**The three supplementary `pull_request` workflow suites introduced as a new mandatory RHC-124 release-PR gate (Infrastructure Linux/native Windows/artifact, Downloads Integrity and Release Preactivation; five additional hosted jobs) are no longer required for automated bot-created release PRs.** This is a conscious decision not to add that extra PR-context defense-in-depth; it does **not** remove any pre-existing, actually executed v3.0.8.11 release gate. In particular, the publisher must still independently verify:
 
-1. In GitHub **Settings → Developer settings → GitHub Apps → New GitHub App**,
-   create a dedicated release-PR-only App and install it **only** on this
-   repository. Set repository permissions **Pull requests: Read and write** and
-   **Contents: Read-only**; verify the installation actually grants these
-   permissions. No Actions write/admin/contents write is needed for the App.
-2. Record the App's **Client ID** as repository Actions **variable**
-   `RHC_RELEASE_APP_CLIENT_ID` (not the deprecated numeric App ID field).
-   Generate its private key and store it in repository Actions **secret**
-   `RHC_RELEASE_APP_PRIVATE_KEY`. Never send this PEM into chat, commit it,
-   paste it in Issues or include it in a diagnosis ZIP. Rotate/revoke the key if
-   exposed. Do not add the App token as a static secret: the pinned official
-   `actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1`
-   v3.2.0 action mints a short-lived token on the hosted stage runner, scopes
-   it to the current repository and requests only
-   `permission-contents: read` plus `permission-pull-requests: write`.
-3. **Before any production publication**, request and verify a separate
-   owner-authorized **nonpublishing integration exercise** with an isolated
-   App-created PR, verify the expected App bot author (never
-   `github-actions[bot]`), all genuinely hosted `pull_request` jobs and
-   unique successful check-suites, and cleanup using exact known refs.
-   Independently check ordinary human-created PR CI still functions. The
-   existence of YAML and these variables is NOT evidence that the App is
-   installed or that a real App-origin workflow succeeded.
+- Genuine hosted Work and Candidate Linux plus **native Windows/PowerShell 5.1**, reproducible PE/seven-file ZIP, unchanged safety constraints and exact source/main/branch SHA lineage.
+- **One** combined release PR containing exactly the four permitted new publication files alongside the frozen Candidate source, with a responsible Issue and verified stage/head/base.
+- The separate authenticated, **exact staged SHA** Downloads Integrity `workflow_dispatch` and its genuine completed-success hosted job; the publisher uses `tools/rhc_workflow_reliability.py verify-hosted` and fails closed if missing, stale, skipped, zero-job or failed.
+- Immutable previous ZIPs/catalog/tag, successful exact-lease merge/publication/cleanup, and the **independent RHC-102** main-commit public HTTPS ZIP bytes/hash plus native Windows safety and aggregate **3/3 real successful jobs**.
 
-When the secret/variable/App installation is missing or denied, the stage
-fails **before opening a release PR or making a publication**; do not silently
-reuse `GITHUB_TOKEN`. The finalizer invokes `tools/rhc124_pr_ci.py` for
-exact PR number/head SHA, expected App bot, all three genuine event workflow
-IDs, completed-success real hosted Linux/native Windows/auxiliary jobs, and
-matching check suites and check-runs. Terminal failures, zero jobs, missing
-runner/check evidence, wrong identity/SHA and ambiguous records stop merge.
-Incomplete correctly scoped workflows may be polled for a bounded period, but
-are **never** promoted to PASS by waiting. A green App-created PR alone is not
-a release: frozen Candidate/Work provenance, independently trusted exact-SHA
-Downloads dispatch, archived ZIP/history, HTTPS readback, native Windows and
-RHC-102 aggregate postrelease remain separately required.
+A GitHub `pull_request` workflow record with `failure` and **0 actual jobs** is **not PASS and not a failed test assertion**; preserve its real ID, actor, conclusion, SHA and job count. It may persist as supplementary CI noise, because the GitHub internal cause has not been independently established. The [RHC-114 diagnostic tool](../tools/rhc114_ci_noise.py) separates supplementary records from a real failed required job without rewriting history or assigning a synthetic success. A genuine failure of a **mandatory** stage/Candidate/Downloads/postrelease check still blocks release. Do not disable normal human-authored PR `pull_request` checks, change repository protections/permissions, use `pull_request_target`, or weaken any native verification.
 
-Current implementation controls can be statically and mock-host-tested without
-credentials. A **real installation and nonpublishing App PR run** are distinct
-owner-side acceptance criteria; never report either as PASS from tests alone.
-Full historical incident evidence and the App credential rollout remain in
-[RHC-114](https://github.com/SaschaP1980/RazerHealthCenter/issues/114) and
-[RHC-124](https://github.com/SaschaP1980/RazerHealthCenter/issues/124).
-Docs: [GITHUB_TOKEN-triggered PR approval](https://docs.github.com/en/actions/concepts/security/github_token)
-and [official App-token action](https://github.com/actions/create-github-app-token).
+**Operating procedure:** No GitHub App setup, `RHC_RELEASE_APP_CLIENT_ID` or `RHC_RELEASE_APP_PRIVATE_KEY` is needed for the RHC-126 design. For a later separately authorized product-version release, verify the effective `GITHUB_TOKEN` permissions and real hosted pre-merge/postrelease results on exact SHAs, and record unresolved optional zero-job events under [RHC-114](https://github.com/SaschaP1980/RazerHealthCenter/issues/114). An isolated nonpublishing test, mock or historically valid ZIP does not establish acceptance of an unattempted next publication.
 
 ### RHC-110 automatic corrective recheck (no additional release)
 
