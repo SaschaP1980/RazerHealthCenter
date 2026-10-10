@@ -106,8 +106,8 @@ class Contract(unittest.TestCase):
             subprocess.run(["git","init","-q",str(root)],check=True)
             for k,v in (("user.name","RHC Test"),("user.email","test@example.invalid")):
                 subprocess.run(["git","-C",str(root),"config",k,v],check=True)
-            (root/"model.go").write_text(MODEL)
-            (root/"CHANGELOG.md").write_text(CHANGELOG)
+            (root/"model.go").write_text(MODEL, encoding="utf-8")
+            (root/"CHANGELOG.md").write_text(CHANGELOG, encoding="utf-8")
             subprocess.run(["git","-C",str(root),"add","."],check=True)
             subprocess.run(["git","-C",str(root),"commit","-qm","baseline"],check=True)
             subprocess.run(["git","-C",str(root),"checkout","-qb","work/RHC-132"],check=True)
@@ -126,8 +126,8 @@ class Contract(unittest.TestCase):
             subprocess.run(["git","init","-q",str(root)],check=True)
             for k,v in (("user.name","RHC Test"),("user.email","test@example.invalid")):
                 subprocess.run(["git","-C",str(root),"config",k,v],check=True)
-            (root/"model.go").write_text(MODEL)
-            (root/"CHANGELOG.md").write_text(CHANGELOG)
+            (root/"model.go").write_text(MODEL, encoding="utf-8")
+            (root/"CHANGELOG.md").write_text(CHANGELOG, encoding="utf-8")
             subprocess.run(["git","-C",str(root),"add","."],check=True)
             subprocess.run(["git","-C",str(root),"commit","-qm","baseline"],check=True)
             subprocess.run(["git","-C",str(root),"checkout","-qb","work/RHC-132"],check=True)
