@@ -241,5 +241,34 @@ class TimingContractTests(unittest.TestCase):
         self.assertEqual(report["runs"][0]["jobs"][0]["conclusion"], "failure")
 
 
+    def test_gh_attempt_listing_can_duplicate_unchanged_job_under_new_id(self):
+        # Observed risk: a rerun-failed-jobs endpoint includes the earlier
+        # successful Windows step window under a later attempt listing.
+        from unittest.mock import patch
+        one = job(701, "2026-10-10T10:00:05Z", "2026-10-10T10:00:25Z",
+                  result="success", attempt=1)
+        one["name"] = "rhc/infra/windows"
+        reused = {**one, "id": 702, "run_attempt": 2}
+        two = job(703, "2026-10-10T10:00:30Z", "2026-10-10T10:00:45Z",
+                  result="success", attempt=2)
+        two["name"] = "rhc/infra/linux"
+        evidence = {
+            "actions/runs/70": run(70, "2026-10-10T10:00:00Z",
+                                   "2026-10-10T10:00:50Z", attempt=2),
+            "actions/runs/70/attempts/1/jobs?per_page=100&page=1":
+                {"jobs": [one]},
+            "actions/runs/70/attempts/2/jobs?per_page=100&page=1":
+                {"jobs": [reused, two]},
+        }
+        with patch.object(timing, "_api", side_effect=lambda _repo, path: evidence[path]):
+            sample = timing.collect("SaschaP1980/RazerHealthCenter", ["70"])
+        self.assertEqual(sample["jobs_by_run"]["70"]["total_count"], 2)
+        self.assertEqual(sample["jobs_by_run"]["70"]["reused_attempt_job_listings"], 1)
+        report = timing.build_report(sample["runs"], sample["jobs_by_run"],
+                                     expected_sha=self.sha)
+        self.assertEqual(report["measurement"]["sum_job_seconds"], 35)
+        self.assertEqual(report["runs"][0]["reused_attempt_job_listings"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
