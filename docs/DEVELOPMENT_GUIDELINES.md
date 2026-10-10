@@ -30,8 +30,43 @@ are additional defenses, not a substitute for checking **before the first
 branch/file mutation**. GitHub's web UI and unrelated API clients are outside
 this CLI's interception scope; repository workflows cannot claim global
 creation-time or branch-time blocking. Legacy Issue audit is read-only; no
-historic titles are silently repaired. Separate RHC-116 label/path hardening
-remains an independently tracked implementation.
+historic titles are silently repaired. RHC-116 extends the same identity guard with independently validated
+creation-time labels and explicit development-path disposition.
+
+### RHC-116: mandatory Issue taxonomy, work-area and path decision
+
+A new Issue is not initialized merely because its GitHub number/title is valid.
+Supply **at creation time**, not as an afterthought, exactly one type label
+(`bug` or `enhancement`), exactly one recognized `priority:*` label, and
+`dev-ops` when the Issue concerns GitHub/CI workflows, developer tooling,
+Issue initialization or comparable infrastructure. Preserve unrelated labels
+and never retain conflicting type, priority or path labels.
+
+Each new Issue body must include one auditable line:
+`Development path: dev-path: fast — <specific reason>` for bounded executable
+work; `Development path: dev-path: work-branch — <specific reason>` for
+complex/high-risk executable work; `Development path: Not applicable — <specific
+non-executable external/legal/research reason>` without a path label; or
+`Development path: PATH_DECISION_PENDING — <specific blocker>` without a path
+label. Do **not** infer implementation authorization from this classification.
+Before any branch, source edit, PR, hosted qualification, Candidate or release
+action, independently GET the exact numbered Issue and require
+`python3 tools/rhc_issue_init.py verify --repository OWNER/REPO --issue N
+--for-development` to succeed for executable scope. The initializer verifies
+creation-time labels on the provisional Issue **and** the final canonical
+number/title/body/labels/path readback. Pending and non-executable Issues can
+remain tracked, but may not initiate development. The additive recovery path
+must reconcile uncertain writes via GET and never duplicate Issues or erase
+unrelated labels. `audit` is read-only, checks open Issues and excludes PRs;
+it does not rewrite historical Issue records.
+
+Controlled Work Infrastructure and Development Completion require this gate
+before qualification; Work-to-Candidate and RHC-94 publication also verify
+the saved taxonomy. Legacy provenance lookups on closed historical Issues
+remain read-only/title-only where applicable. The repository cannot intercept
+external GitHub web-UI/API creation clients or protect branches before their
+first push; those must implement the same pre-branch gate themselves. Do not
+assert server-side enforcement that the live ruleset does not provide.
 
 ### Mandatory full Work-Path Rolling Comment (no abbreviated substitutes)
 
