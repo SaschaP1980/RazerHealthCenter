@@ -64,7 +64,7 @@ class RHC102HostedWiring(unittest.TestCase):
         self.assertEqual(history["schemaVersion"], 1)
         self.assertGreaterEqual(len(history["releases"]), 1)
         self.assertEqual(latest, history["releases"][0])
-        self.assertRegex(latest["version"], r"^\\d+\\.\\d+\\.\\d+\\.\\d+$")
+        self.assertRegex(latest["version"], r"^\d+\.\d+\.\d+\.\d+$")
         self.assertEqual(latest["tag"], "v" + latest["version"])
         self.assertEqual(latest["file"], "RazerHealthCenter-Portable-v" + latest["version"] + ".zip")
         self.assertRegex(latest["sourceSha"], r"^[0-9a-f]{40}$")
