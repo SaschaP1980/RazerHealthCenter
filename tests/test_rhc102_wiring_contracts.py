@@ -54,12 +54,36 @@ class RHC102HostedWiring(unittest.TestCase):
         self.assertIn("github-actions[bot]",s)
         self.assertIn("RUNNER_TEMP/postjobs.json",s)
         self.assertIn('test "$(jq -r \'.conclusion\'',s)
-    def test_current_published_data_unchanged_by_infrastructure(self):
+    def test_current_public_catalog_and_immutable_rhc102_history(self):
+        """Latest may advance; freeze the RHC-102 reference as historical evidence."""
+        import hashlib
         import json
-        root=ROOT
-        l=json.loads((root/"downloads/latest.json").read_text())
-        self.assertEqual(l["version"],"3.0.8.8")
-        self.assertEqual(l["sourceSha"],"83d894a8c556ab83286c7a0569032fd2ab4728b9")
-        self.assertEqual(l["sha256"],"67d4289f26b7f6b3ca1078a936aa840e9a58529e375156b9bcb5f3213eded4e1")
+
+        latest = json.loads((ROOT / "downloads/latest.json").read_text(encoding="utf-8"))
+        history = json.loads((ROOT / "downloads/releases.json").read_text(encoding="utf-8"))
+        self.assertEqual(history["schemaVersion"], 1)
+        self.assertGreaterEqual(len(history["releases"]), 1)
+        self.assertEqual(latest, history["releases"][0])
+        self.assertRegex(latest["version"], r"^\d+\.\d+\.\d+\.\d+$")
+        self.assertEqual(latest["tag"], "v" + latest["version"])
+        self.assertEqual(latest["file"], "RazerHealthCenter-Portable-v" + latest["version"] + ".zip")
+        self.assertRegex(latest["sourceSha"], r"^[0-9a-f]{40}$")
+        archive = ROOT / "downloads" / latest["file"]
+        self.assertTrue(archive.is_file())
+        self.assertEqual(archive.stat().st_size, latest["size"])
+        self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), latest["sha256"])
+
+        # This historical release must stay immutable, but is not forever latest.
+        reference = next(
+            (entry for entry in history["releases"] if entry["version"] == "3.0.8.8"),
+            None,
+        )
+        self.assertIsNotNone(reference, "RHC-102 published reference missing")
+        self.assertEqual(reference["sourceSha"], "83d894a8c556ab83286c7a0569032fd2ab4728b9")
+        self.assertEqual(reference["sha256"], "67d4289f26b7f6b3ca1078a936aa840e9a58529e375156b9bcb5f3213eded4e1")
+        self.assertGreaterEqual(
+            tuple(map(int, latest["version"].split("."))),
+            tuple(map(int, reference["version"].split("."))),
+        )
 if __name__=="__main__":
     unittest.main()
