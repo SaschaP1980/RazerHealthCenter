@@ -77,8 +77,9 @@ def classify_supplementary(pr, sha, runs, jobs_by_run):
             classification = "UNRELATED_RUN_NOT_QUALIFICATION"
         elif jobs and any(j.get("conclusion") == "failure" for j in jobs):
             classification = "ACTUAL_HOSTED_JOB_FAIL"
-        elif jobs and all(j.get("status") == "completed" and j.get("conclusion") == "success"
-                          for j in jobs):
+        elif jobs and conclusion == "success" and all(
+                j.get("status") == "completed" and j.get("conclusion") == "success"
+                for j in jobs):
             classification = "SUPPLEMENTARY_HOSTED_SUCCESS_NOT_TRUSTED_DISPATCH"
         elif jobs:
             classification = "HOSTED_JOBS_NOT_SUCCESSFUL"
