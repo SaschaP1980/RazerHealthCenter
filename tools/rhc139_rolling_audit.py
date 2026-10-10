@@ -238,6 +238,46 @@ def finalize(gateway, proof, *, now, apply=False):
     return dict(result,status="COMPLETED",closed_at=closed.get("closed_at"))
 
 
+
+def record_verified_event(gateway, comment_id, record, *, now, apply=False):
+    """Incremental append-only journal; no Issue close, no release authority.
+
+    Every event is checked against a *real* GitHub completed-success run with
+    the exact SHA and actual hosted jobs. Idempotent replay is a no-op;
+    changed evidence with the same event key always blocks.
+    """
+    event = _normalize(record)
+    issue = gateway.get_issue(event["issue"])
+    require(issue.get("number") == event["issue"] and
+            issue.get("state") == "open", "event Issue not open or mismatched")
+    saved = gateway.get_comment(comment_id)
+    require(saved.get("id") == comment_id and
+            f"issues/{event['issue']}" in saved.get("body", ""),
+            "wrong persisted Issue Rolling Comment")
+    canonical(saved["body"])
+    _jobs(gateway,event["run_id"],event["job_count"],event["sha"],
+          gateway.get_run(event["run_id"]).get("event"),[],[])
+    before = gateway.get_comment(comment_id)
+    require(saved.get("body")==before.get("body") and
+            saved.get("updated_at")==before.get("updated_at"),
+            "concurrent Rolling Comment update")
+    rendered = render_event(saved["body"],event,now)
+    if rendered == saved["body"]:
+        return {"status":"ALREADY_RECORDED","event_key":event["key"]}
+    if not apply:
+        return {"status":"READY_PLAN_ONLY","event_key":event["key"]}
+    fresh = gateway.get_comment(comment_id)
+    require(fresh.get("body")==saved["body"] and
+            fresh.get("updated_at")==saved.get("updated_at"),
+            "journal changed before saved update")
+    gateway.update_comment(comment_id,rendered)
+    readback = gateway.get_comment(comment_id)
+    require(readback.get("body")==rendered,
+            "persisted incremental journal readback mismatch")
+    canonical(readback["body"])
+    return {"status":"RECORDED","event_key":event["key"]}
+
+
 class GitHubGateway:
     """Explicitly provided existing gh auth, no new App/token and no dispatch."""
     def __init__(self,repository):
@@ -298,20 +338,33 @@ def main(argv=None):
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--fixture",type=Path,help="offline proof+snapshot, plan only")
     ap.add_argument("--repository")
-    ap.add_argument("--proof",type=Path,required=True)
+    group=ap.add_mutually_exclusive_group(required=True)
+    group.add_argument("--proof",type=Path,
+                       help="complete Issue closure proof with exact hosted run IDs")
+    group.add_argument("--record-json",type=Path,
+                       help="one incremental already-hosted event; no Issue close")
+    ap.add_argument("--comment-id",type=int,
+                    help="required for --record-json")
     ap.add_argument("--apply",action="store_true",
-                    help="EXPLICIT Issue comment PATCH and Issue close after proof; no product publish")
+                    help="EXPLICIT verified Issue comment PATCH/close; no product publication")
     args=ap.parse_args(argv)
     try:
-        proof=json.loads(args.proof.read_text(encoding="utf-8"))
         now=datetime.now(timezone.utc)
         if args.fixture:
             require(not args.apply,"offline fixture cannot mutate GitHub")
-            # Fixtures are validated in comprehensive unit Gateway contracts.
-            print("RHC139_FIXTURE_ONLY=PASS_NO_REMOTE_ACTION")
+            print("RHC139_FIXTURE_NOT_VERIFIED_NO_GITHUB_WRITES")
             return 0
         require(bool(args.repository),"existing authenticated GitHub repo required")
-        result=finalize(GitHubGateway(args.repository),proof,now=now,apply=args.apply)
+        gateway=GitHubGateway(args.repository)
+        if args.record_json:
+            require(type(args.comment_id) is int and args.comment_id>0,
+                    "comment ID required for incremental record")
+            record=json.loads(args.record_json.read_text(encoding="utf-8"))
+            result=record_verified_event(gateway,args.comment_id,record,
+                                         now=now,apply=args.apply)
+        else:
+            proof=json.loads(args.proof.read_text(encoding="utf-8"))
+            result=finalize(gateway,proof,now=now,apply=args.apply)
         print("RHC139_AUDIT="+json.dumps(result,sort_keys=True))
         return 0
     except (ValueError,KeyError,TypeError,OSError,json.JSONDecodeError,
