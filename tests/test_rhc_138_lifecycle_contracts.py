@@ -15,8 +15,10 @@ END = "2026-10-10T19:13:28Z"
 
 def event(kind, stamp, *, issue=129, sha="a" * 40, source="github",
           entity="129", status="success", version="3.0.8.12", **extra):
-    return dict(event=kind, at=stamp, issue=issue, sha=sha, source=source,
-                evidence_id=entity, status=status, version=version, **extra)
+    fields = dict(event=kind, at=stamp, issue=issue, sha=sha, source=source,
+                  evidence_id=entity, status=status, version=version)
+    fields.update(extra)
+    return fields
 
 
 class LifecycleContracts(unittest.TestCase):
