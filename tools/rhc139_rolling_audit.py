@@ -212,9 +212,12 @@ def finalize(gateway, proof, *, now, apply=False):
     updated=before["body"]
     for event in events:
         updated=render_event(updated,event,now)
-    updated=_set_line(updated,"Agent-State","COMPLETED")
-    updated=_set_line(updated,"Current phase","COMPLETED — required real hosted evidence verified")
-    updated=_set_line(updated,"Next action","Close Issue after independent saved-comment readback")
+    # Never write a terminal COMPLETED before the Issue close actually
+    # succeeds. An API error must leave visibly pending evidence, not a
+    # false-GREEN finished canonical comment.
+    updated=_set_line(updated,"Agent-State","WAITING_FOR_GITHUB")
+    updated=_set_line(updated,"Current phase","GATES VERIFIED — waiting for real Issue close")
+    updated=_set_line(updated,"Next action","Read back canonical comment and close exact Issue; then mark COMPLETED")
     canonical(updated)
     result={"status":"READY_PLAN_ONLY", "issue":issue_id, "comment_id":comment_id,
             "mode":proof["mode"],"run_count":len(events)}
@@ -235,7 +238,38 @@ def finalize(gateway, proof, *, now, apply=False):
     closed=gateway.get_issue(issue_id)
     require(closed.get("state")=="closed" and
             closed.get("state_reason")=="completed", "Issue close state not verified")
-    return dict(result,status="COMPLETED",closed_at=closed.get("closed_at"))
+    closed_at=closed.get("closed_at")
+    require(isinstance(closed_at,str) and bool(closed_at),
+            "GitHub did not return exact Issue closure clock")
+    try:
+        close_instant=datetime.fromisoformat(
+            closed_at.replace("Z","+00:00")).astimezone(timezone.utc)
+    except (TypeError,ValueError) as exc:
+        raise ValueError("invalid saved Issue closure timestamp") from exc
+    require(gateway.get_comment(comment_id).get("body")==updated,
+            "rolling comment changed after Issue close")
+    complete=_set_line(updated,"Agent-State","COMPLETED")
+    complete=_set_line(complete,"Current phase",
+                       "COMPLETED — GitHub Issue CLOSED/completed and independently read back")
+    complete=_set_line(complete,"Next action","No pending action for completed Issue")
+    complete=_set_line(complete,"Last heartbeat",
+                       close_instant.strftime("%Y-%m-%d at %H:%M:%S UTC"))
+    complete=_set_line(complete,"Local reference (Europe/Berlin)",
+                       berlin(close_instant))
+    iso=close_instant.isoformat(timespec="milliseconds").replace("+00:00","Z")
+    complete=_set_line(complete,"Original ISO timestamp",chr(96)+iso+chr(96))
+    closure={"issue":issue_id,"closed_at":closed_at,
+             "merge_sha":proof["merged_sha"],"status":"completed"}
+    require(complete.count("### Plan-conformance assessment")==1,
+            "missing final canonical heading")
+    complete=complete.replace("### Plan-conformance assessment",
+            "- RHC139_ISSUE_CLOSED "+json.dumps(closure,sort_keys=True)+"\\n\\n"+
+            "### Plan-conformance assessment",1)
+    canonical(complete)
+    gateway.update_comment(comment_id,complete)
+    require(gateway.get_comment(comment_id).get("body")==complete,
+            "final CLOSED/completed Rolling Comment readback failed")
+    return dict(result,status="COMPLETED",closed_at=closed_at)
 
 
 
