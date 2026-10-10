@@ -59,7 +59,9 @@ class Server:
             self.main_reads += 1
             return {"commit": {"sha": B if self.main_moved and self.main_reads > 1 else A}}
         if path == "/issues/18":
-            return {"number": 18, "title": self.issue_title, "body": "Verified test Issue scope", "state": "open"}
+            return {"number": 18, "title": self.issue_title, "body": "Development path: dev-path: work-branch — version-only Candidate qualification",
+                    "state": "open", "labels": [{"name": n} for n in
+                        ["enhancement", "priority: high", "dev-path: work-branch"]]}
         if path == "/git/ref/heads/work/RHC-18":
             return {"object": {"sha": B}}
         if path == "/git/commits/" + B:
