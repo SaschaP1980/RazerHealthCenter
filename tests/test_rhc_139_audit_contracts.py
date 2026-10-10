@@ -273,6 +273,21 @@ class AuditContract(unittest.TestCase):
         with self.assertRaises(ValueError):
             audit.finalize(gateway2,p,now=NOW,apply=True)
         self.assertEqual(gateway2.calls,[])
+        # Regression: a Git commit SHA is 40 digits; a ZIP SHA-256 must be
+        # exactly 64. A 40-digit "sha256" must not close a Release Issue.
+        wrong_digest=Fake()
+        wrong_digest.pr["head"]["sha"]=STAGE
+        wrong_digest.parents=[BASE,STAGE]
+        wrong_digest.runs.update(gateway.runs)
+        wrong_digest.jobs.update(gateway.jobs)
+        wrong_digest.get_latest=lambda:{"version":"3.0.8.13",
+                                        "sourceSha":SOURCE,"sha256":"f"*40,
+                                        "size":100}
+        wrong_digest.get_tag=gateway.get_tag
+        with self.assertRaises(ValueError):
+            audit.finalize(wrong_digest,p,now=NOW,apply=True)
+        self.assertEqual(wrong_digest.calls,[])
+
         gateway3=Fake()
         gateway3.pr["head"]["sha"]=STAGE
         gateway3.parents=[BASE,STAGE]
