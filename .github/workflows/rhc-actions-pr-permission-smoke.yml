@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'work/RHC-43'
-      - 'work/RHC-126'
     paths:
       - '.github/workflows/rhc-actions-pr-permission-smoke.yml'
   workflow_dispatch:
@@ -15,7 +14,7 @@ permissions:
 jobs:
   permission-smoke:
     name: Actually create/verify/close bot PR and delete exact test branch
-    if: github.ref == 'refs/heads/work/RHC-43' || github.ref == 'refs/heads/work/RHC-126' || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/work/RHC-43' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
