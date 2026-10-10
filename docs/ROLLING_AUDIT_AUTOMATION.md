@@ -86,7 +86,9 @@ When explicitly invoked with `--apply`, the controller:
    **3/3**, Publisher **4/4**, the genuinely separately dispatched
    exact-staged-SHA **Downloads Integrity 1/1**, and independent final public
    RHC-102 **3/3** (Linux HTTPS, native Windows, aggregate) all with matching
-   source/stage/main SHAs, event types and workflow identities. The public
+   source/stage/main SHAs, event types, workflow identities and
+   **trusted github-actions[bot] actor on Candidate, Publisher, Downloads
+   and RHC102 workflow_dispatch runs**. The public
    `latest.json` version/sourceSHA/nonempty SHA-256/size and immutable
    `vX.Y.Z.W` source tag must also agree. This verifier does not replace
    the RHC102 public-byte program, which remains the authoritative
@@ -97,9 +99,15 @@ When explicitly invoked with `--apply`, the controller:
    PATCHes and **independently reads back the full exact bytes**, checks the
    Issue is still OPEN and `main` still points to the approved SHA.
 6. Only then PATCHes the Issue as CLOSED/completed and independently GETs
-   the actual terminal state. Any failure is **BLOCKED**, never a guessed
-   PASS. An Issue that GitHub has **already auto-closed prematurely**
-   blocks; this tool does not unilaterally reopen historical Issues.
+   the actual terminal state. The *pre-close* Rolling Comment deliberately
+   remains `WAITING_FOR_GITHUB`, not premature `COMPLETED`. After verified
+   real closure the tool PATCHes **the same canonical comment again** with
+   `Agent-State: COMPLETED` and the **actual GitHub closed_at UTC timestamp**
+   and reads back those exact bytes. A failed Issue close cannot leave a
+   falsely `COMPLETED` comment. A final readback failure remains
+   `BLOCKED/NOT_VERIFIED` even when GitHub has closed the Issue.
+   An Issue that GitHub has **already auto-closed prematurely** blocks;
+   this tool does not unilaterally reopen historical Issues.
 
 **API limitation:** GitHub Issue comments do not provide a documented,
 reliable compare-and-swap write contract. The tool therefore uses repeated
