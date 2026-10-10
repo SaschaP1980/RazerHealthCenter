@@ -5,6 +5,7 @@ This does not disable PR triggers, alter GitHub's actual conclusions, make
 publication decisions, retry writes or infer GITHUB_TOKEN causality.
 """
 import argparse
+import datetime as dt
 import json
 import re
 import subprocess
@@ -94,7 +95,8 @@ def classify_supplementary(pr, sha, runs, jobs_by_run):
                                createdAt=run.get("created_at"),
                                updatedAt=run.get("updated_at"),
                                classification=classification,
-                               countsAsTrustedGate=False))
+                               countsAsTrustedGate=False,
+                               rootCause="NOT VERIFIED — zero jobs alone cannot prove GitHub token/event restriction"))
     return classified
 
 
@@ -124,6 +126,38 @@ def verify_trusted_dispatch(run, jobs, sha, workflow_id):
                 countsAsTrustedGate=True)
 
 
+
+def _utc_seconds(value):
+    if not isinstance(value, str) or not value.endswith("Z"):
+        return None
+    try:
+        stamp = dt.datetime.fromisoformat(value[:-1] + "+00:00")
+        return stamp.timestamp()
+    except ValueError:
+        return None
+
+
+def _timing(pr, supplementary, trusted):
+    """Measurements only when GitHub exposes authoritative event timestamps."""
+    merged = _utc_seconds(pr.get("merged_at"))
+    finished = _utc_seconds(trusted.get("updated_at"))
+    if merged is None or finished is None:
+        return dict(mergedAt=pr.get("merged_at"),
+                    trustedCompletedAt=trusted.get("updated_at"),
+                    evidence="unknown — no verified critical-path timestamp pair",
+                    performanceGain="NOT VERIFIED")
+    rows = []
+    for r in supplementary:
+        elapsed = _utc_seconds(r.get("updated_at"))
+        rows.append(dict(runId=r["runId"],
+                         completedSecondsAfterMerge=(round(elapsed - merged, 3)
+                            if elapsed is not None else None)))
+    return dict(mergedAt=pr["merged_at"], trustedCompletedAt=trusted["updated_at"],
+                trustedCompletedSecondsBeforeMerge=round(merged - finished, 3),
+                supplementaryCompletions=rows,
+                performanceGain="NOT VERIFIED — cannot infer causality or improvement")
+
+
 def evaluate_release_pr(pr, sha, extra_runs, jobs_by_run, trusted_run,
                         trusted_jobs, trusted_workflow_id):
     verified_pr(pr, sha)
@@ -131,11 +165,13 @@ def evaluate_release_pr(pr, sha, extra_runs, jobs_by_run, trusted_run,
     gate = verify_trusted_dispatch(trusted_run, trusted_jobs, sha, trusted_workflow_id)
     noise = sum(x["classification"] == "SUPPLEMENTARY_ZERO_JOB_FAILURE" for x in extra)
     genuine = sum(x["classification"] == "ACTUAL_HOSTED_JOB_FAIL" for x in extra)
-    return dict(result="TRUSTED_GATE_PASS_WITH_SEPARATE_SUPPLEMENTARY_EVIDENCE",
+    return dict(result=("TRUSTED_GATE_PASS_WITH_OTHER_HOSTED_FAILURES_REQUIRING_REVIEW"
+                        if genuine else "TRUSTED_GATE_PASS_WITH_SEPARATE_SUPPLEMENTARY_EVIDENCE"),
                 repositoryReleasePR=pr["number"], sourceSha=sha,
                 trustedGate=gate, supplementary=dict(
                     totalRuns=len(extra), zeroJobFailureCount=noise,
                     actualHostedFailures=genuine, records=extra),
+                releaseCriticalPath=_timing(pr, extra, trusted_run),
                 interpretation=(
                     "The trusted exact-SHA dispatch has real successful jobs. "
                     "Supplementary pull_request outcomes retain original failure/skip state; "
