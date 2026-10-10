@@ -111,22 +111,22 @@ signed-production guard.
   After unknown mutation status, reconcile first rather than retry writes.
   **RHC-115 mandatory blocking gate:** Do not use the create/rename response
   as validation. For newly created Issues use the tested two-phase client
-  \`python3 tools/rhc_issue_init.py init --repository OWNER/REPO --subject
+  `python3 tools/rhc_issue_init.py init --repository OWNER/REPO --subject
   'Descriptive subject' --body-file issue.md --label enhancement
-  --label 'priority: medium'\` with an authenticated GitHub CLI.
+  --label 'priority: medium'` with an authenticated GitHub CLI.
   This issues exactly one POST with a unique neutral provisional title and
   creation-time labels, locates the authoritative GitHub-assigned number via
   a unique read-only lookup and a separate numeric GET, then performs exactly
   one guarded PATCH. It independently GETs the saved title, number, open state
-  and scope. Required format: \`[RHC-<actual number>] <meaningful subject>\`.
-  \`RHC115_INITIALIZATION_VERIFIED\` with \`result=PASS\` is the only successful
-  completion signal; \`INITIALIZATION_BLOCKED / NEEDS_CORRECTION\` means STOP.
+  and scope. Required format: `[RHC-<actual number>] <meaningful subject>`.
+  `RHC115_INITIALIZATION_VERIFIED` with `result=PASS` is the only successful
+  completion signal; `INITIALIZATION_BLOCKED / NEEDS_CORRECTION` means STOP.
   A missing/ambiguous creation response or rename timeout is NOT permission
   to create a second Issue. Reconcile the existing Issue by exact ID and
-  provisional nonce (\`recover\`) or obtain human review; never silently rewrite
-  an unrelated historical Issue. \`verify --repository OWNER/REPO --issue N\`
+  provisional nonce (`recover`) or obtain human review; never silently rewrite
+  an unrelated historical Issue. `verify --repository OWNER/REPO --issue N`
   performs a fresh GitHub GET and exits nonzero for an unnumbered, mismatched,
-  closed or malformed Issue. \`audit --repository OWNER/REPO\` is read-only and
+  closed or malformed Issue. `audit --repository OWNER/REPO` is read-only and
   reports historical title drift without changing Issues.
   Work-branch creation, file edits and PR creation **require this independent
   verifier as a procedural pre-mutation gate**. The controlled version-only
@@ -137,7 +137,7 @@ signed-production guard.
   can repository CI prevent all branch creations before they occur. A universal
   GitHub-side enforcement feature is NOT CLAIMED; integrate other clients
   explicitly before calling them protected. RHC-116's separate label/path
-  initialization work remains open; this \`init\` CLI at least requires one
+  initialization work remains open; this `init` CLI at least requires one
   type and one priority label at create time.
 - **F6 / null CI steps:** Missing/null `steps` or `jobs` means evidence
   unavailable, not green. `normalize_job_steps` yields an empty evidence
