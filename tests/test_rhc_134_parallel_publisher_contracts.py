@@ -66,5 +66,74 @@ class ParallelPublisher(unittest.TestCase):
         self.assertRegex(s,r"(?ms)^  windows:.*^  linux:" if False else r"(?m)^  windows:")
         self.assertIn("if-no-files-found: error",s)
 
+class ArtifactGateAdversarialTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / "tools"))
+        import rhc134_artifact_wait as helper
+        cls.gate = helper
+        cls.sha = "a" * 40
+        cls.name = "RHC_REUSABLE-INTERNAL-STAGE-" + cls.sha
+
+    def good(self):
+        return {"total_count": 1, "artifacts": [
+            {"name": self.name, "id": 42, "expired": False,
+             "size_in_bytes": 600, "archive_download_url":
+             "https://api.github.com/repos/owner/repo/actions/artifacts/42/zip"}]}
+
+    def test_exact_same_name_positive_and_other_name_never_qualifies(self):
+        self.assertEqual(self.gate.select_artifact(self.good(), self.name), 42)
+        self.assertIsNone(self.gate.select_artifact(self.good(), self.name[:-1] + "b"))
+
+    def test_missing_tampered_duplicate_or_unauthorized_metadata_blocks(self):
+        cases = []
+        for key, bad in (("id", 0), ("expired", True), ("expired", None),
+                         ("size_in_bytes", 0),
+                         ("archive_download_url", "http://example.org/a"),
+                         ("archive_download_url", None)):
+            x = self.good()
+            x["artifacts"][0][key] = bad
+            cases.append(x)
+        same = self.good()
+        same["artifacts"].append(dict(same["artifacts"][0]))
+        same["total_count"] = 2
+        cases.append(same)
+        truncated = self.good()
+        truncated["total_count"] = 101
+        cases.append(truncated)
+        inconsistent = self.good()
+        inconsistent["total_count"] = 2
+        cases.append(inconsistent)
+        for bad in cases:
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.gate.select_artifact(bad, self.name)
+
+    def test_bounded_wait_never_accepts_wrong_ref_or_unavailable_linux(self):
+        good=self.good()
+        empty={"total_count": 0, "artifacts": []}
+        calls=[]
+        def fetch(repo, run):
+            calls.append((repo,run))
+            return empty if len(calls) < 3 else good
+        self.assertEqual(self.gate.wait_for_artifact(
+            repository="owner/repo", run_id="123", sha=self.sha,
+            prefix="RHC_REUSABLE-INTERNAL-STAGE-", max_attempts=3,
+            interval=0.1, fetcher=fetch, sleeper=lambda _:None),42)
+        self.assertEqual(len(calls),3)
+        with self.assertRaises(TimeoutError):
+            self.gate.wait_for_artifact(
+                repository="owner/repo",run_id="123",sha=self.sha,
+                prefix="RHC_REUSABLE-INTERNAL-STAGE-",max_attempts=2,
+                interval=0.1,fetcher=lambda repo,run:empty,sleeper=lambda _:None)
+        for wrong in (dict(sha="not-a-sha"), dict(prefix="untrusted-"),
+                      dict(run_id="0"),dict(max_attempts=0),dict(max_attempts=500)):
+            params=dict(repository="owner/repo",run_id="123",sha=self.sha,
+                        prefix="RHC_REUSABLE-INTERNAL-STAGE-",max_attempts=2,
+                        interval=0.1,fetcher=lambda repo,run:good,sleeper=lambda _:None)
+            params.update(wrong)
+            with self.subTest(wrong=wrong), self.assertRaises(ValueError):
+                self.gate.wait_for_artifact(**params)
+
+
 if __name__ == "__main__":
     unittest.main()
