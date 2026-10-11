@@ -1,0 +1,145 @@
+name: RHC-134 Parallel Publisher Safety Smoke (nonpublishing)
+# Only Work-branch push; no Candidate/Stage/publishing actions.
+on:
+  push:
+    branches: ['work/RHC-134']
+    paths:
+      - '.github/workflows/rhc134-parallel-smoke.yml'
+      - '.github/workflows/rhc-reusable-interim-release.yml'
+      - 'tools/rhc134_artifact_wait.py'
+      - 'tests/test_rhc_134_parallel_publisher_contracts.py'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: rhc134-smoke-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  linux:
+    name: Two independent Linux PE/ZIP builds and real upload (no publication)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Real double build, same-tree bit-identical unsigned ZIP, no catalog write
+        shell: bash
+        env:
+          GOPROXY: 'off'
+          GOSUMDB: 'off'
+          GOTOOLCHAIN: local
+          GOFLAGS: '-buildvcs=false'
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -m unittest discover -s tests -p 'test_rhc_134_parallel_publisher_contracts.py' -v
+          bash build.sh "$RUNNER_TEMP/build1"
+          bash build.sh "$RUNNER_TEMP/build2"
+          cmp "$RUNNER_TEMP/build1/RazerHealthCenter.exe" "$RUNNER_TEMP/build2/RazerHealthCenter.exe"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,sys
+          sys.path.insert(0,'tools')
+          import rhc_downloads as d
+          from rhc_release_contracts import version_from_model
+          temp=pathlib.Path(os.environ['RUNNER_TEMP'])
+          version=version_from_model('.')
+          a=temp/'build1/RazerHealthCenter.exe'
+          b=temp/'build2/RazerHealthCenter.exe'
+          p=temp/'rhc134-first'/d.filename(version)
+          q=temp/'rhc134-second'/d.filename(version)
+          p.parent.mkdir()
+          q.parent.mkdir()
+          d.make_lean_zip('.',a,p)
+          d.make_lean_zip('.',b,q)
+          assert p.read_bytes()==q.read_bytes(),'RHC134 ZIP reproducibility failed'
+          proof=temp/'rhc134-proof'
+          proof.mkdir()
+          dest=proof/p.name
+          dest.write_bytes(p.read_bytes())
+          evidence=dict(archiveFile=p.name,archiveSha256=hashlib.sha256(dest.read_bytes()).hexdigest(),
+                        exeSha256=hashlib.sha256(a.read_bytes()).hexdigest(),archiveFiles=7,
+                        sourceSha=os.environ['GITHUB_SHA'],version=version,archiveReproducible=True,
+                        twoIndependentPeBuilds=True,twoIndependentZipBuilds=True,linux='SUCCESS')
+          (proof/'linux-evidence.json').write_text(json.dumps(evidence,sort_keys=True)+'\n')
+          print('RHC134_SMOKE_LINUX=PASS sourceSha='+os.environ['GITHUB_SHA'])
+          PY
+          git diff --exit-code
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: RHC134-SMOKE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc134-proof/
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+  windows:
+    name: Parallel native PS5.1 source precheck then actual Linux ZIP attestation
+    runs-on: windows-2025
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GOPROXY: 'off'
+      GOSUMDB: 'off'
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Original exact-source Windows PowerShell 5.1 safety BEFORE Linux artifact
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'wrong checkout SHA' }
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'not PS5.1' }
+          $scripts=@(Get-ChildItem -Recurse -File -Filter '*.ps1')
+          if ($scripts.Count -lt 15) { throw 'missing Razer script inventory' }
+          foreach ($f in $scripts) {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count) { throw 'Razer PS5.1 parser failure' }
+          }
+          go test ./...
+          if ($LASTEXITCODE) { throw 'native Go tests failed' }
+          go vet ./...
+          if ($LASTEXITCODE) { throw 'native Go vet failed' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE) { throw 'Razer repair safety failed' }
+          python -B tools/validate_v307_ps51_appengine_diagnostic.py
+          if ($LASTEXITCODE) { throw 'Razer diagnostics failed' }
+          python -B tools/validate_v306_appengine_recovery.py
+          if ($LASTEXITCODE) { throw 'Razer recovery failed' }
+          Write-Output 'RHC134_SMOKE_PRECHECK=PASS before Linux artifact'
+      - name: Bound and verify source SHA for exact same-run Linux artifact
+        shell: powershell
+        run: |
+          python -B tools/rhc134_artifact_wait.py --prefix RHC134-SMOKE- --max-attempts 90 --interval 2
+          if ($LASTEXITCODE) { throw 'Linux artifact is missing/stale/timeout' }
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: RHC134-SMOKE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc134-smoke-zip
+      - name: Independently hash and inspect original Linux EXE ZIP on actual Windows
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $stage=Join-Path $env:RUNNER_TEMP 'rhc134-smoke-zip'
+          $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
+          if ($e.sourceSha -ne $env:GITHUB_SHA -or !$e.twoIndependentPeBuilds -or !$e.twoIndependentZipBuilds -or $e.archiveFiles -ne 7) { throw 'wrong SHA or double build' }
+          $zip=Join-Path $stage $e.archiveFile
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.archiveSha256) { throw 'tampered Linux ZIP' }
+          $out=Join-Path $env:RUNNER_TEMP 'rhc134-smoke-extract'
+          Expand-Archive -LiteralPath $zip -DestinationPath $out
+          $files=@(Get-ChildItem $out -File -Recurse)
+          if ($files.Count -ne 7) { throw 'unexpected ZIP file count' }
+          $exe=Join-Path $out 'RazerHealthCenter.exe'
+          if ((Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.exeSha256) { throw 'Linux PE hash mismatch' }
+          if ((Get-AuthenticodeSignature $exe).Status -ne 'NotSigned') { throw 'incorrect unsigned status' }
+          Write-Output 'RHC134_SMOKE_WINDOWS=PASS same-run Linux ZIP on independent native Windows, NotSigned; no publication'
