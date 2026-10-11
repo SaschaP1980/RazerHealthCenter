@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.15 — 2026-10-11
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advanced from `3.0.8.14` to `3.0.8.15`; all runtime, Razer repair/privilege/UAC, Go safety tests, CI workflows and release policy remain unchanged.
+- [RHC-155] Owner-authorized genuine full Work-Branch release stopwatch: initial tool-observed timestamp and subsequent GitHub Work/Dev Completion/Candidate/Publisher/Downloads/RHC102/Issue closure evidence; exact client chat-send/render time is not independently available. This source commit is not evidence of successful public release.
+
 ## 3.0.8.14 — 2026-10-11
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advanced from `3.0.8.13` to `3.0.8.14`. No changes to runtime, UI, Razer repairs, privileges, configuration, signing policy or CI safety gates.
