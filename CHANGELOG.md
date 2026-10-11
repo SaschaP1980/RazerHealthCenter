@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.16 — 2026-10-11
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advanced from `3.0.8.15` to `3.0.8.16`. No changes to runtime, UI, Razer repair/privilege/UAC, Windows diagnostic safety, Go tests, GitHub CI workflows or release policy.
+- [RHC-160] Owner-authorized complete Work → Candidate → unsigned interim public Release and live RHC-158 automatic Issue-closure acceptance. The source version change alone is not publication or proof of successful automatic closure.
+
 ## 3.0.8.15 — 2026-10-11
 
 - Version-only HOTFIX: `appVersion` and `referenceVersion` advanced from `3.0.8.14` to `3.0.8.15`; all runtime, Razer repair/privilege/UAC, Go safety tests, CI workflows and release policy remain unchanged.
