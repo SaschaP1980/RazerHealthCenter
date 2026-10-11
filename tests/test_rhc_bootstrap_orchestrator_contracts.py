@@ -109,14 +109,14 @@ class Fake:
         if name in self.branches:
             raise ValueError("duplicate branch")
         self.branches[name] = sha
-        return {"sha": sha, "ref": name}
+        return {"sha": sha, "ref": name, "created_at": "2026-10-11T16:45:06Z"}
 
 
 def execute(g, **kw):
     return boot.run(g, repository="SaschaP1980/RazerHealthCenter",
                     subject=SUBJECT, issue_body=BODY, labels=LABELS,
                     template=TEMPLATE, pinned_main=BASE, marker=MARKER,
-                    instant=CLOCK, **kw)
+                    instant=CLOCK, clock=lambda: CLOCK + dt.timedelta(seconds=4), **kw)
 
 
 class GuardedBootstrap(unittest.TestCase):
@@ -139,7 +139,7 @@ class GuardedBootstrap(unittest.TestCase):
         body = f.get_comment(5001)["body"]
         self.assertEqual(boot.extract_headings(body), boot.HEADINGS)
         self.assertIn("RHC900CHAT1234ABCDEF89", body)
-        self.assertIn("**Bootstrap creation ISO timestamp:** \`2026-10-11T16:45:00.123Z\`", body)
+        self.assertIn("**Bootstrap creation ISO timestamp:** " + chr(96) + "2026-10-11T16:45:00.123Z" + chr(96), body)
         self.assertIn("**Current phase:** WORK_CREATED", body)
         self.assertEqual(f.event.count("create_comment"), 1)
         self.assertEqual(f.event.count("create_branch"), 1)
