@@ -52,6 +52,18 @@ class ParallelPublisher(unittest.TestCase):
         self.assertNotIn("gh workflow run",s)
         self.assertNotIn("gh api -X POST",s)
 
+    def test_smoke_has_true_same_run_serial_control_for_paired_measurement(self):
+        s = SMOKE.read_text(encoding="utf-8")
+        parallel = s.split("\n  windows:\n",1)[1].split("\n  windows_serial_control:\n",1)[0]
+        serial = s.split("\n  windows_serial_control:\n",1)[1]
+        self.assertNotIn("needs: linux",parallel)
+        self.assertIn("needs: linux",serial)
+        self.assertIn("RHC134_SMOKE_WINDOWS=PASS",parallel)
+        self.assertIn("RHC134_SMOKE_WINDOWS=PASS",serial)
+        self.assertIn("Get-AuthenticodeSignature",parallel)
+        self.assertIn("Get-AuthenticodeSignature",serial)
+        self.assertNotIn("stage_release(",s)
+
     def test_nonpublishing_integration_smoke_does_not_write_release(self):
         s = SMOKE.read_text(encoding="utf-8")
         for x in ("work/RHC-134", "runs-on: ubuntu-24.04",

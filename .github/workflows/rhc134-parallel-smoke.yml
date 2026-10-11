@@ -143,3 +143,73 @@ jobs:
           if ((Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.exeSha256) { throw 'Linux PE hash mismatch' }
           if ((Get-AuthenticodeSignature $exe).Status -ne 'NotSigned') { throw 'incorrect unsigned status' }
           Write-Output 'RHC134_SMOKE_WINDOWS=PASS same-run Linux ZIP on independent native Windows, NotSigned; no publication'
+
+  # RHC-134 benchmark-only serial control; NEVER exists in release Publisher.
+  windows_serial_control:
+    name: SERIAL CONTROL — same source and Linux artifact, Linux must finish first
+    needs: linux
+    runs-on: windows-2025
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GOPROXY: 'off'
+      GOSUMDB: 'off'
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - name: Original exact-source Windows PowerShell 5.1 safety BEFORE Linux artifact
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'wrong checkout SHA' }
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'not PS5.1' }
+          $scripts=@(Get-ChildItem -Recurse -File -Filter '*.ps1')
+          if ($scripts.Count -lt 15) { throw 'missing Razer script inventory' }
+          foreach ($f in $scripts) {
+            $tokens=$null; $errors=$null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors.Count) { throw 'Razer PS5.1 parser failure' }
+          }
+          go test ./...
+          if ($LASTEXITCODE) { throw 'native Go tests failed' }
+          go vet ./...
+          if ($LASTEXITCODE) { throw 'native Go vet failed' }
+          python -B tools/validate_repair_safety.py
+          if ($LASTEXITCODE) { throw 'Razer repair safety failed' }
+          python -B tools/validate_v307_ps51_appengine_diagnostic.py
+          if ($LASTEXITCODE) { throw 'Razer diagnostics failed' }
+          python -B tools/validate_v306_appengine_recovery.py
+          if ($LASTEXITCODE) { throw 'Razer recovery failed' }
+          Write-Output 'RHC134_SMOKE_PRECHECK=PASS before Linux artifact'
+      - name: Bound and verify source SHA for exact same-run Linux artifact
+        shell: powershell
+        run: |
+          python -B tools/rhc134_artifact_wait.py --prefix RHC134-SMOKE- --max-attempts 90 --interval 2
+          if ($LASTEXITCODE) { throw 'Linux artifact is missing/stale/timeout' }
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: RHC134-SMOKE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc134-smoke-zip
+      - name: Independently hash and inspect original Linux EXE ZIP on actual Windows
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $stage=Join-Path $env:RUNNER_TEMP 'rhc134-smoke-zip'
+          $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
+          if ($e.sourceSha -ne $env:GITHUB_SHA -or !$e.twoIndependentPeBuilds -or !$e.twoIndependentZipBuilds -or $e.archiveFiles -ne 7) { throw 'wrong SHA or double build' }
+          $zip=Join-Path $stage $e.archiveFile
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.archiveSha256) { throw 'tampered Linux ZIP' }
+          $out=Join-Path $env:RUNNER_TEMP 'rhc134-smoke-extract'
+          Expand-Archive -LiteralPath $zip -DestinationPath $out
+          $files=@(Get-ChildItem $out -File -Recurse)
+          if ($files.Count -ne 7) { throw 'unexpected ZIP file count' }
+          $exe=Join-Path $out 'RazerHealthCenter.exe'
+          if ((Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.exeSha256) { throw 'Linux PE hash mismatch' }
+          if ((Get-AuthenticodeSignature $exe).Status -ne 'NotSigned') { throw 'incorrect unsigned status' }
+          Write-Output 'RHC134_SMOKE_WINDOWS=PASS same-run Linux ZIP on independent native Windows, NotSigned; no publication'
