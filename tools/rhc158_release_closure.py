@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import json
 import re
 import sys
+import time
 import rhc139_rolling_audit as audit
 
 ROLLING_ID_MARKER = "**Issue:** [RHC-{issue}](https://github.com/SaschaP1980/RazerHealthCenter/issues/{issue})"
@@ -247,8 +248,67 @@ def already_completed(g, proof):
     return {"status": "ALREADY_COMPLETED", "closed_at": issue["closed_at"]}
 
 
-def close_release(g, publisher_id, apply=False):
+
+def wait_for_publisher(g, publisher_id, expected_source_sha, *,
+                       timeout_seconds=120, poll_seconds=3,
+                       monotonic=time.monotonic, sleep=time.sleep):
+    """Boundedly wait for the SAME authenticated Publisher to finish SUCCESS.
+
+    The dispatch occurs after genuine RHC102 success but before the Publisher
+    itself can report completed. Waiting never authorizes closure: the full
+    existing RHC139 five-run/four-job provenance still executes afterwards.
+    No polling of unrelated workflow runs or cross-version fallback.
+    """
+    need(type(publisher_id) is int and publisher_id > 0,
+         "invalid exact Publisher run id")
+    need(isinstance(expected_source_sha, str) and SHA.fullmatch(expected_source_sha),
+         "required explicit Candidate SHA absent")
+    need(0 < timeout_seconds <= 180 and 0 < poll_seconds <= 10,
+         "unsafe Publisher wait bounds")
+    limit = monotonic() + timeout_seconds
+    frozen = None
+    while True:
+        current = g.get_run(publisher_id)
+        need(isinstance(current, dict) and current.get("id") == publisher_id and
+             current.get("head_sha") == expected_source_sha and
+             current.get("event") == "workflow_dispatch" and
+             current.get("name") == "RHC Reusable Interim Unsigned Release" and
+             (current.get("actor") or {}).get("login") == "github-actions[bot]" and
+             isinstance(current.get("head_branch"), str) and
+             re.fullmatch(r"candidate/v[0-9]+(?:\.[0-9]+){3}",
+                          current["head_branch"]) and
+             type(current.get("run_attempt")) is int and
+             current["run_attempt"] > 0,
+             "untrusted Publisher identity, event or source")
+        identity = (current["id"], current["head_sha"], current["event"],
+                    current["name"], current["head_branch"],
+                    current["run_attempt"], current["actor"]["login"])
+        if frozen is None:
+            frozen = identity
+        need(identity == frozen, "Publisher identity changed during wait")
+        state = current.get("status")
+        if state == "completed":
+            need(current.get("conclusion") == "success",
+                 "Publisher terminal state is not success")
+            return current
+        need(state in ("queued", "in_progress", "waiting", "pending", "requested") and
+             current.get("conclusion") is None,
+             "Publisher has unexpected nonterminal state")
+        remaining = limit - monotonic()
+        need(remaining > 0, "authenticated Publisher completion timed out")
+        sleep(min(remaining, poll_seconds))
+
+
+def close_release(g, publisher_id, apply=False, *,
+                  expected_source_sha=None, wait=False):
+    if wait:
+        wait_for_publisher(g, publisher_id, expected_source_sha)
     proof = collect_release_proof(g, publisher_id, allow_completed=True)
+    if expected_source_sha is not None:
+        need(isinstance(expected_source_sha, str) and
+             SHA.fullmatch(expected_source_sha) and
+             proof["source_sha"] == expected_source_sha,
+             "explicit dispatch source does not match authenticated Publisher")
     if g.get_issue(proof["issue"]).get("state") == "closed":
         result = already_completed(g, proof)
     else:
@@ -272,10 +332,14 @@ def main(argv=None):
     ap.add_argument("--repository", required=True)
     ap.add_argument("--publisher-run-id", type=int, required=True)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--expected-source-sha", default=None)
+    ap.add_argument("--wait-for-publisher", action="store_true")
     args = ap.parse_args(argv)
     try:
         result = close_release(Gateway(args.repository), args.publisher_run_id,
-                               apply=args.apply)
+                               apply=args.apply,
+                               expected_source_sha=args.expected_source_sha,
+                               wait=args.wait_for_publisher)
         print("RHC158_CLOSURE=" + json.dumps(result, sort_keys=True))
         return 0
     except (ValueError, KeyError, TypeError, OSError, RuntimeError):

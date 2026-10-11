@@ -3,6 +3,20 @@ on:
   workflow_run:
     workflows: ["RHC Reusable Interim Unsigned Release"]
     types: [completed]
+  # GITHUB_TOKEN may not cascade the expected workflow_run event from a
+  # bot-dispatched Publisher. An explicit token-safe workflow_dispatch is
+  # made ONLY after its independent RHC102 3/3 gate; the closure worker
+  # then waits boundedly for the exact parent Publisher completed/success.
+  workflow_dispatch:
+    inputs:
+      publisher_run_id:
+        description: Exact authenticated Publisher run ID (never a PR ID)
+        required: true
+        type: string
+      expected_source_sha:
+        description: Exact frozen Candidate SHA for that Publisher
+        required: true
+        type: string
 
 # No long-lived PAT, PR/write access, release dispatch or product mutation.
 permissions:
@@ -12,18 +26,23 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: rhc158-closure-${{ github.event.workflow_run.id }}
+  group: rhc158-closure-${{ github.event.workflow_run.id || inputs.publisher_run_id }}
   cancel-in-progress: false
 
 jobs:
   guarded-closure:
     name: Verify authenticated public release before canonical Issue closure
     if: >-
-      ${{ github.event.workflow_run.event == 'workflow_dispatch' &&
-          github.event.workflow_run.status == 'completed' &&
-          github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.actor.login == 'github-actions[bot]' &&
-          startsWith(github.event.workflow_run.head_branch, 'candidate/v') }}
+      ${{ (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.event == 'workflow_dispatch' &&
+           github.event.workflow_run.status == 'completed' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.actor.login == 'github-actions[bot]' &&
+           startsWith(github.event.workflow_run.head_branch, 'candidate/v')) ||
+          (github.event_name == 'workflow_dispatch' &&
+           github.actor == 'github-actions[bot]' &&
+           inputs.publisher_run_id != '' &&
+           inputs.expected_source_sha != '') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -36,10 +55,13 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RHC_PUBLISHER_RUN_ID: ${{ github.event.workflow_run.id }}
+          RHC_PUBLISHER_RUN_ID: ${{ github.event.workflow_run.id || inputs.publisher_run_id }}
+          RHC_EXPECTED_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.expected_source_sha }}
         run: |
           set -euo pipefail
           test "$RHC_PUBLISHER_RUN_ID" -gt 0
           python3 -B tools/rhc158_release_closure.py \
             --repository "$GITHUB_REPOSITORY" \
-            --publisher-run-id "$RHC_PUBLISHER_RUN_ID" --apply
+            --publisher-run-id "$RHC_PUBLISHER_RUN_ID" \
+            --expected-source-sha "$RHC_EXPECTED_SOURCE_SHA" \
+            --wait-for-publisher --apply

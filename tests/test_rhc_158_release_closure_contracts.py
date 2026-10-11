@@ -229,7 +229,10 @@ class ClosureIntegration(unittest.TestCase):
         self.assertNotIn("pull_request_target:",s)
         self.assertNotIn("productionEnabled=true",s)
         self.assertNotIn("gh pr merge",s)
-        self.assertNotIn("workflow_dispatch:",s)
+        self.assertIn("workflow_dispatch:",s)
+        self.assertIn("publisher_run_id:",s)
+        self.assertIn("--wait-for-publisher",s)
+        self.assertIn("--expected-source-sha",s)
         self.assertNotIn("contents: write",s)
 
 if __name__ == "__main__":

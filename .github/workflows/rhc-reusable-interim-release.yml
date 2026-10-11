@@ -513,3 +513,14 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
           echo "RHC94_SINGLE_ATOMIC_PR_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION postrelease=$VERIFIED linux_https=PASS native_windows=PASS hardware=NOT_APPLICABLE"
           echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION independentPostrelease=$VERIFIED PhaseB=DEFERRED"
+          # RHC-162: GITHUB_TOKEN workflow_dispatch (not a new public release).
+          # This exact step runs strictly AFTER remote RHC102 3/3 success;
+          # only the separate least-privilege closure job may patch the Issue.
+          # gh returning successfully confirms dispatch request acceptance,
+          # NOT a completed Publisher, closure job or closed Issue.
+          test "$GITHUB_RUN_ID" -gt 0
+          test "$GITHUB_SHA" = "$SOURCE_SHA"
+          gh workflow run rhc158-release-closure.yml --ref main \
+            -f publisher_run_id="$GITHUB_RUN_ID" \
+            -f expected_source_sha="$SOURCE_SHA"
+          echo "RHC162_CLOSURE_DISPATCH_REQUESTED=PASS publisher=$GITHUB_RUN_ID source=$SOURCE_SHA closure=NOT_VERIFIED"
