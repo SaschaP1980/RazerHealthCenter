@@ -118,10 +118,15 @@ jobs:
 
   windows:
     name: Actual native Windows PS5.1 and unsigned EXE/ZIP safety verification
-    needs: linux
+    # RHC-134: source safety starts alongside Linux, with one Windows runner.
+    # Same-run Linux-produced bytes are independently attested later here.
     runs-on: windows-2025
     timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
     env:
+      GH_TOKEN: ${{ github.token }}
       GOPROXY: 'off'
       GOSUMDB: 'off'
       GOTOOLCHAIN: local
@@ -134,22 +139,12 @@ jobs:
         with:
           go-version: '1.23.2'
           cache: false
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
-        with:
-          name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
-          path: ${{ runner.temp }}/rhc-reusable-stage
-      - name: Validate exact main source, Razer safety and actual Windows Publisher status
+      - name: Verify immutable Candidate, native PS5.1, Go and repair safety BEFORE Linux artifact
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
           if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Native Windows PowerShell 5.1 required' }
           if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Candidate source SHA drift' }
-          $stage=Join-Path $env:RUNNER_TEMP 'rhc-reusable-stage'
-          $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
-          $current=(python -c "import sys;sys.path.insert(0,'tools');from rhc_release_contracts import version_from_model;print(version_from_model('.'))").Trim()
-          if ($LASTEXITCODE -ne 0 -or $e.version -ne $current -or $e.sourceSha -ne $env:GITHUB_SHA -or !$e.archiveReproducible) { throw 'Wrong release version/SHA' }
-          $zip=Join-Path $stage $e.archiveFile
-          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.archiveSha256) { throw 'ZIP digest mismatches Linux runner' }
           $scripts=@(Get-ChildItem -Recurse -File -Filter '*.ps1')
           if ($scripts.Count -lt 15) { throw 'Missing Razer PowerShell inventory' }
           foreach ($file in $scripts) {
@@ -167,6 +162,28 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Diagnostic safety failed' }
           python -B tools/validate_v306_appengine_recovery.py
           if ($LASTEXITCODE -ne 0) { throw 'Recovery safety failed' }
+          Write-Output 'RHC134_WINDOWS_PRECHECK=PASS exact Candidate source, PS5.1, Go, repair safety'
+      - name: Wait bounded for exact same-run Linux artifact (read-only)
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          python -B tools/rhc134_artifact_wait.py --max-attempts 90 --interval 2
+          if ($LASTEXITCODE -ne 0) { throw 'Linux artifact unavailable/invalid' }
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: RHC_REUSABLE-INTERNAL-STAGE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc-reusable-stage
+      - name: Independently attest ACTUAL Linux-built EXE and ZIP on Windows
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Candidate source changed during artifact wait' }
+          $stage=Join-Path $env:RUNNER_TEMP 'rhc-reusable-stage'
+          $e=Get-Content (Join-Path $stage 'linux-evidence.json') -Raw | ConvertFrom-Json
+          $current=(python -c "import sys;sys.path.insert(0,'tools');from rhc_release_contracts import version_from_model;print(version_from_model('.'))").Trim()
+          if ($LASTEXITCODE -ne 0 -or $e.version -ne $current -or $e.sourceSha -ne $env:GITHUB_SHA -or !$e.archiveReproducible -or !$e.twoIndependentPeBuilds -or !$e.twoIndependentZipBuilds -or $e.archiveFiles -ne 7) { throw 'Wrong signed provenance/version/candidate double-build or ZIP count' }
+          $zip=Join-Path $stage $e.archiveFile
+          if (!(Test-Path -LiteralPath $zip) -or (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $e.archiveSha256) { throw 'ZIP digest mismatches Linux runner' }
           $out=Join-Path $env:RUNNER_TEMP 'rhc-reusable-verified-extract'
           Expand-Archive -LiteralPath $zip -DestinationPath $out
           $pe=Join-Path $out 'RazerHealthCenter.exe'
@@ -175,8 +192,7 @@ jobs:
           if ($sig.Status -ne 'NotSigned') { throw 'Interim unsigned trust disclosure disagrees with real PE' }
           $att=@{ sourceSha=$env:GITHUB_SHA; archiveSha256=$e.archiveSha256; exeSha256=$e.exeSha256; exeSignature='NotSigned'; nativeWindows='SUCCESS'; version=$e.version }
           $att | ConvertTo-Json -Compress | Set-Content -Encoding Ascii (Join-Path $env:RUNNER_TEMP 'rhc-reusable-windows-evidence.json')
-          # Eligibility is composed on the stage runner from real Linux and
-          # native Windows evidence. No external Phase B claim is invented.
+          Write-Output 'RHC134_WINDOWS_ARTIFACT_ATTESTATION=PASS actual same-run Linux ZIP/EXE SHA/PE/NotSigned'
           Write-Output 'RHC_REUSABLE_WINDOWS=PASS; actual PS5.1 + unsigned EXE + cross-OS qualification; physical Razer/rollback/Owner trust DEFERRED'
       - name: Transfer real Windows proof after qualified native tests
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
