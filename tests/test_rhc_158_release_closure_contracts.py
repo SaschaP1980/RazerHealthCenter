@@ -43,9 +43,16 @@ class Fake:
         self.pr = {"number": 199, "state": "closed", "merged": True,
                    "base": {"sha": BASE}, "head": {"sha": STAGE},
                    "merge_commit_sha": MAIN, "body": "Refs #158"}
-        self.comments = [{"id": 220, "body": rc.ROLLING_ID_MARKER.format(issue=158)
-                          + "\n" + "\n".join("### " + h + "\npass"
-                          for h in rc.audit.HEADINGS)}]
+        header = ("**Last heartbeat:** 2026-10-11 at 13:00:00 UTC\n"
+                  "**Local reference (Europe/Berlin):** 11.10.2026, 15:00:00 CEST\n"
+                  "**Original ISO timestamp:** `2026-10-11T13:00:00.000Z`\n"
+                  "**Bootstrap creation ISO timestamp:** `2026-10-11T12:59:00.000Z`\n"
+                  "**Agent-State:** ACTIVE\n" +
+                  rc.ROLLING_ID_MARKER.format(issue=158) + "\n"
+                  "**Current phase:** active Work\n"
+                  "**Next action:** collect authentic evidence\n")
+        self.comments = [{"id": 220, "body": header + "\n".join(
+            "### " + h + "\npass\n" for h in rc.audit.HEADINGS)}]
         self.runs = {
             "work": {"id": 701, "head_sha": WORK, "event": "push"},
             "candidate": {"id": 702, "head_sha": SOURCE, "event": "workflow_dispatch"},
@@ -139,12 +146,15 @@ class ClosureIntegration(unittest.TestCase):
                     rc.collect_release_proof(f, 512)
 
     def test_missing_or_noncanonical_rolling_blocks(self):
-        for corruption in ["missing", "duplicate", "wrong_issue"]:
+        for corruption in ["missing", "duplicate", "wrong_issue", "no_bootstrap"]:
             with self.subTest(corruption=corruption):
                 f=Fake()
                 if corruption=="missing": f.comments=[]
                 if corruption=="duplicate": f.comments=f.comments*2
                 if corruption=="wrong_issue": f.comments[0]["body"]="## Wrong issue"
+                if corruption=="no_bootstrap":
+                    f.comments[0]["body"]=f.comments[0]["body"].replace(
+                        "**Bootstrap creation ISO timestamp:**", "**MISSING:**")
                 with self.assertRaises(ValueError):
                     rc.collect_release_proof(f,512)
 
@@ -168,6 +178,13 @@ class ClosureIntegration(unittest.TestCase):
         self.assertEqual(result["status"], "READY_PLAN_ONLY")
         self.assertFalse(final.call_args.kwargs["apply"])
         self.assertEqual(final.call_args.args[1]["run_ids"]["rhc102"], 704)
+
+    def test_closure_metric_server_utc_no_negative_or_invented_clock(self):
+        self.assertEqual(rc.closure_seconds(
+            "2026-10-11T10:51:10Z", "2026-10-11T10:58:07Z"), 417)
+        self.assertIsNone(rc.closure_seconds(
+            "2026-10-11T10:58:07Z", "2026-10-11T10:51:10Z"))
+        self.assertIsNone(rc.closure_seconds(None, "2026-10-11T10:58:07Z"))
 
     def test_wiring_no_untrusted_pr_or_auto_product_release(self):
         s=(ROOT/".github/workflows/rhc158-release-closure.yml").read_text()

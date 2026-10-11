@@ -162,8 +162,13 @@ def collect_release_proof(g, publisher_run_id):
     need(len(canonical) == 1 and type(canonical[0].get("id")) is int,
          "canonical Rolling Comment not unique")
     content = canonical[0]["body"]
-    need(len(re.findall(r"(?m)^### (.+)$", content)) == 13,
-         "13-section original Rolling audit missing")
+    audit.canonical(content)
+    bootstrap = [line for line in content.splitlines()
+                 if line.startswith("**Bootstrap creation ISO timestamp:** ")]
+    need(len(bootstrap) == 1 and
+         bootstrap[0].endswith("Z" + chr(96)) and
+         bootstrap[0].count(chr(96)) == 2,
+         "frozen original BOOTSTRAP clock missing")
     ids = {"work": find_run(g, work_sha, "work"),
            "candidate": find_run(g, source_sha, "candidate"),
            "publisher": publisher_run_id,
@@ -196,14 +201,35 @@ class Gateway(audit.GitHubGateway):
         return [x for x in obj["workflow_runs"] if x.get("event") == event]
 
 
+def closure_seconds(publisher_utc, closed_utc):
+    """Measured actual GitHub Publisher updated_at to Issue closed_at, not chat UI."""
+    try:
+        p = datetime.fromisoformat(publisher_utc.replace("Z", "+00:00"))
+        c = datetime.fromisoformat(closed_utc.replace("Z", "+00:00"))
+        need(p.tzinfo is not None and c.tzinfo is not None,
+             "missing timezone")
+        seconds = (c - p).total_seconds()
+        need(seconds >= 0, "nonmonotonic hosted close clock")
+        return seconds
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
 def close_release(g, publisher_id, apply=False):
     proof = collect_release_proof(g, publisher_id)
-    # RHC-139 is authoritative for exact distinct job roles and the readback,
-    # two-stage fail-closed comment update and Issue close. Never reimplement it.
+    # RHC-139 is authoritative for exact hosted job roles and readback,
+    # two-stage fail-closed comment update and Issue close. Never bypass it.
     result = audit.finalize(g, proof, now=datetime.now(timezone.utc), apply=apply)
+    elapsed = None
+    if result["status"] == "COMPLETED":
+        elapsed = closure_seconds(g.get_run(publisher_id).get("updated_at"),
+                                  result.get("closed_at"))
     return {"status": result["status"], "issue": proof["issue"],
             "publisher": publisher_id, "pr": proof["pr"],
-            "closed_at": result.get("closed_at"), "source_sha": proof["source_sha"]}
+            "closed_at": result.get("closed_at"), "source_sha": proof["source_sha"],
+            "publisher_to_issue_close_seconds": elapsed,
+            "closure_kpi": "NOT_VERIFIED" if elapsed is None else
+                           ("MET" if elapsed <= 60 else "ABOVE_TARGET")}
 
 
 def main(argv=None):
