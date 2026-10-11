@@ -87,6 +87,8 @@ class Fake:
     def get_issue(self, n): return dict(self.issue)
     def list_release_prs(self, merged): return [dict(self.pr)]
     def list_issue_comments(self, n): return list(self.comments)
+    def get_comment(self, n):
+        return dict(self.comments[0])
     def get_git_commit(self, sha): return dict(self.git[sha])
     def find_success_runs(self, sha, event):
         return [self.get_run(run["id"]) for key, run in self.runs.items()
@@ -185,6 +187,34 @@ class ClosureIntegration(unittest.TestCase):
         self.assertIsNone(rc.closure_seconds(
             "2026-10-11T10:58:07Z", "2026-10-11T10:51:10Z"))
         self.assertIsNone(rc.closure_seconds(None, "2026-10-11T10:58:07Z"))
+
+    def test_duplicate_completed_publisher_requires_original_exact_closure(self):
+        import json
+        from unittest.mock import patch
+        f = Fake()
+        f.issue.update(state="closed", state_reason="completed",
+                       closed_at="2026-10-11T13:00:30Z")
+        original = f.comments[0]["body"].replace(
+            "**Agent-State:** ACTIVE", "**Agent-State:** COMPLETED")
+        for key, rid in (("work",701),("candidate",702),("publisher",512),
+                         ("downloads",703),("rhc102",704)):
+            original += "\n- RHC139_EVENT " + json.dumps(
+                {"key": key + "-" + str(rid), "issue":158,
+                 "run_id":rid, "status":"success"}) + "\n"
+        closing = {"issue":158,"closed_at":f.issue["closed_at"],
+                   "merge_sha":MAIN,"status":"completed"}
+        original += "\n- RHC139_ISSUE_CLOSED " + json.dumps(closing) + "\n"
+        f.comments[0]["body"] = original
+        with patch.object(rc.audit, "verify_acceptance", return_value=[]):
+            outcome = rc.close_release(f,512,apply=True)
+            self.assertEqual(outcome["status"], "ALREADY_COMPLETED")
+            f.comments[0]["body"] = original.replace(MAIN,"0"*40)
+            with self.assertRaises(ValueError):
+                rc.close_release(f,512,apply=True)
+            f.comments[0]["body"] = original.replace(
+                "**Agent-State:** COMPLETED","**Agent-State:** WAITING_FOR_GITHUB")
+            with self.assertRaises(ValueError):
+                rc.close_release(f,512,apply=True)
 
     def test_wiring_no_untrusted_pr_or_auto_product_release(self):
         s=(ROOT/".github/workflows/rhc158-release-closure.yml").read_text()

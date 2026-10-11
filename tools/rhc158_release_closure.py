@@ -91,7 +91,7 @@ def find_run(g, sha, role):
                        bot=(role != "work"))
 
 
-def collect_release_proof(g, publisher_run_id):
+def collect_release_proof(g, publisher_run_id, allow_completed=False):
     need(type(publisher_run_id) is int and publisher_run_id > 0,
          "invalid publisher id")
     pub = g.get_run(publisher_run_id)
@@ -130,9 +130,11 @@ def collect_release_proof(g, publisher_run_id):
          trailer(work.get("message"), "RHC-Issue") == owner,
          "Work/Candidate tree, Issue or parent mismatch")
     issue = g.get_issue(issue_id)
-    need(issue.get("number") == issue_id and issue.get("state") == "open" and
+    need(issue.get("number") == issue_id and
+         (issue.get("state") == "open" or
+          (allow_completed and issue.get("state") == "closed")) and
          str(issue.get("title", "")).startswith("[RHC-" + owner + "] "),
-         "canonical Issue not open")
+         "canonical Issue state/identity not valid")
     merged_sha = g.get_main_sha()
     need(isinstance(merged_sha, str) and SHA.fullmatch(merged_sha),
          "public main not authoritative")
@@ -215,13 +217,46 @@ def closure_seconds(publisher_utc, closed_utc):
         return None
 
 
+def already_completed(g, proof):
+    """Idempotent duplicate events: no write, but still all real gates verified."""
+    audit.verify_acceptance(g, proof)
+    issue = g.get_issue(proof["issue"])
+    need(issue.get("state") == "closed" and
+         issue.get("state_reason") == "completed" and
+         isinstance(issue.get("closed_at"), str),
+         "Issue not authoritatively completed")
+    comment = g.get_comment(proof["comment_id"])
+    body = comment.get("body", "")
+    audit.canonical(body)
+    need("**Agent-State:** COMPLETED" in body,
+         "Issue closed before canonical completion")
+    records = re.findall(r"(?m)^- RHC139_ISSUE_CLOSED (\{[^\r\n]+\})$", body)
+    need(len(records) == 1, "missing or ambiguous RHC-139 closure evidence")
+    record = json.loads(records[0])
+    need(record == {"issue": proof["issue"],
+                    "closed_at": issue["closed_at"],
+                    "merge_sha": proof["merged_sha"], "status": "completed"},
+         "Issue closure evidence/merge identity mismatch")
+    events = re.findall(r"(?m)^- RHC139_EVENT (\{[^\r\n]+\})$", body)
+    expected = {"work", "candidate", "publisher", "downloads", "rhc102"}
+    parsed = [json.loads(row) for row in events]
+    need(len(parsed) == 5 and
+         {row.get("key", "").split("-")[0] for row in parsed} == expected and
+         {row.get("run_id") for row in parsed} == set(proof["run_ids"].values()),
+         "already-completed audit lacks five real gate events")
+    return {"status": "ALREADY_COMPLETED", "closed_at": issue["closed_at"]}
+
+
 def close_release(g, publisher_id, apply=False):
-    proof = collect_release_proof(g, publisher_id)
-    # RHC-139 is authoritative for exact hosted job roles and readback,
-    # two-stage fail-closed comment update and Issue close. Never bypass it.
-    result = audit.finalize(g, proof, now=datetime.now(timezone.utc), apply=apply)
+    proof = collect_release_proof(g, publisher_id, allow_completed=True)
+    if g.get_issue(proof["issue"]).get("state") == "closed":
+        result = already_completed(g, proof)
+    else:
+        # RHC-139 is authoritative for exact hosted job roles and readback,
+        # two-stage fail-closed comment update and Issue close. Never bypass it.
+        result = audit.finalize(g, proof, now=datetime.now(timezone.utc), apply=apply)
     elapsed = None
-    if result["status"] == "COMPLETED":
+    if result["status"] in ("COMPLETED", "ALREADY_COMPLETED"):
         elapsed = closure_seconds(g.get_run(publisher_id).get("updated_at"),
                                   result.get("closed_at"))
     return {"status": result["status"], "issue": proof["issue"],
