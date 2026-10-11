@@ -18,7 +18,7 @@ class Fake:
     def __init__(self):
         self.publisher = 512
         self.issue_id = 158
-        self.issue = {"number": 158, "state": "open"}
+        self.issue = {"number": 158, "state": "open", "title": "[RHC-158] GitHub CI guarded closure"}
         self.run = {"id": 512, "name": "RHC Reusable Interim Unsigned Release",
                     "status": "completed", "conclusion": "success",
                     "event": "workflow_dispatch", "head_sha": SOURCE,

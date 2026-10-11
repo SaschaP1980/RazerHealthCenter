@@ -1,0 +1,45 @@
+name: RHC-158 Guarded Post-Publisher Issue Closure
+on:
+  workflow_run:
+    workflows: ["RHC Reusable Interim Unsigned Release"]
+    types: [completed]
+
+# No long-lived PAT, PR/write access, release dispatch or product mutation.
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: rhc158-closure-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  guarded-closure:
+    name: Verify authenticated public release before canonical Issue closure
+    if: >-
+      ${{ github.event.workflow_run.event == 'workflow_dispatch' &&
+          github.event.workflow_run.status == 'completed' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.actor.login == 'github-actions[bot]' &&
+          startsWith(github.event.workflow_run.head_branch, 'candidate/v') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout protected main after completed Publisher
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # Node 24
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Reverify true Publisher/Candidate/Work, Downloads and public RHC102
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RHC_PUBLISHER_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          test "$RHC_PUBLISHER_RUN_ID" -gt 0
+          python3 -B tools/rhc158_release_closure.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --publisher-run-id "$RHC_PUBLISHER_RUN_ID" --apply
