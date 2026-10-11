@@ -49,7 +49,15 @@ def trusted_run(g, row, sha, name, event, count, bot=False):
     need(isinstance(row, dict) and type(row.get("id")) is int and row["id"] > 0,
          "missing run identifier")
     observed = g.get_run(row["id"])
-    need(observed == row, "run discovery/readback mismatch")
+    # Collection and detailed GET have different legitimate optional metadata.
+    # Compare immutable security-bearing fields, never entire API JSON objects.
+    critical = ("id", "head_sha", "event", "name", "status",
+                "conclusion", "run_attempt", "head_branch")
+    need(isinstance(observed, dict) and
+         all(observed.get(key) == row.get(key) for key in critical) and
+         (observed.get("actor") or {}).get("login") ==
+         (row.get("actor") or {}).get("login"),
+         "run discovery/readback identity mismatch")
     need(row.get("head_sha") == sha and row.get("event") == event and
          row.get("status") == "completed" and row.get("conclusion") == "success",
          "wrong SHA/event or not completed-success")

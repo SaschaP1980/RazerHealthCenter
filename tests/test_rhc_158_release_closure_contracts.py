@@ -56,8 +56,20 @@ class Fake:
         self.jobs = {701: 3, 702: 3, 512: 4, 703: 1, 704: 3}
         self.tag_sha = SOURCE
 
-    def get_run(self, rid): return dict(self.run if rid == 512 else self._find_run(rid))
-    def _find_run(self, rid): return next(v for v in self.runs.values() if v["id"] == rid)
+    def get_run(self, rid):
+        if rid == 512: return dict(self.run)
+        names = {"work": "RHC Infrastructure Qualification (nonpublishing)",
+                 "candidate": "RHC Candidate Preflight (nonpublishing)",
+                 "downloads": "RHC Repository Downloads Integrity (nonpublishing)",
+                 "rhc102": "RHC POSTRELEASE v3.0.8.16 main:" + MAIN,
+                 "double": "RHC Candidate Preflight (nonpublishing)"}
+        matches = [(key, value) for key, value in self.runs.items()
+                   if value["id"] == rid]
+        if len(matches) != 1: raise ValueError("ambiguous real run")
+        key, run = matches[0]
+        return dict(run, name=names[key], status="completed",
+                    conclusion="success", actor={"login":"github-actions[bot]"},
+                    run_attempt=1)
     def get_jobs(self, rid): return [{"id": rid * 10 + x, "conclusion": "success",
                                       "status": "completed"} for x in range(self.jobs[rid])]
     def get_latest(self): return dict(self.latest)
@@ -69,17 +81,9 @@ class Fake:
     def list_release_prs(self, merged): return [dict(self.pr)]
     def list_issue_comments(self, n): return list(self.comments)
     def get_git_commit(self, sha): return dict(self.git[sha])
-    def find_success_runs(self, sha, event): return [
-        dict(run, name={"work": "RHC Infrastructure Qualification (nonpublishing)",
-                        "candidate": "RHC Candidate Preflight (nonpublishing)",
-                        "publisher": "RHC Reusable Interim Unsigned Release",
-                        "downloads": "RHC Repository Downloads Integrity (nonpublishing)",
-                        "rhc102": "RHC POSTRELEASE v3.0.8.16 main:" + MAIN}[key],
-             status="completed", conclusion="success",
-             actor={"login": "github-actions[bot]"},
-             run_attempt=1)
-        for key, run in self.runs.items()
-        if run["head_sha"] == sha and run["event"] == event]
+    def find_success_runs(self, sha, event):
+        return [self.get_run(run["id"]) for key, run in self.runs.items()
+                if run["head_sha"] == sha and run["event"] == event]
 
 
 class ClosureIntegration(unittest.TestCase):
@@ -143,6 +147,27 @@ class ClosureIntegration(unittest.TestCase):
                 if corruption=="wrong_issue": f.comments[0]["body"]="## Wrong issue"
                 with self.assertRaises(ValueError):
                     rc.collect_release_proof(f,512)
+
+    def test_live_collection_detail_have_distinct_optional_fields(self):
+        f = Fake()
+        rows = f.find_success_runs(WORK, "push")
+        row = dict(rows[0], optional_collection_field="not in details")
+        self.assertEqual(rc.trusted_run(f, row, WORK,
+            "RHC Infrastructure Qualification (nonpublishing)", "push", 3), 701)
+        bad = dict(row, head_sha="0" * 40)
+        with self.assertRaises(ValueError):
+            rc.trusted_run(f, bad, WORK,
+                "RHC Infrastructure Qualification (nonpublishing)", "push", 3)
+
+    def test_operator_delegates_to_original_rhc139_audit(self):
+        from unittest.mock import patch
+        f=Fake()
+        with patch.object(rc.audit, "finalize",
+                          return_value={"status":"READY_PLAN_ONLY"}) as final:
+            result=rc.close_release(f,512,apply=False)
+        self.assertEqual(result["status"], "READY_PLAN_ONLY")
+        self.assertFalse(final.call_args.kwargs["apply"])
+        self.assertEqual(final.call_args.args[1]["run_ids"]["rhc102"], 704)
 
     def test_wiring_no_untrusted_pr_or_auto_product_release(self):
         s=(ROOT/".github/workflows/rhc158-release-closure.yml").read_text()
