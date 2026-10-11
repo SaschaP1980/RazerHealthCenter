@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.8.14 — 2026-10-11
+
+- Version-only HOTFIX: `appVersion` and `referenceVersion` advanced from `3.0.8.13` to `3.0.8.14`. No changes to runtime, UI, Razer repairs, privileges, configuration, signing policy or CI safety gates.
+- [RHC-153] Owner-authorized Wave A/B end-to-end performance evaluation of Work, Candidate, and the RHC-134 parallel Publisher. This source change alone is not evidence of a published release.
+
 ## 3.0.8.13 — 2026-10-10
 
 - Version-only HOTFIX: appVersion and referenceVersion advanced from 3.0.8.12 to 3.0.8.13. No runtime or Razer repair/privilege/security-gate changes.
