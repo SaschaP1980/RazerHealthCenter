@@ -2,6 +2,10 @@
 
 This **version-neutral entry point** directs a complete **read-only** GitHub bootstrap when a new chat is given this file's URL. Do not choose backlog, create Issues/branches, run mutating workflows, commit, tag or publish without a separate user instruction. Discuss with the owner in German using English technical terms; new GitHub documentation and collaboration are in English.
 
+## Default execution after a separate new-version authorization (RHC-180)
+
+When the owner subsequently **explicitly requests** a version-only Hotfix via `work/RHC-N`, follow the [mandatory RHC-170 operator path](DEVELOPMENT_GUIDELINES.md#rhc-180-mandatory-default-rhc-170-operator-path-for-version-only-work-commits) and [its exact guarded execution protocol](RHC-170-ATOMIC-WORK-PIPELINE.md#default-operator-execution-for-version-only-work-rhc-180). Prefer the actual authenticated `git`/`gh` CLI when available; in GitHub-connector-only chat sessions, use the **batched parallel-read / single atomic tree+commit / exact-lease ref update** through the already connected GitHub provider and label the result `CONNECTOR_ATOMIC_EQUIVALENT`, never a true Python CLI invocation. The normal Work push triggers unchanged native Work/Development Completion/Candidate/Publisher/release verification; do not revive the retired temporary GitHub App workflow. **This paragraph does not grant Issue creation, version increments or publication merely from opening this read-only INITIAL_PROMPT URL.**
+
 ## Read current GitHub state, not a checkpoint
 
 Use the connected GitHub repository `SaschaP1980/RazerHealthCenter` and current `main`. Read its exact SHA and **complete untruncated recursive tree**, current branches/heads, Issues (open and relevant closed) with full Rolling Comments, open/merged PRs, authentic GitHub Actions jobs/checks at their own SHAs, effective rulesets and permissions where available. Treat earlier chat, archived statuses, old Issue ACTIVE headers and historical files as evidence only.
