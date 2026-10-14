@@ -72,7 +72,7 @@ class AuthenticatedRHC170RunnerContract(unittest.TestCase):
             "push_with_lease",
             "--force-with-lease",
             "verify_ci_created",
-            'row.get("event") != "push"',
+            '"event") == "push"',
             "WORK_CI_CREATED_NOT_GREEN",
         ):
             with self.subTest(literal=literal):
