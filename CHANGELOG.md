@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.8.20 — 2026-10-14
+
+- Version-only HOTFIX: appVersion and referenceVersion advanced from 3.0.8.19 to 3.0.8.20. No runtime or Razer repair/privilege/security-gate changes.
+
 ## 3.0.8.19 — 2026-10-14
 
 - Version-only HOTFIX: advanced only `appVersion` and `referenceVersion` from `3.0.8.18` to `3.0.8.19`; Razer runtime, hardware interaction, repair confirmation/UAC/privilege, CI and release safety gates remain unchanged.
