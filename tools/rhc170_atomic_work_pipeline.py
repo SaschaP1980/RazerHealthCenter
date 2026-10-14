@@ -114,7 +114,7 @@ def push_with_lease(root, branch, expected_sha, new_sha):
 
 
 def _ledger(evidence, name, **data):
-    evidence.append(dict(event=name, observed_utc=observ(),
+    evidence.append(dict(event=name, observed_utc=observed(),
                          time_authority="CLIENT_OBSERVED_NOT_GITHUB_SERVER",
                          **data))
 
