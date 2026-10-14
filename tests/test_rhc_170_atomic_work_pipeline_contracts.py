@@ -22,6 +22,7 @@ BRANCH_AT = "2026-10-10T21:01:00Z"
 class FakeGateway:
     def __init__(self):
         self.issue = fixture.issue()
+        self.issue["body"] += "\nOwner-approved version-only target: 3.0.8.13\n"
         self.comment = fixture.comment()
         self.main_sha = BASE
         self.work_sha = BASE
@@ -284,6 +285,49 @@ class Fixture(unittest.TestCase):
                 with self.subTest(op=op), self.assertRaises(ValueError):
                     self.invoke(**op)
             commit.assert_not_called()
+
+
+    def test_issue_approved_target_required_even_with_cli_flag(self):
+        self.gh.issue["body"] = self.gh.issue["body"].replace(
+            "Owner-approved version-only target: 3.0.8.13",
+            "Owner-approved version-only target: 3.0.8.99")
+        with mock.patch.object(pipeline.hotfix, "atomic_local_commit") as commit:
+            with self.assertRaises(ValueError):
+                self.invoke(apply=True, owner_authorized_new_version=True)
+            commit.assert_not_called()
+
+    def test_unrelated_rhc5_workflow_is_not_falsely_counted(self):
+        self.gh.runs = [
+            dict(id=77, event="push", head_sha=NEXT,
+                 name="RHC-5 Release State Dry Run (read-only)",
+                 created_at="2026-10-11T21:01:00Z",
+                 status="completed", conclusion="success"),
+            dict(id=1, event="push", head_sha=NEXT,
+                 name="RHC Infrastructure Qualification (nonpublishing)",
+                 created_at="2026-10-11T21:01:00Z",
+                 status="queued", conclusion=None),
+            dict(id=2, event="push", head_sha=NEXT,
+                 name="RHC Development Completion (exact SHA gate)",
+                 created_at="2026-10-11T21:01:00Z",
+                 status="queued", conclusion=None)]
+        record = pipeline.verify_ci_created(
+            self.gh, NEXT, "2026-10-11T21:00:58Z")
+        self.assertEqual(record["runs"], [1, 2])
+
+    def test_single_remote_head_update_even_if_push_response_missing(self):
+        invocations = []
+        def push_once(*_args):
+            invocations.append(1)
+            self.gh.work_sha = NEXT
+            raise ConnectionError("write happened but response lost")
+        with mock.patch.object(pipeline.hotfix, "atomic_local_commit",
+                               return_value=NEXT):
+            proof = self.invoke(apply=True, push=True,
+                                owner_authorized_new_version=True,
+                                push_func=push_once)
+        self.assertEqual(proof["mutations"], 2)
+        self.assertEqual(len(invocations), 1)
+        self.assertEqual(proof["actual_work_ci_created_at"], "NOT_OBSERVED")
 
 if __name__ == "__main__":
     unittest.main()
