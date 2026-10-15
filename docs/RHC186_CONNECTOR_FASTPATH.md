@@ -18,7 +18,7 @@ Status: **Nonpublishing infrastructure implementation, not a proven ≤45s/≤12
 
 ## Test coverage and readiness
 
-\`python3 -m unittest tests/test_rhc186_connector_fastpath_contracts.py -v\` launches a **real Node ESM import** with 20 mocked positive/adversarial tests: canonical issue init dry/apply, clean/dry bootstrap, missing marker/template/taxonomy, drift, duplicate or lost comments, exact version-only commit, wrong authorization/Issue drift/extra source path, ambiguous or rejected ref lease and genuinely authenticated CI creation vs false/foreign evidence. The existing GitHub Linux/native Windows Work CI discovers it through \`test_rhc_*_contracts.py\`. These tests are pure mock contracts and must **not** be described as a real authenticated connector performance run.
+\`python3 -m unittest tests/test_rhc_186_connector_fastpath_contracts.py -v\` launches a **real Node ESM import** with 20 mocked positive/adversarial tests: canonical issue init dry/apply, clean/dry bootstrap, missing marker/template/taxonomy, drift, duplicate or lost comments, exact version-only commit, wrong authorization/Issue drift/extra source path, ambiguous or rejected ref lease and genuinely authenticated CI creation vs false/foreign evidence. The existing GitHub Linux/native Windows Work CI discovers it through \`test_rhc_*_contracts.py\`. These tests are pure mock contracts and must **not** be described as a real authenticated connector performance run.
 
 The separately authorized RHC-186 implementation PR **does not** change \`model.go\`, \`CHANGELOG.md\`, Razer runtime/UAC/repair, Actions workflows or downloads, and does not build or republish v3.0.8.22.
 
