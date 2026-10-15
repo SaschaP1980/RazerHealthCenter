@@ -28,3 +28,64 @@ Distribution uses immutable seven-file Portable ZIPs in `main/downloads/`, appen
 The owner permits technically qualified unsigned/uncertified interim distribution until explicitly revoked while external hardware, rollback and trusted signer/SmartScreen acceptance remain DEFERRED/NOT_VERIFIED. The standard production policy stays fail-closed. Never disable Razer in-app repair consent or Windows protection to satisfy CI.
 
 Verify actual GitHub ruleset/PR/required-status enforcement and `GITHUB_TOKEN` API rights, don't infer effective permissions from YAML. Require exact staging branch/merge provenance, independent ZIP/catalog/tag remote readback and exact-lease release-branch cleanup. An already public package with incomplete tag/cleanup is a distinct recovery state, not a fresh release. Historical CI failures and owner decisions are archived in Issues; new releases need new exact-SHA proof.
+
+
+## RHC-190: LBS-aligned product development path (October 2026)
+
+Owner's decision: **Major/Minor → Issue-backed Work-Branch by default**;
+**Patch/Hotfix → atomic branchless Fast-Path by default**, with an explicitly
+documented Work-Path escalation for substantial risk or a process benchmark.
+The four-digit release syntax is already implemented (#16); separate Hotfix
+increment/reset and migration semantics remain #191, not a reason to rewrite
+historical \`3.0.8.*\` versions. This infrastructure change is NOT a product release.
+
+A branchless Candidate is **one commit on the exact current main** and carries
+exactly one \`Development-Path: fast\`, \`RHC-Issue: N\`, and
+\`Release-Profile: version-only|patch|hotfix\` trailer. Its canonical open Issue
+must have an independently read-back \`dev-path: fast\` disposition and label.
+Its numeric version MUST change neither MAJOR nor MINOR, and the complete diff
+must pass existing content-profile and safe-path validators. The alternative
+Work-Path retains its original \`Work-SHA\`, tree identity and independently
+qualified exact-SHA Development Completion. The publisher fails closed if the
+Candidate source, Issue disposition, native Windows/Linux status, immutable
+source SHA or public main parent differs.
+
+The staged publisher still creates **one exact source+four-download-path PR**,
+then requires real hosted Downloads CI, immutable package/hash/catalog
+verification, and independent RHC-102 postrelease verification (three actual
+Linux HTTPS, native Windows and aggregate jobs). Standard signed production
+remains BLOCKED by policy; user-confirmed repair and read-only restrictions
+remain intact. Only **after** RHC-102 3/3 success may the publisher remove
+the exactly matching canonical \`candidate/vVERSION\` ref; the immutable source
+tag is retained. Work-Branch cleanup remains exact-SHA-guarded when relevant.
+The separate least-privilege closure job checks five actual run roles for
+Work-Path releases or four for branchless fast releases; it never fabricates a
+Work run/rolling journal for a fast release.
+
+### Invocable operator and honest benchmark
+
+The only proven ChatGPT-connected mutation boundary is authenticated
+**connector operations**, individually leased and read back. This is
+\`CONNECTOR_ATOMIC_EQUIVALENT\`, not a native \`git/gh\` CLI and NOT proof that
+a repository ESM script was invoked from the conversation. Prefer a true
+authenticated checked-out \`git/gh\` command runner only where independently
+demonstrated; do not assume unapproved GitHub Apps, PATs, secrets, shell
+credentials or recursive bot-created push triggers. A fast Candidate created
+by a genuine authenticated connector push may start Candidate Preflight via
+\`push\`; a trusted bot Candidate can use the existing explicit
+\`workflow_dispatch\` path. Both must produce the same *actual* mandatory
+hosted jobs and exact-SHA statuses. An ambiguous write is reconciled by GET,
+not replayed.
+
+**Nonpublishing validation first:** compare exact issue/main/tree lineage,
+focused RED→GREEN assertions and actual Linux/native Windows Work CI before
+merging infrastructure changes. For a future owner-authorized performance
+benchmark, record per-run first tool, Issue readback, Candidate ref creation,
+push, Actions \`created_at/started_at/completed_at\`, queue, setup and test
+elapsed separately. Require **at least three comparable actual runs** and
+report every failed/zero-job event as recorded, not PASS. Existing #188 speed
+targets are hypotheses; this implementation does **not** claim a measured
+fast-path speed-up or a successful real product fast release. The pending
+zero-job PR-event classification, reliable repeatability and three-sample
+benchmarks remain open under #190; never remove legitimate untrusted-PR
+security checks merely to conceal optional red UI noise.
