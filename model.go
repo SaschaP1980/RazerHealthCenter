@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	appVersion                   = "3.0.8.24"
-	referenceVersion             = "3.0.8.24"
+	appVersion                   = "3.0.8.25"
+	referenceVersion             = "3.0.8.25"
 	legacyHistoryFallbackVersion = "1.7.0"
 	engineVersion                = "1.4.6"
 	gateCount                    = 13
