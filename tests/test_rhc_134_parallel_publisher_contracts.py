@@ -20,7 +20,9 @@ class ParallelPublisher(unittest.TestCase):
         self.assertEqual(self.script.count("\n  windows:\n"), 1)
         self.assertIn("runs-on: windows-2025", self.windows)
         self.assertIn("needs: [linux, windows]", self.script)
-        self.assertIn("RHC_REUSABLE_LINUX_DOUBLE_BUILD=PASS", self.script)
+        self.assertIn("RHC_REUSABLE_LINUX_CANDIDATE_PE_REUSE_AND_DOUBLE_ZIP=PASS", self.script)
+        self.assertIn("rhc190_candidate_artifact.py verify", self.script)
+        self.assertNotIn('bash build.sh "$RUNNER_TEMP/build1"', self.script)
         self.assertIn("if-no-files-found: error", self.script)
 
     def test_full_ps51_safety_precedes_bounded_wait_and_real_zip_attestation(self):
