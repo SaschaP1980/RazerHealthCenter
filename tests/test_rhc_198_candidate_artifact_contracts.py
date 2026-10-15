@@ -65,6 +65,12 @@ class CandidateArtifactContracts(unittest.TestCase):
         self.assertEqual(self.meta["runId"], 12345)
         self.assertEqual(self.meta["runAttempt"], 1)
 
+    def test_producer_never_overwrites_existing_immutable_evidence(self):
+        with self.assertRaises(ArtifactBlocked):
+            emit_evidence(
+                self.src, self.bundle, source_sha=SHA, tree_sha=TREE,
+                version=VERSION, repository=REPO, run_id=12345, run_attempt=1,
+            )
     def test_bad_meta_provenance_fails_closed(self):
         for key, corrupt in (
             ("sourceSha", "f" * 40), ("treeSha", "f" * 40),
