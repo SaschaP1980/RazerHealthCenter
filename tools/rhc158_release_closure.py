@@ -305,11 +305,15 @@ def close_release(g, publisher_id, apply=False, *,
         wait_for_publisher(g, publisher_id, expected_source_sha)
     # RHC-190 branchless Patch/Hotfix has no Work ref or rolling Work comment.
     # Delegate to a separately fail-closed four-run verifier, never forge Work evidence.
-    publisher = g.get_run(publisher_id)
-    candidate = g.get_git_commit(publisher.get("head_sha", ""))
-    if re.findall(r"(?m)^Development-Path: fast$", candidate.get("message", "")):
-        from rhc190_fast_closure import close_fast
-        return close_fast(g, publisher_id, expected_source_sha, apply=apply)
+    # Gateway.get_git_commit exists in the actual authenticated operator.
+    # Test gateways without this optional method retain the legacy proof path;
+    # they cannot enter the fast branch without explicit candidate evidence.
+    if hasattr(g, "get_git_commit"):
+        publisher = g.get_run(publisher_id)
+        candidate = g.get_git_commit(publisher.get("head_sha", ""))
+        if re.findall(r"(?m)^Development-Path: fast$", candidate.get("message", "")):
+            from rhc190_fast_closure import close_fast
+            return close_fast(g, publisher_id, expected_source_sha, apply=apply)
     proof = collect_release_proof(g, publisher_id, allow_completed=True)
     if expected_source_sha is not None:
         need(isinstance(expected_source_sha, str) and
