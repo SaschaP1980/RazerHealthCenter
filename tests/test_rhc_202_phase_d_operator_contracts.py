@@ -121,7 +121,23 @@ class OperatorContracts(unittest.TestCase):
                 aggregate_samples(bad,repository=REPO,main_sha=BASE,work_sha=WORK,issue=ISSUE,
                                   run_id=777,run_attempt=1)
 
-    def test_workflow_permissions_three_jobs_no_product_publication(self):
+    def test_real_gh_transport_uses_allowlisted_get_only(self):
+        from rhc190_phase_d_operator import github_get
+        from unittest.mock import Mock
+        import os
+        valid="repos/"+REPO+"/branches/main"
+        with patch.dict(os.environ,{"GH_TOKEN":"test-only"},clear=True), \
+             patch("rhc190_phase_d_operator.subprocess.run") as runner:
+            runner.return_value=Mock(returncode=0,stdout='{"ok":true}')
+            self.assertEqual(github_get(valid,REPO),{"ok":True})
+            self.assertEqual(runner.call_args.args[0],
+                             ["gh","api","--method","GET",valid])
+            self.assertEqual(runner.call_args.kwargs["timeout"],20)
+            with self.assertRaises(ValueError):
+                github_get("repos/"+REPO+"/git/refs/heads/main",REPO)
+            self.assertEqual(runner.call_count,1)
+
+        def test_workflow_permissions_three_jobs_no_product_publication(self):
         yaml=(ROOT/".github/workflows/rhc190-phase-d-operator.yml").read_text()
         self.assertIn("workflow_dispatch:",yaml)
         self.assertIn("work/RHC-202",yaml)

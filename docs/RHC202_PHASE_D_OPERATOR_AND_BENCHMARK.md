@@ -18,6 +18,17 @@ After all three matrix jobs actually complete, a separate fourth real hosted job
 
 **This is NOT a 3-run end-to-end branchless release benchmark.** It measures only hosted GET-based operator-preflight overhead, not ChatGPT's first tool → Issue initialization, mutating Candidate-source atomic commit, actual CI creation latency, total Candidate/Publisher/real HTTPS/native Windows RHC-102, issue close, or version release cost. The original RHC-190 <=45s branch→CI and <=120s first-tool→CI goals remain aspirational and **NOT VERIFIED** without three independent real fully authorized, comparable release/branchless operator flows with exact GitHub server and client timestamps. Avoid pretending 3 matrix jobs are 3 full release lifecycles. The owner has not requested a specific new application version.
 
+## First genuine hosted preflight measurement (nonpublishing, exact Green SHA)
+
+[GitHub Actions run #38766240901](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/38766240901), on exact initial GREEN Work SHA `6910e16fe586954a0b9fa654b5c5200cfc757f98`, created `2026-10-15T16:06:57Z`, workflow reported completed-success with **three distinct actual hosted Linux probe jobs** `readonly-preflight-1/2/3` and **one completed-success aggregate job**. The worker's actual summary:
+- sample 1: **4060.516 ms**;
+- sample 2: **2614.419 ms**;
+- sample 3: **8071.472 ms**;
+- **median 4060.516 ms**, min 2614.419 ms, max 8071.472 ms;
+- schema `RHC190_PHASE_D_AGGREGATE_V1`, classification `REAL_API_PREFLIGHT_ONLY`, full Fast-Path **NOT VERIFIED**; p95 and full issue→CI → release times null.
+
+The first RED Work SHA `e3c569de2733bdd529e9eecf64908bcf9dd97255` intentionally failed [read-only dry-run #38765551071](https://github.com/SaschaP1980/RazerHealthCenter/actions/runs/38765551071) with `ModuleNotFoundError: No module named 'rhc190_phase_d_operator'`; historical failure remains FAILURE. The current final source commit and actual hosted matrix/CI status are recorded in canonical Issue #202. **The initial GREEN measurement and any final-ref measurement must not be combined into a claimed full Hotfix release speedup.**
+
 ## Threat model and failure policy
 
 The initial Work bootstrap/Issue order and 13-heading contract are not weakened, and release safety is unmodified. Ref drift, unknown Issue, wrong labels, stale model/public version, missing actual Work run, unknown GH token, disallowed endpoint, failure to upload/aggregate artifacts or an ambiguous hosted run fail closed. Read-only preflight must never write Git objects, publish packages, dispatch a release, mutate main/Issue, or attempt a recovered credential token. Work/Candidate still require actual distinct Linux, **native Windows PS5.1** and Node24/qualifier gates; Publisher still requires independent ZIP determinism, combined source+downloads PR, public RHC-102 HTTPS+Windows 3/3 and canonical Issue closure. Production remains `productionEnabled=false`, `signingDecision=unknown`, `rollbackVerified=false`; physical Razer/rollback/publisher trust remain DEFERRED.
