@@ -220,7 +220,7 @@ def closure_seconds(publisher_utc, closed_utc):
 
 def already_completed(g, proof):
     """Idempotent duplicate events: no write, but still all real gates verified."""
-    audit.verify_acceptance(g, proof)
+    events = audit.verify_acceptance(g, proof)
     issue = g.get_issue(proof["issue"])
     need(issue.get("state") == "closed" and
          issue.get("state_reason") == "completed" and
@@ -229,6 +229,11 @@ def already_completed(g, proof):
     comment = g.get_comment(proof["comment_id"])
     body = comment.get("body", "")
     audit.canonical(body)
+    if "**Agent-State:** WAITING_FOR_GITHUB" in body:
+        # Remote close may already have succeeded even when RHC139's final
+        # journal PATCH failed. The Issue must really be CLOSED/completed and
+        # all five hosted safety gates must be independently verified first.
+        return audit.complete_closed_comment(g, proof, events)
     need("**Agent-State:** COMPLETED" in body,
          "Issue closed before canonical completion")
     records = re.findall(r"(?m)^- RHC139_ISSUE_CLOSED (\{[^\r\n]+\})$", body)
@@ -299,6 +304,61 @@ def wait_for_publisher(g, publisher_id, expected_source_sha, *,
         sleep(min(remaining, poll_seconds))
 
 
+
+def resilient_finalize(g, publisher_id, proof, *, apply=False, max_attempts=3):
+    """Retry ONLY a proven prewrite optimistic conflict, never unknown writes.
+
+    Refetch the entire immutable release/Issue/run proof after a conflict, not
+    just the mutable comment. No retry after first remote PATCH is attempted.
+    """
+    need(type(max_attempts) is int and 1 <= max_attempts <= 3,
+         "unbounded optimistic comment retries")
+    for attempt in range(max_attempts):
+        try:
+            return audit.finalize(g, proof, now=datetime.now(timezone.utc),
+                                  apply=apply)
+        except ValueError as exc:
+            reason = str(exc)
+            prewrite = reason in (
+                "RHC139_AUDIT_BLOCKED: concurrent Rolling Comment revision changed",
+                "RHC139_AUDIT_BLOCKED: comment changed before patch",
+            )
+            if not prewrite or attempt == max_attempts - 1:
+                raise
+            fresh = collect_release_proof(g, publisher_id, allow_completed=True)
+            need(fresh == proof, "release identity drift during comment revalidation")
+            need(g.get_issue(proof["issue"]).get("state") == "open",
+                 "Issue changed during comment revalidation")
+    raise ValueError("RHC158_CLOSURE_BLOCKED: bounded retry exhausted")
+
+
+def blocked_diagnostic(exc):
+    """Only approved stable predicates, never raw API errors/comments/tokens."""
+    reason = str(exc)
+    if reason.startswith((
+        "RHC139_AUDIT_BLOCKED: concurrent Rolling Comment revision changed",
+        "RHC139_AUDIT_BLOCKED: comment changed before patch",
+    )):
+        code = "ROLLING_PREWRITE_CONFLICT"
+    elif reason.startswith("RHC139_AUDIT_BLOCKED:") and (
+            "readback" in reason.lower() or "after Issue close" in reason):
+        code = "POSTWRITE_READBACK_UNVERIFIED"
+    elif "Publisher" in reason and "timed out" in reason:
+        code = "PUBLISHER_WAIT_TIMEOUT"
+    elif "required real hosted jobs" in reason or "hosted workflow" in reason:
+        code = "HOSTED_GATE_NOT_VERIFIED"
+    elif "already" in reason.lower() and "closed" in reason.lower():
+        code = "ISSUE_CLOSURE_STATE_UNVERIFIED"
+    elif isinstance(exc, (OSError, RuntimeError, KeyError, TypeError)):
+        code = "GITHUB_OR_RUNTIME_READBACK_UNVERIFIED"
+    else:
+        code = "ELIGIBILITY_OR_AUDIT_BLOCKED"
+    return {"result": "BLOCKED_NOT_VERIFIED", "code": code,
+            "exception": type(exc).__name__,
+            "safeDiagnostic": True}
+
+
+
 def close_release(g, publisher_id, apply=False, *,
                   expected_source_sha=None, wait=False):
     if wait:
@@ -325,9 +385,9 @@ def close_release(g, publisher_id, apply=False, *,
     else:
         # RHC-139 is authoritative for exact hosted job roles and readback,
         # two-stage fail-closed comment update and Issue close. Never bypass it.
-        result = audit.finalize(g, proof, now=datetime.now(timezone.utc), apply=apply)
+        result = resilient_finalize(g, publisher_id, proof, apply=apply)
     elapsed = None
-    if result["status"] in ("COMPLETED", "ALREADY_COMPLETED"):
+    if result["status"] in ("COMPLETED", "COMPLETED_RECOVERED", "ALREADY_COMPLETED"):
         elapsed = closure_seconds(g.get_run(publisher_id).get("updated_at"),
                                   result.get("closed_at"))
     return {"status": result["status"], "issue": proof["issue"],
@@ -353,8 +413,10 @@ def main(argv=None):
                                wait=args.wait_for_publisher)
         print("RHC158_CLOSURE=" + json.dumps(result, sort_keys=True))
         return 0
-    except (ValueError, KeyError, TypeError, OSError, RuntimeError):
-        print("RHC158_CLOSURE_BLOCKED_NOT_VERIFIED", file=sys.stderr)
+    except (ValueError, KeyError, TypeError, OSError, RuntimeError) as exc:
+        print("RHC158_CLOSURE_BLOCKED_NOT_VERIFIED=" +
+              json.dumps(blocked_diagnostic(exc), sort_keys=True),
+              file=sys.stderr)
         return 1
 
 if __name__ == "__main__":
