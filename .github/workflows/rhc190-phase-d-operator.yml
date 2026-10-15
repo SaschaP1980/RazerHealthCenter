@@ -1,0 +1,114 @@
+name: RHC-190 Phase D Read-only Operator Benchmarks
+
+# Issue 202: three genuinely hosted, nonpublishing GitHub GET-only samples.
+# Not a Candidate/Publisher, Fast-Path mutation or release gate.
+on:
+  push:
+    branches:
+      - 'work/RHC-202'
+    paths:
+      - 'tools/rhc190_phase_d_operator.py'
+      - 'tools/rhc190_phase_d_aggregate.py'
+      - 'tests/test_rhc_202_phase_d_operator_contracts.py'
+      - '.github/workflows/rhc190-phase-d-operator.yml'
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Open Issue number bound to selected work/RHC-N workflow ref'
+        required: true
+        type: string
+      main_sha:
+        description: 'Exact immutable main ancestor SHA for 3 read-only probes'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+  actions: read
+
+concurrency:
+  group: rhc190-d-readonly-${{ github.sha }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: readonly-preflight-${{ matrix.sample }}
+    strategy:
+      fail-fast: false
+      matrix:
+        sample: [1, 2, 3]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7 Node24
+        with:
+          persist-credentials: false
+      - name: Adversarial read-only operator contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s tests -p 'test_rhc_202_phase_d_operator_contracts.py' -v
+      - name: Invoke the real authenticated hosted Python GET-only operator
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RHC_D_ISSUE: ${{ github.event_name == 'push' && '202' || inputs.issue }}
+          RHC_D_MAIN: ${{ github.event_name == 'push' && 'bdafa49c47b94f763ac038f2206e0d7e12dfc44b' || inputs.main_sha }}
+          RHC_D_SAMPLE: ${{ matrix.sample }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          [[ "$GITHUB_REF_NAME" == "work/RHC-$RHC_D_ISSUE" ]] || {
+            echo 'RHC190_D_BLOCKED: only issue-bound real Work ref eligible'; exit 1;
+          }
+          python3 -B tools/rhc190_phase_d_operator.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --issue "$RHC_D_ISSUE" --main-sha "$RHC_D_MAIN" \
+            --work-sha "$GITHUB_SHA" --sample "$RHC_D_SAMPLE" \
+            --out "$RUNNER_TEMP/rhc190-phase-d-sample-$RHC_D_SAMPLE.json"
+      - name: Preserve one independently executed read-only sample
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 Node24
+        with:
+          name: rhc190-d-preflight-${{ matrix.sample }}
+          path: ${{ runner.temp }}/rhc190-phase-d-sample-${{ matrix.sample }}.json
+          retention-days: 7
+          if-no-files-found: error
+
+  aggregate:
+    name: aggregate-independent-preflight
+    if: needs.probe.result == 'success'
+    needs: [probe]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7 Node24
+        with:
+          persist-credentials: false
+      - name: Download exactly three distinct hosted sample artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7 Node24
+        with:
+          pattern: rhc190-d-preflight-*
+          path: ${{ runner.temp }}/rhc190-d-samples
+          merge-multiple: true
+      - name: Verify three real hosted jobs and aggregate honest latency boundaries
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RHC_D_ISSUE: ${{ github.event_name == 'push' && '202' || inputs.issue }}
+          RHC_D_MAIN: ${{ github.event_name == 'push' && 'bdafa49c47b94f763ac038f2206e0d7e12dfc44b' || inputs.main_sha }}
+        run: |
+          set -euo pipefail
+          python3 -B tools/rhc190_phase_d_aggregate.py \
+            --repository "$GITHUB_REPOSITORY" --issue "$RHC_D_ISSUE" \
+            --main-sha "$RHC_D_MAIN" --work-sha "$GITHUB_SHA" \
+            --root "$RUNNER_TEMP/rhc190-d-samples" \
+            --out "$RUNNER_TEMP/rhc190-phase-d-three-samples.json"
+          cat "$RUNNER_TEMP/rhc190-phase-d-three-samples.json" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload full three-sample provenance (not a product ZIP)
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 Node24
+        with:
+          name: rhc190-d-readonly-three-sample-report
+          path: ${{ runner.temp }}/rhc190-phase-d-three-samples.json
+          retention-days: 7
+          if-no-files-found: error
