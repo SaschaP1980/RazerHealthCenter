@@ -16,6 +16,7 @@ SHA = re.compile(r"[0-9a-f]{40}\Z")
 ISSUE = re.compile(r"(?m)^RHC-Issue: ([1-9][0-9]*)$")
 WORK = re.compile(r"(?m)^Work-SHA: ([0-9a-f]{40})$")
 PROFILE = re.compile(r"(?m)^Release-Profile: (version-only|patch|hotfix)$")
+FAST = re.compile(r"(?m)^Development-Path: fast$")
 CONTEXTS = ("rhc/preflight/linux", "rhc/preflight/windows", "rhc/preflight/candidate")
 PUBLISH_PATHS = ("downloads/README.md", "downloads/latest.json",
                  "downloads/releases.json")
@@ -76,7 +77,48 @@ def qualify_candidate(candidate_sha, base_sha, candidate, work, issue, statuses,
             "Work completion pinned to different main")
     require(candidate.get("tree") == work.get("tree"), "Candidate/Work tree differs")
     return dict(result="PASS", candidateSha=candidate_sha, baseMainSha=base_sha,
-                workSha=work_sha, issueNumber=number, releaseProfile=profile)
+                workSha=work_sha, developmentPath="work",
+                issueNumber=number, releaseProfile=profile)
+
+
+def qualify_fast_candidate(candidate_sha, base_sha, candidate, issue, statuses,
+                           current_main, previous_version, version, changed_paths):
+    """Exact-main, Issue-backed branchless Patch/Hotfix; no Work gate forgery."""
+    from rhc_orchestration_contracts import validate_candidate
+    from rhc_release_contracts import SEMVER
+    require(all(isinstance(x, str) and SHA.fullmatch(x)
+                for x in (candidate_sha, base_sha, current_main)), "invalid fast SHA")
+    require(base_sha == current_main and candidate.get("sha") == candidate_sha
+            and candidate.get("parents") == [{"sha": base_sha}],
+            "fast Candidate requires single parent at current main")
+    msg = candidate.get("message", "")
+    require(len(FAST.findall(msg)) == 1 and not WORK.findall(msg)
+            and "Development-Completion: requested" not in msg,
+            "fast Candidate must have one fast marker and no Work provenance")
+    number = int(single(ISSUE, msg, "fast Candidate Issue"))
+    profile = single(PROFILE, msg, "fast Candidate profile")
+    require(isinstance(issue, dict) and issue.get("number") == number
+            and issue.get("state") == "open" and not issue.get("pull_request"),
+            "fast Candidate requires open responsible Issue")
+    labels = [row.get("name") if isinstance(row, dict) else row
+              for row in issue.get("labels", [])]
+    require(labels.count("dev-path: fast") == 1
+            and not any(x != "dev-path: fast" and str(x).startswith("dev-path:")
+                        for x in labels), "fast Candidate Issue path not approved")
+    require(bool(SEMVER.fullmatch(previous_version or ""))
+            and bool(SEMVER.fullmatch(version or "")), "four-part version required")
+    earlier = tuple(map(int, previous_version.split(".")))
+    newer = tuple(map(int, version.split(".")))
+    require(earlier[:2] == newer[:2],
+            "Major/Minor change requires Work-Branch qualification")
+    validate_candidate(previous=previous_version, version=version,
+                       changed_paths=changed_paths, release_profile=profile,
+                       current_main_parent=True)
+    trusted_statuses(statuses, CONTEXTS)
+    return dict(result="PASS", candidateSha=candidate_sha, baseMainSha=base_sha,
+                workSha=None, developmentPath="fast",
+                issueNumber=number, releaseProfile=profile)
+
 
 
 def qualify_stage(qual, stage, pr, release_branch, version, diff_paths):
@@ -91,8 +133,10 @@ def qualify_stage(qual, stage, pr, release_branch, version, diff_paths):
     body = pr.get("body", "")
     require(re.findall(r"\b(?:Refs|Closes) #([1-9][0-9]*)\b", body) ==
             [str(qual["issueNumber"])], "PR missing exactly one responsible Issue")
-    require("sourceSha " + sha in body and "Work-SHA " + qual["workSha"] in body,
-            "combined PR missing exact Candidate/Work source identity")
+    provenance = ("Development-Path fast" if qual.get("developmentPath") == "fast"
+                  else "Work-SHA " + qual["workSha"])
+    require("sourceSha " + sha in body and provenance in body,
+            "combined PR missing exact Candidate development provenance")
     require(re.match(r"^\[RHC-" + str(qual["issueNumber"]) + r"\]", pr.get("title", "")),
             "release PR title issue mismatch")
     require(single(ISSUE, stage.get("message", ""), "stage Issue") ==
@@ -132,20 +176,33 @@ def current_candidate():
     cand = sha_info(source)
     require(len(cand["parents"]) == 1, "Candidate multi-parent")
     base = cand["parents"][0]["sha"]
-    worksha = single(WORK, cand["message"], "Work-SHA")
-    work = sha_info(worksha)
     n = int(single(ISSUE, cand["message"], "Issue"))
     state = gh("branches/main")["commit"]["sha"]
-    wb = "work/RHC-" + str(n)
-    workhead = gh("git/ref/heads/" + wb)["object"]["sha"]
-    # RHC-115: an independently fetched actual Issue must carry its own number.
+    # RHC-115/116: canonical responsible Issue and deliberate path decision.
     from rhc_issue_init import verify_initialized_issue
     responsible_issue = verify_initialized_issue(gh("issues/" + str(n)), n,
                                                   for_development=True)
-    proof = qualify_candidate(source, base, cand, work, responsible_issue,
-                              gh("commits/" + source + "/statuses"),
-                              gh("commits/" + worksha + "/statuses"),
-                              state, workhead)
+    if FAST.findall(cand["message"]):
+        from rhc_release_contracts import SEMVER, VERSION_PATTERN
+        import base64
+        original = gh("contents/model.go?ref=" + base)
+        require(original.get("encoding") == "base64", "base model unreadable")
+        previous = dict(VERSION_PATTERN.findall(
+            base64.b64decode(original["content"]).decode("utf-8"))).get("appVersion")
+        version = __import__("rhc_release_contracts").version_from_model(Path("."))
+        changed = git("diff", "--name-only", base, source).splitlines()
+        proof = qualify_fast_candidate(source, base, cand, responsible_issue,
+                                       gh("commits/" + source + "/statuses"),
+                                       state, previous, version, changed)
+    else:
+        worksha = single(WORK, cand["message"], "Work-SHA")
+        work = sha_info(worksha)
+        wb = "work/RHC-" + str(n)
+        workhead = gh("git/ref/heads/" + wb)["object"]["sha"]
+        proof = qualify_candidate(source, base, cand, work, responsible_issue,
+                                  gh("commits/" + source + "/statuses"),
+                                  gh("commits/" + worksha + "/statuses"),
+                                  state, workhead)
     require(git("rev-parse", "HEAD") == source, "checked out wrong Candidate")
     require(git("rev-parse", "HEAD^{tree}") == cand["tree"],
             "tree identity mismatch")

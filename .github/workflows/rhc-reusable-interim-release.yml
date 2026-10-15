@@ -245,11 +245,17 @@ jobs:
           RHC_ISSUE_NUMBER="$(sed -n 's/^RHC-Issue: \([0-9][0-9]*\)$/\1/p' <<< "$CANDIDATE_MSG")"
           WORK_HEAD="$(sed -n 's/^Work-SHA: \([0-9a-f]\{40\}\)$/\1/p' <<< "$CANDIDATE_MSG")"
           test "$RHC_ISSUE_NUMBER" -gt 0
-          [[ "$WORK_HEAD" =~ ^[0-9a-f]{40}$ ]]
+          if grep -qx 'Development-Path: fast' <<< "$CANDIDATE_MSG"; then
+            test -z "$WORK_HEAD"
+            PROVENANCE='Development-Path fast'
+          else
+            [[ "$WORK_HEAD" =~ ^[0-9a-f]{40}$ ]]
+            PROVENANCE="Work-SHA $WORK_HEAD"
+          fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/issues/$RHC_ISSUE_NUMBER" --jq '.state')" = open
           export RHC_ISSUE_NUMBER
-          printf 'RHC_ISSUE_NUMBER=%s\nWORK_HEAD=%s\n' "$RHC_ISSUE_NUMBER" "$WORK_HEAD" >> "$GITHUB_ENV"
-          echo "RHC94_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER candidate=$GITHUB_SHA work=$WORK_HEAD"
+          printf 'RHC_ISSUE_NUMBER=%s\nWORK_HEAD=%s\nPROVENANCE=%s\n' "$RHC_ISSUE_NUMBER" "$WORK_HEAD" "$PROVENANCE" >> "$GITHUB_ENV"
+          echo "RHC94_SOURCE_ISSUE=PASS issue=$RHC_ISSUE_NUMBER candidate=$GITHUB_SHA provenance=$PROVENANCE"
           VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           test -z "$(git ls-remote origin "refs/tags/v$VERSION")"
@@ -335,7 +341,7 @@ jobs:
           test -n "$GH_TOKEN"
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head release/v$VERSION \
             --title "[RHC-$RHC_ISSUE_NUMBER] Interim unsigned v$VERSION release — exact source and 2OS verified" \
-            --body "Refs #$RHC_ISSUE_NUMBER; single atomic Source+Downloads PR; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, Work-SHA $WORK_HEAD. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
+            --body "Refs #$RHC_ISSUE_NUMBER; single atomic Source+Downloads PR; sourceSha $GITHUB_SHA, release SHA $STAGED_SHA, $PROVENANCE. Qualified interim unsigned/uncertified v$VERSION, four downloads paths and exactly seven-file ZIP. Real Linux double build and hosted native Windows PS5.1/repair safety passed in run $GITHUB_RUN_ID. Hardware, rollback, trusted publisher and SmartScreen DEFERRED/NOT VERIFIED; no production approval, preserve separate RHC-33 and RHC-22 OPEN."
           gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=SaschaP1980:release/v$VERSION" > "$RUNNER_TEMP/rhc126-pr-identity.json"
           BASE="$(git rev-parse "$GITHUB_SHA^")"
           ACTUAL="$(jq -r --arg stage "$STAGED_SHA" --arg base "$BASE" '[.[] | select(.head.sha == $stage and .base.sha == $base and .user.login == "github-actions[bot]" and .draft == false)] | length' "$RUNNER_TEMP/rhc126-pr-identity.json")"
@@ -453,10 +459,15 @@ jobs:
           # delete retained immutable Candidate provenance.
           WORK_REF="work/RHC-$RHC_ISSUE_NUMBER"
           WORK_SHA="$(git show -s --format=%B "$SOURCE_SHA" | sed -n 's/^Work-SHA: \([0-9a-f]\{40\}\)$/\1/p')"
-          [[ "$WORK_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$(git ls-remote origin "refs/heads/$WORK_REF" | cut -f1)" = "$WORK_SHA"
-          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$WORK_REF"
-          test -z "$(git ls-remote origin "refs/heads/$WORK_REF")"
+          if [ -n "$WORK_SHA" ]; then
+            [[ "$WORK_SHA" =~ ^[0-9a-f]{40}$ ]]
+            test "$(git ls-remote origin "refs/heads/$WORK_REF" | cut -f1)" = "$WORK_SHA"
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$WORK_REF"
+            test -z "$(git ls-remote origin "refs/heads/$WORK_REF")"
+          else
+            test "$(git show -s --format=%B "$SOURCE_SHA" | grep -xc 'Development-Path: fast')" = 1
+            echo 'RHC_FAST_PATH_WORK_CLEANUP=NOT_APPLICABLE no Work branch'
+          fi
           echo "MERGED_MAIN_SHA=$MERGED" >> "$GITHUB_ENV"
           echo "RHC_PUBLICATION=PASS_POSTRELEASE_PENDING main=$MERGED source=$SOURCE_SHA tag=v$VERSION"
       - name: Dispatch exact public immutable postrelease checks and require two OS + HTTPS GREEN
@@ -513,6 +524,15 @@ jobs:
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
           echo "RHC94_SINGLE_ATOMIC_PR_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION postrelease=$VERIFIED linux_https=PASS native_windows=PASS hardware=NOT_APPLICABLE"
           echo "RHC_REUSABLE_INTERIM_RELEASE_SUCCESS=PASS main=$MERGED_MAIN_SHA source=$SOURCE_SHA tag=v$VERSION independentPostrelease=$VERIFIED PhaseB=DEFERRED"
+          # Exact immutable source tag now retains Candidate provenance.
+          # Delete only the unchanged canonical Candidate ref after independent
+          # public HTTPS and native Windows RHC-102 3/3 verification.
+          CANDIDATE_REF="candidate/v$VERSION"
+          test "$(git ls-remote origin "refs/heads/$CANDIDATE_REF" | cut -f1)" = "$SOURCE_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$VERSION" --jq '.object.sha')" = "$SOURCE_SHA"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$CANDIDATE_REF"
+          test -z "$(git ls-remote origin "refs/heads/$CANDIDATE_REF")"
+          echo "RHC190_CANDIDATE_REAPER=PASS ref=$CANDIDATE_REF sha=$SOURCE_SHA"
           # RHC-162: GITHUB_TOKEN workflow_dispatch (not a new public release).
           # This exact step runs strictly AFTER remote RHC102 3/3 success;
           # only the separate least-privilege closure job may patch the Issue.

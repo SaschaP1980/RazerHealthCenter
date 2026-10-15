@@ -19,7 +19,7 @@ Use the executable `tools/rhc_downloads.py` and current validators for reproduci
 
 Distribution is tracked `main/downloads/`, **not GitHub Releases assets**. Source lives in Git at the version tag; the public ZIP contains no nested Source ZIP or QA/forensics data. A newly published version adds an immutable `downloads/RazerHealthCenter-Portable-vX.Y.Z.H.zip` and updates `downloads/README.md`, `downloads/releases.json` and `downloads/latest.json`; prior published ZIP bytes and catalog history must remain unchanged. `downloads/qa/` denotes historical TEST/UNSIGNED builds, not latest public releases.
 
-App/release version format is `MAJOR.MINOR.PATCH.HOTFIX`. Read the current authoritative source and real prior public latest before computing the next legal version. Never force a historic binary hash onto a different current source SHA.
+App/release version format is `MAJOR.MINOR.PATCH.HOTFIX`. The formally agreed increment/reset semantics remain tracked separately in #191. For normal Patch/Hotfix work, the **development path** defaults to an Issue-backed branchless atomic Candidate, while Major/Minor defaults to a qualified Work-Branch. Release-profile strictness is independent of which numeric component changes. (#190/#192.) Read the current authoritative source and real prior public latest before computing the next legal version. Never force a historic binary hash onto a different current source SHA.
 
 ## Standard versus separate interim release path
 
