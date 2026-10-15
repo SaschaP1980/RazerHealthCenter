@@ -335,10 +335,10 @@ def resilient_finalize(g, publisher_id, proof, *, apply=False, max_attempts=3):
 def blocked_diagnostic(exc):
     """Only approved stable predicates, never raw API errors/comments/tokens."""
     reason = str(exc)
-    if reason in (
+    if reason.startswith((
         "RHC139_AUDIT_BLOCKED: concurrent Rolling Comment revision changed",
         "RHC139_AUDIT_BLOCKED: comment changed before patch",
-    ):
+    )):
         code = "ROLLING_PREWRITE_CONFLICT"
     elif reason.startswith("RHC139_AUDIT_BLOCKED:") and (
             "readback" in reason.lower() or "after Issue close" in reason):
