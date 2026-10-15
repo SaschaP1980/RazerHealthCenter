@@ -137,7 +137,7 @@ class OperatorContracts(unittest.TestCase):
                 github_get("repos/"+REPO+"/git/refs/heads/main",REPO)
             self.assertEqual(runner.call_count,1)
 
-        def test_workflow_permissions_three_jobs_no_product_publication(self):
+    def test_workflow_permissions_three_jobs_no_product_publication(self):
         yaml=(ROOT/".github/workflows/rhc190-phase-d-operator.yml").read_text()
         self.assertIn("workflow_dispatch:",yaml)
         self.assertIn("work/RHC-202",yaml)
