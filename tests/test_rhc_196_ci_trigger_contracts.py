@@ -157,9 +157,7 @@ class PhaseAPrTriggers(unittest.TestCase):
             with self.subTest(workflow=key):
                 self.assertFalse(would_match(
                     path_filters(self.text[key], "pull_request"), (sensitive,)))
-        self.assertIn("workflow_dispatch",
-                      event_block(self.text["downloads"], "workflow_dispatch") or
-                      self.text["downloads"])
+        self.assertIsNotNone(event_block(self.text["downloads"], "workflow_dispatch"))
 
 
 if __name__ == "__main__":

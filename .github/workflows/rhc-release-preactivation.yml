@@ -17,7 +17,8 @@ on:
       - 'tests/test_rhc_release_preactivation_contracts.py'
       - '.github/workflows/rhc-release-preactivation.yml'
       - 'config/rhc-release-policy.json'
-      - 'downloads/**'
+      # RHC-196: staged downloads are independently dispatched and
+      # checked during authorized publication, not a bot PR event.
   workflow_dispatch:
 
 permissions:

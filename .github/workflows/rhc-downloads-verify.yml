@@ -5,14 +5,17 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'downloads/**'
+      # RHC-196: bot release ZIP/catalog PRs have exact-staged
+      # workflow_dispatch, avoiding approval-required zero-job CI.
       - 'tools/rhc_downloads.py'
       - 'tools/rhc_release_contracts.py'
       - 'tests/test_rhc_downloads_contracts.py'
       - 'config/rhc-release-policy.json'
       - '.github/workflows/rhc-downloads-verify.yml'
   push:
-    branches: [main]
+    # Qualify ordinary same-repository work branch changes even when
+    # the publication-only PR path has no ancillary approval-gated run.
+    branches: [main, 'work/RHC-*']
     paths:
       - 'downloads/**'
       - 'tools/rhc_downloads.py'

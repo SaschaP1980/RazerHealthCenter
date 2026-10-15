@@ -16,8 +16,9 @@ on:
     branches:
       - main
     paths:
+      # RHC-196: bot release PRs with only version model.go use
+      # the separately attested Work/Candidate/Publisher gates.
       - '.github/workflows/rhc-infrastructure-ci.yml'
-      - 'model.go'
       - 'i18n-manifest.json'
       - 'locales/de-DE.json'
       - 'tools/validate_*.py'
