@@ -145,6 +145,17 @@ class PhaseAPrTriggers(unittest.TestCase):
             with self.subTest(workflow=key):
                 self.assertNotIn("pull_request_target:", data)
 
+    def test_owner_selected_lbs_style_tradeoff_documented(self):
+        policy = (ROOT / "docs/RHC196_PHASE_A_PR_COVERAGE.md").read_text(
+            encoding="utf-8")
+        self.assertIn("Möglichkeit 1", policy)
+        self.assertIn("LBS Ansatz", policy)
+        self.assertIn("intentionally accepts", policy)
+        self.assertIn("external/fork", policy)
+        self.assertIn("RHC-102", policy)
+        self.assertIn("NOT YET VERIFIED", policy)
+        self.assertIn("does not itself enforce required CI/review", policy)
+
     def test_restricted_publication_paths_do_not_silently_qualify_any_pr(self):
         # This demonstrates a coverage boundary, NOT full external-fork
         # equivalence. Publication-only paths require separate trusted RHC-94
