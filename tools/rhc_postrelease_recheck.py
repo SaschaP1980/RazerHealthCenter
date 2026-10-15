@@ -285,6 +285,48 @@ def discover_run(rows, sha, version):
             x.get("display_title") == title]
 
 
+class NoEligibleCorrection(ValueError):
+    """Proved original three-job public SUCCESS: corrective audit not applicable."""
+
+
+def original_release_passed(rows, release_sha, version, get_hosted_jobs):
+    """No N/A from merely missing/green-looking workflow state or 0 jobs."""
+    require(isinstance(rows, list), "original RHC102 discovery unavailable")
+    expected = "RHC POSTRELEASE v" + version + " main:" + release_sha
+    require(isinstance(release_sha, str) and SHA.fullmatch(release_sha)
+            and isinstance(version, str) and VERSION.fullmatch(version),
+            "untrusted original release identity")
+    require(len(rows) <= 1, "ambiguous duplicate original public RHC102 audit")
+    if not rows:
+        return False  # Missing original RED is not proof of successful release.
+    run = rows[0]
+    require(isinstance(run, dict) and run.get("head_sha") == release_sha
+            and run.get("display_title") == expected
+            and run.get("event") == "workflow_dispatch"
+            and run.get("status") == "completed"
+            and type(run.get("id")) is int and run["id"] > 0
+            and type(run.get("run_attempt")) is int and run["run_attempt"] > 0
+            and (run.get("actor") or {}).get("login") == "github-actions[bot]",
+            "unverified historical RHC102 identity")
+    conclusion = run.get("conclusion")
+    require(conclusion in ("success", "failure"),
+            "incomplete/skipped original RHC102 never qualifies")
+    if conclusion == "failure":
+        return False  # Preserve eligible failed-postrelease recovery.
+    verify_postrelease_jobs(get_hosted_jobs(run["id"]))
+    return True
+
+
+def classify_nonapplicable_recheck(rows, release_sha, version,
+                                   get_hosted_jobs, event_name):
+    """Only automatic triggers may decide genuine original PASS => N/A."""
+    if event_name not in ("workflow_run", "schedule"):
+        return None
+    if original_release_passed(rows, release_sha, version, get_hosted_jobs):
+        return "ORIGINAL_RHC102_3JOB_PASS"
+    return None
+
+
 def collect(event, forced_pr=None):
     repo = os.environ["GITHUB_REPOSITORY"]
     require(REPOSITORY.fullmatch(repo), "invalid Actions repository")
@@ -296,6 +338,16 @@ def collect(event, forced_pr=None):
             "current exact main checkout changed")
 
     proof = provenance.verify_live(".", expected_main=main)
+    # Auto-recheck is only meaningful after an AUTHENTIC previous failed
+    # independent public RHC102. The published release may already have
+    # succeeded 3/3; a later docs/CI merge must not invent a corrective RED.
+    historical = workflow_runs(VERIFY)
+    original = discover_run(historical, proof["releaseMergeSha"], proof["version"])
+    inapplicable = classify_nonapplicable_recheck(
+        original, proof["releaseMergeSha"], proof["version"], get_jobs,
+        os.environ["GITHUB_EVENT_NAME"])
+    if inapplicable:
+        raise NoEligibleCorrection(inapplicable)
     releasepr = associated_pr(proof["releaseMergeSha"])
     correction = associated_pr(main)
     number = correction["number"]
@@ -330,7 +382,7 @@ def collect(event, forced_pr=None):
     event_name = os.environ["GITHUB_EVENT_NAME"]
     cleanup = find_cleanup(head, branch, event)
     qual = find_qualification(head, branch)
-    prior_and_current = workflow_runs(VERIFY)
+    prior_and_current = historical
     current = discover_run(prior_and_current, main, latest["version"])
     prior = discover_run(prior_and_current, proof["releaseMergeSha"], latest["version"])
     prior = [x for x in prior if x.get("status") == "completed"
@@ -442,6 +494,10 @@ def main():
     try:
         snapshot = collect(event, forced_pr=args.corrective_pr)
         plan = validate_plan(snapshot)
+    except NoEligibleCorrection as exc:
+        print("RHC110_RECHECK=NO_DISPATCH_NA reason=" + str(exc) +
+              " (authenticated original public HTTPS/Windows 3-job PASS)")
+        return
     except ValueError as exc:
         # A scheduled sweep over unrelated / already-checked main must not
         # submit a new run, yet never synthesize PASS or hide incident details.

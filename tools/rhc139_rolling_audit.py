@@ -300,6 +300,88 @@ def finalize(gateway, proof, *, now, apply=False):
 
 
 
+
+def complete_closed_comment(gateway, proof, events):
+    """Reconcile ONLY an already CLOSED/completed Issue with a proven WAITING journal.
+
+    Post-close final PATCH can fail. This recovery does not close Issues,
+    invent runs or overwrite a concurrent journal; the caller has independently
+    verified all actual hosted role jobs through verify_acceptance.
+    """
+    issue_id, comment_id = proof["issue"], proof["comment_id"]
+    require(type(issue_id) is int and type(comment_id) is int,
+            "recover Issue/comment identity absent")
+    issue = gateway.get_issue(issue_id)
+    require(issue.get("number") == issue_id and
+            issue.get("state") == "closed" and
+            issue.get("state_reason") == "completed" and
+            isinstance(issue.get("closed_at"), str),
+            "recover only real CLOSED/completed Issue")
+    try:
+        closed_instant = datetime.fromisoformat(
+            issue["closed_at"].replace("Z","+00:00"))
+        require(closed_instant.tzinfo is not None, "closed UTC timezone absent")
+        closed_instant = closed_instant.astimezone(timezone.utc)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("RHC139_AUDIT_BLOCKED: invalid verified closure timestamp") from exc
+    require(gateway.get_main_sha() == proof["merged_sha"],
+            "main moved after real Issue close")
+    saved = gateway.get_comment(comment_id)
+    body = saved.get("body", "")
+    require(saved.get("id") == comment_id and
+            f"issues/{issue_id}" in body, "wrong saved Rolling comment")
+    canonical(body)
+    require("**Agent-State:** WAITING_FOR_GITHUB" in body and
+            "RHC139_ISSUE_CLOSED" not in body,
+            "terminal state not the exact interrupted close")
+    require(isinstance(events, list) and len(events) == 5,
+            "five real release gates required for recovery")
+    wanted = [_normalize(e) for e in events]
+    require(all(x["issue"] == issue_id for x in wanted) and
+            len({x["key"] for x in wanted}) == 5,
+            "recovery evidence not unique to this Issue")
+    stored = [json.loads(raw) for raw in RECORD.findall(body)]
+    require(len(stored) == 5 and
+            {json.dumps(x,sort_keys=True) for x in stored} ==
+            {json.dumps(x,sort_keys=True) for x in wanted},
+            "saved journal lacks exact five authenticated run events")
+    require(gateway.get_issue(issue_id).get("closed_at") == issue["closed_at"],
+            "Issue close identity moved")
+    again = gateway.get_comment(comment_id)
+    require(again.get("body") == body and
+            again.get("updated_at") == saved.get("updated_at"),
+            "concurrent Rolling Comment update during recovery")
+    complete = _set_line(body,"Agent-State","COMPLETED")
+    complete = _set_line(complete,"Current phase",
+                         "COMPLETED — GitHub Issue CLOSED/completed and independently read back")
+    complete = _set_line(complete,"Next action","No pending action for completed Issue")
+    complete = _set_line(complete,"Last heartbeat",
+                         closed_instant.strftime("%Y-%m-%d at %H:%M:%S UTC"))
+    complete = _set_line(complete,"Local reference (Europe/Berlin)",
+                         berlin(closed_instant))
+    iso=closed_instant.isoformat(timespec="milliseconds").replace("+00:00","Z")
+    complete = _set_line(complete,"Original ISO timestamp","\x60"+iso+"\x60")
+    require(complete.count("### Plan-conformance assessment") == 1,
+            "final canonical journal section absent")
+    closure={"issue":issue_id,"closed_at":issue["closed_at"],
+             "merge_sha":proof["merged_sha"],"status":"completed"}
+    complete=complete.replace("### Plan-conformance assessment",
+        "- RHC139_ISSUE_CLOSED "+json.dumps(closure,sort_keys=True)+"\n\n"+
+        "### Plan-conformance assessment",1)
+    canonical(complete)
+    final_pre=gateway.get_comment(comment_id)
+    require(final_pre.get("body") == body and
+            final_pre.get("updated_at") == saved.get("updated_at"),
+            "concurrent Rolling Comment update before recovery PATCH")
+    gateway.update_comment(comment_id,complete)
+    require(gateway.get_comment(comment_id).get("body") == complete and
+            gateway.get_issue(issue_id).get("closed_at") == issue["closed_at"] and
+            gateway.get_main_sha() == proof["merged_sha"],
+            "closed journal repair readback/Issue/main mismatch")
+    return {"status":"COMPLETED_RECOVERED","closed_at":issue["closed_at"]}
+
+
+
 def record_verified_event(gateway, comment_id, record, *, now, apply=False):
     """Incremental append-only journal; no Issue close, no release authority.
 
