@@ -60,7 +60,9 @@ class RHC126ReleaseContractTests(unittest.TestCase):
 
     def test_real_two_os_build_and_postrelease_remain_mandatory(self):
         self.assertIn("needs: [linux, windows]", self.w)
-        self.assertIn("RHC_REUSABLE_LINUX_DOUBLE_BUILD=PASS", self.w)
+        self.assertIn("RHC_REUSABLE_LINUX_CANDIDATE_PE_REUSE_AND_DOUBLE_ZIP=PASS", self.w)
+        self.assertIn("rhc190_candidate_artifact.py verify", self.w)
+        self.assertIn("gh run download", self.w)
         self.assertIn("PowerShell 5.1", self.w)
         self.assertIn("Get-AuthenticodeSignature", self.w)
         self.assertIn("expected_main_sha=", self.w)
