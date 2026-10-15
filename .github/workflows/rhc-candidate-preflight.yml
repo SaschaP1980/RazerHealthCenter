@@ -49,8 +49,23 @@ jobs:
           for name in "RazerHealthCenter-Source-v${VERSION}.zip" "RazerHealthCenter-Portable-v${VERSION}.zip"; do
             cmp -s "$RUNNER_TEMP/packages1/$name" "$RUNNER_TEMP/packages2/$name"
           done
+          # RHC-198: upload real double-built candidate PE only after reproducibility
+          python3 -B tools/rhc190_candidate_artifact.py emit \
+            --exe "$RUNNER_TEMP/build-one/RazerHealthCenter.exe" \
+            --out "$RUNNER_TEMP/rhc190-candidate-proof" \
+            --source-sha "$GITHUB_SHA" --tree-sha "$(git rev-parse 'HEAD^{tree}')" \
+            --version "$VERSION" --repository "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
           echo 'RHC_CANDIDATE_INDEPENDENT_PE_AND_PACKAGE_REPRODUCIBILITY=PASS'
           echo 'RHC_CANDIDATE_LINUX=PASS (no release promotion)'
+      - name: Upload exact-source Candidate PE proof before Linux success
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 Node24
+        with:
+          name: RHC190-CANDIDATE-PE-${{ github.sha }}
+          path: ${{ runner.temp }}/rhc190-candidate-proof/
+          retention-days: 3
+          if-no-files-found: error
+          compression-level: 0
       - name: Record successful Linux Candidate check at exact SHA
         shell: bash
         env:

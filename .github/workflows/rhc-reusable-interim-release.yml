@@ -20,6 +20,10 @@ jobs:
     name: Exact-candidate double Linux PE/ZIP and isolated catalog verification
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: read
+      actions: read
     env:
       GOPROXY: 'off'
       GOSUMDB: 'off'
@@ -60,13 +64,53 @@ jobs:
           PY
           python3 -m unittest discover -s tests -p 'test_rhc_*_contracts.py' -v
           python3 -B tools/rhc_downloads.py --downloads downloads
-      - name: Build two independent real Windows EXEs and two bit-identical lean ZIPs
+      - name: Independently attest Candidate run/jobs and reuse immutable real PE
         shell: bash
         run: |
           set -euo pipefail
-          bash build.sh "$RUNNER_TEMP/build1"
-          bash build.sh "$RUNNER_TEMP/build2"
-          cmp "$RUNNER_TEMP/build1/RazerHealthCenter.exe" "$RUNNER_TEMP/build2/RazerHealthCenter.exe"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          VERSION="$(python3 -c 'import sys;sys.path.insert(0,"tools");from rhc_release_contracts import version_from_model;print(version_from_model("."))')"
+          # The Candidate qualifier dispatches Publisher before its own run ends.
+          # Wait only for a unique genuine 3-job completed-success Candidate.
+          CANDIDATE_RUN=''
+          for attempt in $(seq 1 30); do
+            raw="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&per_page=100")"
+            CANDIDATE_RUN="$(jq -r --arg SHA "$GITHUB_SHA" --arg BRANCH "candidate/v$VERSION" '
+              if .total_count > 100 then error("candidate run page overflow") else
+              [.workflow_runs[] |
+                select(.name == "RHC Candidate Preflight (nonpublishing)" and
+                       .head_sha == $SHA and .head_branch == $BRANCH and
+                       (.event == "push" or .event == "workflow_dispatch") and
+                       .status == "completed" and .conclusion == "success")]
+              | if length == 1 then .[0].id else empty end end' <<< "$raw")"
+            if [[ "$CANDIDATE_RUN" =~ ^[1-9][0-9]*$ ]]; then
+              break
+            fi
+            sleep 3
+          done
+          [[ "$CANDIDATE_RUN" =~ ^[1-9][0-9]*$ ]] || {
+            echo 'RHC190_CANDIDATE_RUN=BLOCKED no unique successful run' >&2
+            exit 1
+          }
+          mkdir -p "$RUNNER_TEMP/rhc190-candidate-pe" "$RUNNER_TEMP/rhc190-api"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CANDIDATE_RUN" > "$RUNNER_TEMP/rhc190-api/run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CANDIDATE_RUN/jobs?per_page=100" > "$RUNNER_TEMP/rhc190-api/jobs.json"
+          gh run download "$CANDIDATE_RUN" -n "RHC190-CANDIDATE-PE-$GITHUB_SHA" -D "$RUNNER_TEMP/rhc190-candidate-pe"
+          python3 -B tools/rhc190_candidate_artifact.py verify \
+            --source-sha "$GITHUB_SHA" --tree-sha "$(git rev-parse 'HEAD^{tree}')" \
+            --version "$VERSION" --repository "$GITHUB_REPOSITORY" \
+            --exe "$RUNNER_TEMP/rhc190-candidate-pe/RazerHealthCenter.exe" \
+            --evidence "$RUNNER_TEMP/rhc190-candidate-pe/candidate-evidence.json" \
+            --run "$RUNNER_TEMP/rhc190-api/run.json" \
+            --jobs "$RUNNER_TEMP/rhc190-api/jobs.json"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo 'RHC190_CANDIDATE_PE_REUSE=PASS qualified Linux/Windows/aggregate plus exact PE bytes'
+      - name: Create two bit-identical seven-file lean ZIPs from verified Candidate PE
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Candidate Linux already proved two genuinely independent PE builds.
+          test -f "$RUNNER_TEMP/rhc190-candidate-pe/RazerHealthCenter.exe"
           mkdir -p "$RUNNER_TEMP/proof" "$RUNNER_TEMP/full"
           cp -a downloads "$RUNNER_TEMP/full/downloads"
           python3 - <<'PY'
@@ -78,7 +122,8 @@ jobs:
           tmp=pathlib.Path(os.environ['RUNNER_TEMP'])
           version=version_from_model('.')
           previous=d.verify('downloads')
-          a,b=tmp/'build1/RazerHealthCenter.exe',tmp/'build2/RazerHealthCenter.exe'
+          a=tmp/'rhc190-candidate-pe/RazerHealthCenter.exe'
+          b=a  # independently double-built and verified in actual Candidate
           first=tmp/'first'/d.filename(version)
           second=tmp/'second'/d.filename(version)
           first.parent.mkdir()
@@ -99,11 +144,12 @@ jobs:
               archiveSha256=record['sha256'],archiveSize=record['size'],
               exeSha256=hashlib.sha256(a.read_bytes()).hexdigest(),archiveFiles=7,
               twoIndependentPeBuilds=True,twoIndependentZipBuilds=True,
-              archiveReproducible=True,linux='SUCCESS')
+              archiveReproducible=True,linux='SUCCESS',candidatePeReused=True,
+              candidatePeRunId=json.loads((tmp/'rhc190-candidate-pe/candidate-evidence.json').read_text())['runId'])
           (stage/'linux-evidence.json').write_text(json.dumps(evidence,indent=2)+'\n')
           first.unlink()
           second.unlink()
-          print('RHC_REUSABLE_LINUX_DOUBLE_BUILD=PASS',json.dumps(evidence,sort_keys=True))
+          print('RHC_REUSABLE_LINUX_CANDIDATE_PE_REUSE_AND_DOUBLE_ZIP=PASS',json.dumps(evidence,sort_keys=True))
           PY
           python3 -B tools/rhc_downloads.py --downloads downloads
           git diff --exit-code
