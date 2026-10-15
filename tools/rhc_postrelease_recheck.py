@@ -302,6 +302,8 @@ def original_release_passed(rows, release_sha, version, get_hosted_jobs):
     run = rows[0]
     require(isinstance(run, dict) and run.get("head_sha") == release_sha
             and run.get("display_title") == expected
+            and run.get("name") == expected
+            and run.get("head_branch") == "main"
             and run.get("event") == "workflow_dispatch"
             and run.get("status") == "completed"
             and type(run.get("id")) is int and run["id"] > 0

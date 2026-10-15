@@ -18,7 +18,8 @@ RELEASE_SHA = "a" * 40
 
 
 def original_run(state="success"):
-    return dict(id=1234, event="workflow_dispatch",
+    return dict(id=1234, name="RHC POSTRELEASE v"+VERSION+" main:"+RELEASE_SHA,
+                event="workflow_dispatch",
                 head_sha=RELEASE_SHA, head_branch="main",
                 status="completed", conclusion=state, run_attempt=1,
                 display_title="RHC POSTRELEASE v"+VERSION+" main:"+RELEASE_SHA,
@@ -55,6 +56,8 @@ class RecheckTriage(unittest.TestCase):
             ([dict(original_run(),conclusion="skipped")],lambda _:real_jobs()),
             ([dict(original_run(),status="in_progress")],lambda _:real_jobs()),
             ([dict(original_run(),head_sha="e"*40)],lambda _:real_jobs()),
+            ([dict(original_run(),head_branch="untrusted")],lambda _:real_jobs()),
+            ([dict(original_run(),name="Other successful workflow")],lambda _:real_jobs()),
             ([dict(original_run(),actor={"login":"attacker"})],lambda _:real_jobs()),
             ([dict(original_run(),event="pull_request")],lambda _:real_jobs()),
             ([original_run(),original_run()],lambda _:real_jobs()),
