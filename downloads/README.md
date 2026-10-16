@@ -11,6 +11,7 @@ Unreleased/unsigned QA artifacts from GitHub Actions are **not** official entrie
 
 | Version | Portable ZIP | Size (bytes) | SHA-256 | Source commit |
 | --- | --- | ---: | --- | --- |
+| 3.0.8.28 | [RazerHealthCenter-Portable-v3.0.8.28.zip](RazerHealthCenter-Portable-v3.0.8.28.zip) | 8619992 | `7f263baa206dd3213b966aadd64f5ee54425dc8102d75ad6ed95814f234b60c6` | `9b241278f04b9092847e19a956b73382bf20bd96` |
 | 3.0.8.27 | [RazerHealthCenter-Portable-v3.0.8.27.zip](RazerHealthCenter-Portable-v3.0.8.27.zip) | 8619989 | `3243ad9aefabeda011335a26d6bc17aa913d39ad114ff7ea8e9f3b4fb5d16aac` | `e21cec60823b8b45854d1fc7c81e06a0a53fd2e4` |
 | 3.0.8.26 | [RazerHealthCenter-Portable-v3.0.8.26.zip](RazerHealthCenter-Portable-v3.0.8.26.zip) | 8619992 | `231a77017adcae62e01d4d06573df4dd2cdf582973c605a9883687459cb4c3fd` | `4fc0157e0fcc639da438c65f191aad97a07a3a61` |
 | 3.0.8.25 | [RazerHealthCenter-Portable-v3.0.8.25.zip](RazerHealthCenter-Portable-v3.0.8.25.zip) | 8619993 | `1b17624b7919c7fcaffb06b382388b37ed38ab0e13de72b5f0df753a0b0a2f90` | `89e7c5afc1dbc8e072d2f44f308e7abc23a88628` |
@@ -43,6 +44,17 @@ Unreleased/unsigned QA artifacts from GitHub Actions are **not** official entrie
 
 An independently verified v3.0.8 **TEST / UNSIGNED** build is archived under [qa/](qa/README.md).
 QA archives are excluded from releases.json and latest.json and are not production releases.
+
+## v3.0.8.28 interim-release disclosure (RHC-33)
+
+**UNSIGNED WINDOWS EXECUTABLE. PUBLISHER NOT VERIFIED.**
+This version is published under a documented temporary autonomous
+release path with Razer physical-device acceptance, native rollback,
+and Windows signing/SmartScreen owner approval deferred, NOT passed.
+Windows Defender SmartScreen may warn about an unknown publisher.
+Do not disable Windows security protection; verify the exact source
+commit, ZIP SHA-256 and internal SHA256SUMS before using this build.
+This disclosure does not mean Razer hardware behavior has been certified.
 
 ## v3.0.8.27 interim-release disclosure (RHC-33)
 
