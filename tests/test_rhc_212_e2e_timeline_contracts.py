@@ -128,6 +128,15 @@ class Contracts(unittest.TestCase):
             self.assertEqual(json.loads(out.read_text())["issue"],212)
             self.assertEqual(t.main(["--fixture",str(inp),"--out",str(out)]),1)
 
+    def test_workflow_definition_path_is_authority_not_dynamic_display_name(self):
+        doc=fixture()
+        doc["rhc102"]["name"]="RHC POSTRELEASE v3.0.8.27 main:"+MAIN
+        self.assertEqual(t.build_report(doc)["public_verification"],
+                         "PASS_3_REAL_HOSTED_JOBS_GITHUB_SERVER")
+        doc["rhc102"]["path"]=".github/workflows/rhc-candidate-preflight.yml"
+        with self.assertRaises(ValueError):
+            t.build_report(doc)
+
     def test_no_nonpublishing_product_modification(self):
         contents=(Path(__file__).resolve().parents[1]/"tools/rhc190_e2e_timeline.py").read_text()
         self.assertIn('["gh","api","--method","GET"',contents)
