@@ -17,7 +17,10 @@ function startInstrumentedFastPath(tools,{utc,mono}={}){
    async createProvisionalIssue({title,body,labels}){
      need(n===null&&typeof title==="string"&&title.startsWith("Initializing RHC Issue:")&&
        typeof body==="string"&&body.includes("Development path: dev-path: fast")&&
-       Array.isArray(labels)&&labels.includes("dev-path: fast")&&labels.includes("dev-ops"),
+       Array.isArray(labels)&&labels.filter(x=>x==="bug"||x==="enhancement").length===1&&
+       labels.filter(x=>/^priority: /.test(x)).length===1&&
+       labels.filter(x=>/^dev-path: /.test(x)).length===1&&labels.includes("dev-path: fast")&&
+       labels.includes("dev-ops")===/\b(github|ci|infrastructure|issue[- ](?:title|label|initialization)|release automation)\b/i.test(title),
        "provisional Issue must follow existing RHC-115/116 contract");
      const result=await tracker.observeIssueCreate(async()=>{
        const created=await tools.mcp__GitHub__create_issue({repository_full_name:REPO,title,body,labels});

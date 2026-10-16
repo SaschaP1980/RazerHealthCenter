@@ -69,6 +69,14 @@ await check("exact connector Issue, canonical, ref, comment and calibrated evide
  assert.equal(out.evidence.first_tool_provenance,"OPERATOR_ENTRY_NOT_HOST_ATTESTED");
  assert.deepEqual(g.counts(),[1,1]);assert.equal(g.comments.length,1);
 });
+await check("real version-only Fast-Path Issue without dev-ops label accepted",async()=>{
+ const g=mock(),p=startInstrumentedFastPath(g.tools,g.c);
+ const input={title:"Initializing RHC Issue: Version-only Hotfix 3.0.8.28 [init-xyz]",
+   body:"Development path: dev-path: fast — owner authorized version-only",
+   labels:["enhancement","priority: high","dev-path: fast"]};
+ const result=await p.createProvisionalIssue(input);
+ assert.equal(result.number,901);assert.deepEqual(g.counts(),[1,0]);
+});
 await check("no Candidate ref before canonical",async()=>{
  const g=mock(),p=startInstrumentedFastPath(g.tools,g.c);await p.createProvisionalIssue(g.args);
  await blocked(p.createVerifiedCandidateRef("candidate/v3.0.8.28",SHA),"Candidate authority");
@@ -135,7 +143,7 @@ class Contracts(unittest.TestCase):
         out=subprocess.run([node,"--input-type=module","-e",NODE],cwd=ROOT,
                            capture_output=True,text=True,timeout=45)
         self.assertEqual(out.returncode,0,out.stdout+"\n"+out.stderr)
-        self.assertIn("RHC214_NODE_CONTRACT_TESTS=10",out.stdout)
+        self.assertIn("RHC214_NODE_CONTRACT_TESTS=11",out.stdout)
     def test_exact_interval_bounds_conditional_not_host_attested(self):
         d=fixture();d["client_observation"]=client();res=t.build_report(d)
         c=res["client_observation"]
