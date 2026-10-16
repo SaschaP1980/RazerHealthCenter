@@ -8,20 +8,24 @@ Responsible [RHC-212](https://github.com/SaschaP1980/RazerHealthCenter/issues/21
 - tools/rhc190_e2e_client_observer.mjs is a *portable, opt-in* synchronous observation wrapper. The caller **must invoke beginFirstTool as the very first statement in the first real tool call**, before any awaited GET or mutating action, and bracket the actual checked, authorized connector ref write. The tool is NOT automatically loaded into ChatGPT, and importing it later does not retroactively capture first-tool time.
 - tests/test_rhc_212_e2e_timeline_contracts.py rejects fabricated success, foreign SHAs, duplicate/skipped/partial or stale hosted jobs, wrong PR merged commit, corrupt clocks, secret-shaped client fields, and false KPI classifications.
 
-## Four separate evidence clocks, no synthetic event
+## RHC-214: explicit Fast-Path connector entry and bounded GitHub clock calibration
 
-| Event | Source / recorded field | Authority |
-| --- | --- | --- |
-| First actual ChatGPT tool entered | client observer first_tool_utc, only if initialized at first tool statement | Client-observed; **not** independently certified GitHub time |
-| GitHub ref mutation started / returned | observer ref_write_start_utc / ref_write_ack_utc; duration measured with local monotonic clock | Client-observed bracket; actual server ref-created instant **not present in GitHub REST** |
-| Candidate CI created, PR merge, Issue open/close | GitHub Workflow created_at, PR merged_at, Issue created_at / closed_at | Authoritative GitHub server timestamps for those events |
-| Public verifier success | exact source/main workflow completed-success AND three distinct hosted jobs, with last job completed_at | Authenticated GitHub-hosted proof of all jobs; run.updated_at remains a mutable **observation timestamp**, not exact completion |
+**Runtime reality:** the repository cannot install an intercepting hook into ChatGPT or make the first tool happen automatically in new chats. The `tools/rhc214_instrumented_fastpath.mjs` adapter is invocable in an operator with a persistent JS runtime, and its `startInstrumentedFastPath(tools)` call must be the **very first executable statement of the first tool invocation**. The supported ChatGPT connector-script environment cannot dynamically import repository modules or persist JS objects between separate tool calls; the operator must inline the reviewed entrypoint/observer inside **one actual first-tool orchestration**, not import them later and claim first-tool capture. Standalone Node can import both modules normally. The adapter does not publish a product or relax existing RHC-115/116, version-only Candidate/ref and RHC-158 gates.
 
-Both ref-write bracket bounds (start→CI and ack→CI) are returned only when observations exist and have consistent order. Local monotonic ref duration is NOT proof of remote GitHub-created instant. Client and GitHub server UTC clocks have no certified offset: crossing their clock domains does not prove the original 45s ref→CI or 120s first-tool→CI thresholds. KPI fields remain NOT_VERIFIED, including with client observations, until separate trusted clock calibration and a first-tool entry contract exist. Inconsistencies fail closed. Three historical release samples cannot yield a defensible p95.
+The exact flow for a **separately owner-authorized new Fast-Path product version**, not a test run:
 
-Candidate, Publisher and RHC102 are bound to exact source/main SHAs, required event types and **3/4/3 actually successful hosted jobs**; the Issue and merge PR are bound to the supplied main SHA. This script does not decide whether signed production, native hardware, Razer repair, rollback or policy accepted; those are out of scope.
+1. In the FIRST tool call, start the adapter *before any awaited GET*. No Issue number is needed yet.
+2. Through `createProvisionalIssue({title,body,labels})`, perform one real authorized GitHub Issue create and independent provisional GET, and capture first-tool/client Issue-create send/ack plus real GitHub `created_at`.
+3. Canonicalize the Issue title using the existing exact RHC-115/116 flow, verify its final title/state and separately verify exact source/main, commit trailers and version-only diff. `verifyCanonicalIssue(number)` independently GETs the Issue and binds the originally unknown ID.
+4. Only after the Candidate commit is independently proven safe and the authorized branch name is exact, replace the existing **one GitHub Candidate branch create/readback** with `createVerifiedCandidateRef(refName, candidateSha)`. The adapter performs the one GitHub create and remote SHA GET and measures the whole mutation/readback interval. It does not create a dummy Candidate or bypass CI.
+5. Immediately call `persistObservation(candidateSha)` while still in that JS invocation. It creates **one** `RHC190_CLIENT_OBSERVATION_V2={...}` Issue comment with the allowlisted timing fields, and independently reconciles the exact comment by GET. An uncertain write is never blindly retried.
+6. The ordinary untouched Candidate/Publisher/source+downloads merge/independent RHC102/closure proceeds through its existing gates. Later `tools/rhc190_e2e_timeline.py --client-from-issue ...` independently GETs the one archived Issue comment alongside exact CI/PR/hosted-job timestamps and recalculates the clock bounds. Use this only once all required real release inputs exist.
 
-## Run the read-only audit for a future separately authorized real release
+**Clock calculation:** If the authenticated Issue was created while a client-side tool-call bracket `[issue_send,issue_reply]` was active, and its GitHub UTC `created_at` is recorded in whole seconds `S`, then the *GitHub-minus-client UTC offset* is conservatively bounded by `[S - issue_reply, (S + 1 second) - issue_send]`. Both bounds are independently recomputed from the actual persisted GitHub Issue and observation. Use them to compute intervals for first-tool→CI and actual ref event→CI. The ref instant can occur anywhere within its exact connector-write plus readback bracket; it has no GitHub REST `created_at`. Drift, swapped Issue ID, wrong SHA, invalid order, huge offset range, missing/multiple comments or changed data fail closed. A local monotonic timer checks the ref-write bracket, but does **not** certify UTC clock rate across distinct ChatGPT tool invocations.
+
+**Classification remains conditional.** Even a numerically bounded `<=45s` or `<=120s` result is `CONDITIONAL_BOUND_WITHIN_TARGET_NOT_HOST_ATTESTED`, not independently proven host first-tool or exact Git-server ref timing. Missing observations stay NULL/`NOT_VERIFIED`; historical releases #204/#208/#210 cannot retroactively gain a first-tool/ref timestamp. Reliable **independent host attestation** needs supported ChatGPT host entry instrumentation/clock source beyond this repository and is not implemented by a GitHub merge.
+
+## Read-only audit for a future separately authorized, actually instrumented release
 
 On a machine with an existing authenticated read-only GitHub CLI account and the repository source:
 
@@ -39,21 +43,28 @@ python3 -B tools/rhc190_e2e_timeline.py \
   --out timeline.json
 ~~~
 
-Never paste actual GH_TOKEN into Issue, logs, JSON, or CLI parameters. For an *actual* new run, the caller may additionally supply --client-observation real-client.json created by an already-instrumented first connector tool. For privacy/safety, the observation contains only exact SHA/Issue and bounded timestamps. The portable observer requires deliberate integration at actual entry, e.g. in a fully authorized client orchestrator:
+Never paste a token into Issues, logs, JSON, or CLI parameters. `--client-from-issue` is **GET-only** and requires exactly one stored, valid `RHC190_CLIENT_OBSERVATION_V2` comment; it blocks on duplicates/missing evidence. `--client-observation real-client.json` remains a separate opt-in compatibility option. Without either, historical server-only evidence continues to work and leaves client fields absent.
 
-~~~javascript
-// Must be the first executable statement of the FIRST real tool call.
-// Merely reading this documentation or loading it later cannot capture the event.
-const tracker = beginFirstTool({ issue: REAL_ISSUE_NUMBER });
-// ... safe authenticated preflight and prepare EXACT immutable commit ...
-await tracker.bracketExactRefWrite(
-  () => authenticatedConnectorRefLeaseUpdate(EXACT_SHA, EXPECTED_OLD_SHA)
-);
-// Only after the operation actually succeeds and readback confirms correctness:
-const observation = tracker.exportEvidence(EXACT_SHA);
-~~~
+### Operator call-site sketch (opt-in; not a release command)
 
-This is an *integration example*, not an automatically enabled production hook; the client is responsible for proving it started at the actual first tool and for securely transporting the JSON. Passing JSON without a trusted observer origin is not an independent host attestation.
+```javascript
+// FIRST statement in the FIRST real connector tool invocation.
+// Import using an actual supported Node runtime, or inline the reviewed
+// adapter/observer functions into a single ChatGPT connector-script invocation.
+const measured = startInstrumentedFastPath(tools);
+// Use existing RHC-115/116 real Issue initialization, NOT an invented mock:
+const created = await measured.createProvisionalIssue(authorizedIssueSpec);
+await existingCanonicalRenameAndReadback(created.number);
+await measured.verifyCanonicalIssue(created.number);
+// Existing full version-only source, exact-main, safety/trailers gates stay in force.
+const candidateSha = await existingAuthorizedExactSourcePreparationAndReadback();
+// Instead of raw connector create_branch, make exactly one checked ref mutation:
+await measured.createVerifiedCandidateRef("candidate/vX.Y.Z.H",candidateSha);
+const recorded = await measured.persistObservation(candidateSha);
+// Continue original hosted release pipeline; no arbitrary extra pushes/releases.
+```
+
+The snippet intentionally leaves all authorization, source preparation and release gates delegated to existing validated code. It is **not** directly runnable end-to-end without those real integrations. The host must invoke the adapter at first tool entry, not at the moment a future release is already underway.
 
 ## Benchmarks and interpretation
 

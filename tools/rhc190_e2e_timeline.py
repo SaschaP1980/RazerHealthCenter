@@ -12,6 +12,8 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from rhc214_observation_evidence import (
+    CLIENT_V2, CLIENT_V2_COMMENT, client_v2_values, issue_observer_from_comments)
 
 SCHEMA = "RHC190_E2E_TIMELINE_V1"
 CLIENT = "RHC190_CLIENT_TOOL_OBSERVATION_V1"
@@ -72,7 +74,7 @@ def secure_jobs(page, run, expected):
     names=[str(j.get("name","")) for j in page["jobs"]]
     need(len(set(names))==expected and all(names), "ambiguous hosted job roles")
 
-def client_values(raw, *, issue, candidate_sha, ci_time):
+def client_values(raw, *, issue, candidate_sha, ci_time, issue_created_at=None):
     empty = dict(first_tool_utc=None, ref_write_start_utc=None,
                  ref_write_ack_utc=None, ref_write_duration_ms=None,
                  first_tool_to_ci_seconds=None, ref_to_ci_lower_seconds=None,
@@ -81,6 +83,9 @@ def client_values(raw, *, issue, candidate_sha, ci_time):
                  kpi_ref_to_ci_45s="NOT_VERIFIED")
     if raw is None:
         return empty
+    if isinstance(raw,dict) and raw.get("schema")==CLIENT_V2:
+        return client_v2_values(raw,issue=issue,candidate_sha=candidate_sha,
+                                ci_time=ci_time,issue_created_at=issue_created_at)
     need(isinstance(raw,dict) and raw.get("schema")==CLIENT and
          raw.get("issue")==issue and raw.get("candidate_sha")==candidate_sha,
          "client observation wrong schema/issue/SHA")
@@ -162,7 +167,7 @@ def build_report(raw):
     else:
         need(issue.get("state")=="open","Issue open/closed state inconsistent")
     client=client_values(raw.get("client_observation"),issue=n,
-                         candidate_sha=sha,ci_time=candidate["created_at"])
+                         candidate_sha=sha,ci_time=candidate["created_at"],issue_created_at=opened)
     return dict(schema=SCHEMA,scope="READ_ONLY_NONPUBLISHING_AUDIT",
         issue=n,candidate_sha=sha,main_sha=main,
         workflow_ids={"candidate":candidate["id"],"publisher":publisher["id"],
@@ -180,15 +185,16 @@ def build_report(raw):
         client_observation=client,
         actual_ref_created_utc=None,
         actual_ref_created_provenance="NOT_AVAILABLE_IN_GITHUB_REST",
-        original_first_tool_to_ci_kpi="NOT_VERIFIED" if raw.get("client_observation") is None else
-           "CLIENT_ONLY_CLOCK_SYNC_NOT_VERIFIED",
+        original_first_tool_to_ci_kpi=("NOT_VERIFIED" if raw.get("client_observation") is None else
+           "CONDITIONAL_BOUNDS_NOT_HOST_ATTESTED" if raw["client_observation"].get("schema")==CLIENT_V2 else
+           "CLIENT_ONLY_CLOCK_SYNC_NOT_VERIFIED"),
         p95_seconds=None,
         public_verification="PASS_3_REAL_HOSTED_JOBS_GITHUB_SERVER",
         runtime_hardware_signing_rollback="NOT_APPLICABLE_NO_HARDWARE_ATTESTATION")
 
 def _get(repo,path):
     need(repo==REPO and re.fullmatch(
-        r"(?:issues/[1-9]\d*|actions/runs/[1-9]\d*(?:/jobs\?per_page=100)?|pulls/[1-9]\d*)",path),
+        r"(?:issues/[1-9]\d*(?:/comments\?per_page=100)?|actions/runs/[1-9]\d*(?:/jobs\?per_page=100)?|pulls/[1-9]\d*)",path),
          "API route not on allowlist")
     need(bool(os.environ.get("GH_TOKEN")),"no scoped token for GET")
     result=subprocess.run(["gh","api","--method","GET","repos/"+repo+"/"+path],
@@ -219,10 +225,12 @@ def main(argv=None):
     p.add_argument("--rhc102-run",type=int)
     p.add_argument("--pr",type=int)
     p.add_argument("--client-observation",help="optional genuine first-tool/ref-write client JSON")
+    p.add_argument("--client-from-issue",action="store_true",help="GET-only discover exact V2 observer comment")
     p.add_argument("--out",required=True)
     args=p.parse_args(argv)
     try:
         if args.fixture:
+            need(not args.client_from_issue,"comment discovery requires authenticated live Issue")
             need(not any(x is not None for x in
                 (args.issue,args.candidate_sha,args.main_sha,args.candidate_run,
                  args.publisher_run,args.rhc102_run,args.pr)),"mixed fixture/live mode")
@@ -235,6 +243,12 @@ def main(argv=None):
                  SHA.fullmatch(args.main_sha or ""), "incomplete live identifier set")
             raw=live_fixture(args.repository,args.issue,args.candidate_sha,args.main_sha,
                              args.candidate_run,args.publisher_run,args.rhc102_run,args.pr)
+        if args.client_from_issue:
+            need(not args.client_observation and "client_observation" not in raw,
+                 "duplicate observer source")
+            comments=_get(args.repository,"issues/"+str(args.issue)+"/comments?per_page=100")
+            raw["client_observation"]=issue_observer_from_comments(
+                comments,args.issue,args.candidate_sha)
         if args.client_observation:
             need("client_observation" not in raw,"duplicate observer injection")
             raw["client_observation"]=json.loads(Path(args.client_observation).read_text(encoding="utf-8"))
