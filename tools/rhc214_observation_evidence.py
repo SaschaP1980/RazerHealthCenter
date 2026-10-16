@@ -10,6 +10,8 @@ import re
 CLIENT_V2="RHC190_CLIENT_TOOL_OBSERVATION_V2"
 CLIENT_V2_CAPTURE="CLIENT_FIRST_ENTRY_ISSUE_CREATE_BRACKET_REF_WRITE_READBACK"
 CLIENT_V2_COMMENT="RHC190_CLIENT_OBSERVATION_V2="
+CLOCKS={"INJECTED_TIMER_NOT_HOST_ATTESTED",
+  "PERFORMANCE_NOW_NOT_HOST_ATTESTED","DATE_NOW_WALL_FALLBACK_NON_MONOTONIC"}
 FIELDS={"schema","capture_method","issue","candidate_sha","ref_name",
   "first_tool_utc","issue_create_start_utc","issue_create_ack_utc",
   "issue_server_created_utc","ref_write_start_utc","ref_write_ack_utc",
@@ -39,7 +41,10 @@ def issue_observer_from_comments(comments,issue,candidate_sha):
          "persisted Issue/SHA observer mismatch")
     return raw
 def client_v2_values(raw,*,issue,candidate_sha,ci_time,issue_created_at):
-    need(isinstance(raw,dict) and set(raw)==FIELDS and
+    # Older valid RHC-214 V2 observations lacked the optional clock-source
+    # field; preserve their compatibility but never invent their clock quality.
+    need(isinstance(raw,dict) and set(raw) in (FIELDS,FIELDS|{"client_clock_source"}) and
+         ("client_clock_source" not in raw or raw["client_clock_source"] in CLOCKS) and
          raw.get("schema")==CLIENT_V2 and
          raw.get("capture_method")==CLIENT_V2_CAPTURE and
          raw.get("issue")==issue and raw.get("candidate_sha")==candidate_sha and
@@ -90,6 +95,7 @@ def client_v2_values(raw,*,issue,candidate_sha,ci_time,issue_created_at):
         ref_to_ci_bounds_seconds=[ref_min,ref_max],
         server_minus_client_offset_bounds_ms=[low,high],
         clock_calibration="BOUNDED_ISSUE_CREATION_GITHUB_SERVER_ANCHOR",
+        client_clock_source=raw.get("client_clock_source","LEGACY_UNSPECIFIED_TIMER"),
         provenance="CLIENT_OPERATOR_ENTRY_AND_GITHUB_READBACK_NOT_HOST_ATTESTED",
         kpi_first_tool_120s=state(first_min,first_max,120),
         kpi_ref_to_ci_45s=state(ref_min,ref_max,45))
