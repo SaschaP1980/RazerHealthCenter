@@ -7,10 +7,23 @@ const ISO=/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/;
 const REF=/^candidate\/v\d+\.\d+\.\d+\.\d+$/;
 function need(ok,why){if(!ok)throw Error("RHC190_CLIENT_BLOCKED: "+why);}
 function millis(s){need(typeof s==="string"&&ISO.test(s)&&Number.isFinite(Date.parse(s)),"invalid UTC");return Date.parse(s);}
-function beginFirstTool({utc=()=>new Date().toISOString(),mono=()=>performance.now()}={}){
- const first=utc(),firstTick=mono();millis(first);need(Number.isFinite(firstTick),"no monotonic clock");
+// The ChatGPT connector Code Mode V8 isolate deliberately has no global
+// performance object. Keep the observer usable without claiming that a
+// Date.now() fallback is a monotonic or host-attested clock.
+function timingSource(mono) {
+ if (mono!==undefined) {
+   need(typeof mono==="function","injected timer must be a function");
+   return {now:mono,kind:"INJECTED_TIMER_NOT_HOST_ATTESTED"};
+ }
+ if (typeof performance!=="undefined"&&performance&&typeof performance.now==="function")
+   return {now:()=>performance.now(),kind:"PERFORMANCE_NOW_NOT_HOST_ATTESTED"};
+ return {now:()=>Date.now(),kind:"DATE_NOW_WALL_FALLBACK_NON_MONOTONIC"};
+}
+function beginFirstTool({utc=()=>new Date().toISOString(),mono}={}){
+ const timer=timingSource(mono);
+ const first=utc(),firstTick=timer.now();millis(first);need(Number.isFinite(firstTick),"no usable elapsed clock");
  let creation=null,bound=null,ref=null,usedCreate=false,usedRef=false;
- function snap(){const u=utc(),m=mono();millis(u);need(Number.isFinite(m)&&m>=firstTick,"monotonic invalid");return {utc:u,tick:m};}
+ function snap(){const u=utc(),m=timer.now();millis(u);need(Number.isFinite(m)&&m>=firstTick,"monotonic invalid");return {utc:u,tick:m};}
  function duration(a,b){const elapsed=b.tick-a.tick,wall=millis(b.utc)-millis(a.utc);
    need(elapsed>=0&&elapsed<=120000&&Math.abs(wall-elapsed)<=2000,"UTC/monotonic drift or oversized tool call");
    return Math.round(elapsed*1000)/1000;
@@ -56,6 +69,7 @@ function beginFirstTool({utc=()=>new Date().toISOString(),mono=()=>performance.n
           millis(ref.a.utc)>=millis(creation.end.utc),"not first-tool→Issue→ref order");
      return Object.freeze({schema:SCHEMA,capture_method:CAPTURE,
        issue:bound.number,candidate_sha:candidateSha,ref_name:ref.refName,
+       client_clock_source:timer.kind,
        first_tool_utc:first,issue_create_start_utc:creation.start.utc,
        issue_create_ack_utc:creation.end.utc,issue_server_created_utc:creation.created_at,
        ref_write_start_utc:ref.a.utc,ref_write_ack_utc:ref.b.utc,

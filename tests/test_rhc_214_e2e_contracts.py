@@ -77,6 +77,43 @@ await check("real version-only Fast-Path Issue without dev-ops label accepted",a
  const result=await p.createProvisionalIssue(input);
  assert.equal(result.number,901);assert.deepEqual(g.counts(),[1,0]);
 });
+await check("Code Mode: performance absent, default Date.now fallback and genuine observer flow",async()=>{
+ const saved=Object.getOwnPropertyDescriptor(globalThis,"performance");
+ try {
+   Object.defineProperty(globalThis,"performance",{configurable:true,value:undefined});
+   const g=mock(),p=startInstrumentedFastPath(g.tools,{utc:g.c.utc});
+   const created=await p.createProvisionalIssue(g.args);
+   assert.equal(created.number,901);
+   g.canonical();await p.verifyCanonicalIssue(created.number);
+   await p.createVerifiedCandidateRef("candidate/v3.0.8.28",SHA);
+   const recorded=await p.persistObservation(SHA);
+   assert.equal(recorded.evidence.client_clock_source,"DATE_NOW_WALL_FALLBACK_NON_MONOTONIC");
+   assert.equal(recorded.evidence.first_tool_provenance,"OPERATOR_ENTRY_NOT_HOST_ATTESTED");
+   assert.deepEqual(g.counts(),[1,1]);
+ } finally {
+   if(saved)Object.defineProperty(globalThis,"performance",saved);
+   else delete globalThis.performance;
+ }
+});
+await check("Node runtime: defaults to performance timer without changing original behavior",async()=>{
+ const tracker=beginFirstTool();
+ assert.equal(typeof tracker.observeIssueCreate,"function");
+});
+await check("No-performance does not silently swallow blocked Issue writes or retry",async()=>{
+ const saved=Object.getOwnPropertyDescriptor(globalThis,"performance");
+ try {
+   Object.defineProperty(globalThis,"performance",{configurable:true,value:undefined});
+   const g=mock(),orig=g.tools.mcp__GitHub__create_issue;
+   let attempts=0;
+   g.tools.mcp__GitHub__create_issue=async()=>{attempts++;throw Error("OpenAI safety checks blocked");};
+   const p=startInstrumentedFastPath(g.tools,{utc:g.c.utc});
+   await blocked(p.createProvisionalIssue(g.args),"OpenAI safety checks");
+   assert.equal(attempts,1);assert.deepEqual(g.counts(),[0,0]);
+ } finally {
+   if(saved)Object.defineProperty(globalThis,"performance",saved);
+   else delete globalThis.performance;
+ }
+});
 await check("no Candidate ref before canonical",async()=>{
  const g=mock(),p=startInstrumentedFastPath(g.tools,g.c);await p.createProvisionalIssue(g.args);
  await blocked(p.createVerifiedCandidateRef("candidate/v3.0.8.28",SHA),"Candidate authority");
@@ -143,7 +180,7 @@ class Contracts(unittest.TestCase):
         out=subprocess.run([node,"--input-type=module","-e",NODE],cwd=ROOT,
                            capture_output=True,text=True,timeout=45)
         self.assertEqual(out.returncode,0,out.stdout+"\n"+out.stderr)
-        self.assertIn("RHC214_NODE_CONTRACT_TESTS=11",out.stdout)
+        self.assertIn("RHC214_NODE_CONTRACT_TESTS=14",out.stdout)
     def test_exact_interval_bounds_conditional_not_host_attested(self):
         d=fixture();d["client_observation"]=client();res=t.build_report(d)
         c=res["client_observation"]
@@ -182,6 +219,28 @@ class Contracts(unittest.TestCase):
         self.assertIsNone(r["client_observation"]["first_tool_utc"])
         self.assertEqual(r["original_first_tool_to_ci_kpi"],"NOT_VERIFIED")
         self.assertIsNone(r["p95_seconds"])
+    def test_explicit_clock_source_is_validated_and_never_monotonic_if_wall_fallback(self):
+        d=fixture()
+        d["client_observation"]={**client(),
+            "client_clock_source":"DATE_NOW_WALL_FALLBACK_NON_MONOTONIC"}
+        result=t.build_report(d)
+        self.assertEqual(result["client_observation"]["client_clock_source"],
+                         "DATE_NOW_WALL_FALLBACK_NON_MONOTONIC")
+        self.assertEqual(result["original_first_tool_to_ci_kpi"],
+                         "CONDITIONAL_BOUNDS_NOT_HOST_ATTESTED")
+        self.assertEqual(t.build_report({**fixture(),"client_observation":client()})
+                         ["client_observation"]["client_clock_source"],
+                         "LEGACY_UNSPECIFIED_TIMER")
+        for bad in ("HOST_ATTESTED",None,"MONOTONIC_PROVEN"):
+            with self.subTest(clock=bad),self.assertRaises(ValueError):
+                d=fixture()
+                d["client_observation"]={**client(),"client_clock_source":bad}
+                t.build_report(d)
+    def test_code_mode_runtime_uses_wall_fallback_not_unconditional_performance(self):
+        observer=(ROOT/"tools/rhc190_e2e_client_observer.mjs").read_text()
+        self.assertIn('typeof performance!=="undefined"',observer)
+        self.assertIn('kind:"DATE_NOW_WALL_FALLBACK_NON_MONOTONIC"',observer)
+        self.assertNotIn('mono=()=>performance.now()',observer)
     def test_adapter_is_not_a_product_publisher(self):
         gateway=(ROOT/"tools/rhc214_instrumented_fastpath.mjs").read_text()
         self.assertNotIn("publishRelease",gateway)
