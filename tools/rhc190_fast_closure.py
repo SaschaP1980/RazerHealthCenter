@@ -109,7 +109,7 @@ def close_fast(g, publisher_id, expected_source_sha, *, apply=False):
     else:
         if not earlier:
             try:
-                g.api("POST", f"issues/{number}/comments", {"body": message})
+                g.create_fast_audit_comment(number, message)
             except Exception:
                 pass  # Reconcile uncertain write through GET; never repeat.
         verified = g.list_issue_comments(number)

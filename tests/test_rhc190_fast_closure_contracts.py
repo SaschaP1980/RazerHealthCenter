@@ -53,7 +53,8 @@ class FastClosureTests(unittest.TestCase):
             self.assertEqual(state,"closed")
             f.issue.update(state="closed",state_reason="completed",
                            closed_at="2026-10-15T08:30:00Z")
-        f.api=api
+        f.create_fast_audit_comment=lambda number,body: api(
+            "POST",f"issues/{number}/comments",{"body":body})
         f.update_issue=update_issue
         p=fast.close_fast(f,512,SOURCE,apply=True)
         self.assertEqual(p["status"],"COMPLETED")

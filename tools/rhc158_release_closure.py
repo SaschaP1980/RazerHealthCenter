@@ -8,6 +8,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 import re
+import subprocess
 import sys
 import time
 import rhc139_rolling_audit as audit
@@ -188,6 +189,77 @@ class Gateway(audit.GitHubGateway):
     """Only existing GITHUB_TOKEN/gh transport; no publisher dispatch."""
     def get_git_commit(self, sha):
         return self.api("GET", "git/commits/" + sha)
+    def create_fast_audit_comment(self, number, body):
+        """Exactly one Fast-Path four-run audit, never a general POST gateway.
+
+        The caller has already authenticated all four real workflow jobs,
+        source ancestry, immutable tag and merged PR. Revalidate the bound
+        public main/Issue/source/manifest and absence of any existing record
+        immediately before the one permitted remote POST. No API write replay.
+        """
+        from rhc190_fast_closure import RECORD
+        need(type(number) is int and number > 0 and
+             isinstance(body, str) and body.startswith(RECORD) and
+             len(body) < 2048, "invalid requested Fast audit comment")
+        try:
+            proof = json.loads(body[len(RECORD):])
+        except (TypeError, ValueError) as exc:
+            raise ValueError("RHC158_CLOSURE_BLOCKED: invalid Fast audit JSON") from exc
+        keys = {"issue", "version", "mainSha", "sourceSha", "pr",
+                "runIds", "validation"}
+        need(isinstance(proof, dict) and set(proof) == keys and
+             proof.get("issue") == number and
+             type(proof.get("issue")) is int and
+             type(proof.get("pr")) is int and proof["pr"] > 0 and
+             isinstance(proof.get("version"), str) and
+             VERS.fullmatch(proof["version"]) and
+             isinstance(proof.get("mainSha"), str) and
+             SHA.fullmatch(proof["mainSha"]) and
+             isinstance(proof.get("sourceSha"), str) and
+             SHA.fullmatch(proof["sourceSha"]) and
+             proof.get("validation") ==
+             "ACTUAL_CANDIDATE_3_PUBLISHER_4_DOWNLOADS_1_RHC102_3" and
+             isinstance(proof.get("runIds"), dict) and
+             set(proof["runIds"]) ==
+             {"candidate", "publisher", "downloads", "rhc102"} and
+             all(type(n) is int and n > 0 for n in proof["runIds"].values()) and
+             len(set(proof["runIds"].values())) == 4 and
+             body == RECORD + json.dumps(proof, sort_keys=True),
+             "Fast audit body/issue/run roles not exact and immutable")
+        issue = self.get_issue(number)
+        latest = self.get_latest()
+        need(isinstance(issue, dict) and issue.get("number") == number and
+             issue.get("state") == "open" and
+             str(issue.get("title", "")).startswith(f"[RHC-{number}] ") and
+             self.get_main_sha() == proof["mainSha"] and
+             isinstance(latest, dict) and
+             latest.get("version") == proof["version"] and
+             latest.get("sourceSha") == proof["sourceSha"],
+             "Fast audit remote public Issue/main/source drift")
+        prior = self.list_issue_comments(number)
+        need(isinstance(prior, list) and len(prior) < 100 and
+             not any(isinstance(c, dict) and
+                     str(c.get("body", "")).startswith(RECORD) for c in prior),
+             "Fast audit duplicate or ambiguous previous comment")
+        # This exact argv is the ONLY permitted remote POST. The generic
+        # inherited GitHubGateway.api continues to prohibit all POST calls.
+        path = f"repos/{self.repo}/issues/{number}/comments"
+        call = subprocess.run(["gh", "api", "-X", "POST", path,
+                               "--input", "-"],
+                              input=json.dumps({"body": body}),
+                              text=True, capture_output=True, timeout=45)
+        need(call.returncode == 0,
+             "Fast audit POST outcome unverified; GET reconciliation required")
+        try:
+            response = json.loads(call.stdout)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("RHC158_CLOSURE_BLOCKED: Fast audit POST readback malformed") from exc
+        need(isinstance(response, dict) and
+             type(response.get("id")) is int and response["id"] > 0 and
+             response.get("body") == body,
+             "Fast audit POST response missing exact original body/id")
+        return response
+
     def list_release_prs(self, sha):
         rows = self.api("GET", "commits/" + sha + "/pulls?per_page=100")
         need(isinstance(rows, list) and len(rows) < 100, "PR list truncated")
