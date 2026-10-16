@@ -37,7 +37,14 @@ class FastClosureTests(unittest.TestCase):
             if which=="source": f.git[SOURCE]["message"]+="Work-SHA: "+"b"*40+"\n"
             if which=="pr": f.pr["body"]="Refs #999"
             if which=="main": f.pr["base"]["sha"]="f"*40
-            if which=="duplicate": f.runs["another"]=dict(f.runs["candidate"],id=711)
+            if which=="duplicate":
+                original_find = f.find_success_runs
+                def duplicated_runs(sha,event):
+                    rows = original_find(sha,event)
+                    if sha == SOURCE and event == "workflow_dispatch":
+                        rows = rows + [dict(f.get_run(702), id=711)]
+                    return rows
+                f.find_success_runs = duplicated_runs
             with self.subTest(which=which),self.assertRaises(ValueError):
                 fast.close_fast(f,512,SOURCE,apply=False)
     def test_comment_and_close_only_with_full_hosted_proof(self):
