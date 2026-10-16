@@ -138,6 +138,25 @@ class ExactFastGatewayTests(unittest.TestCase):
                 self.assertEqual(run.call_count,0)
                 self.assertEqual(f.issue["state"],"open")
 
+    def test_remote_issue_closes_or_public_source_moves_before_post(self):
+        for cause in ("issue_closed", "latest_version_drift",
+                      "latest_source_drift", "existing_exact_audit"):
+            f=fixture()
+            g=attached(f)
+            if cause=="issue_closed":
+                f.issue["state"]="closed"
+            elif cause=="latest_version_drift":
+                f.latest["version"]="3.0.8.99"
+            elif cause=="latest_source_drift":
+                f.latest["sourceSha"]="f"*40
+            else:
+                f.comments.append({"id":998,"body":expected_body()})
+            with self.subTest(cause=cause), patch(
+                    "rhc158_release_closure.subprocess.run") as run:
+                with self.assertRaises(ValueError):
+                    g.create_fast_audit_comment(158,expected_body())
+                run.assert_not_called()
+
     def test_work_audit_gateway_keeps_get_patch_only(self):
         import rhc139_rolling_audit as audit
         g=audit.GitHubGateway(REPO)
